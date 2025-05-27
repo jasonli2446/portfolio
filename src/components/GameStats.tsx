@@ -7,6 +7,11 @@ import { useEffect } from 'react';
 export default function GameStats() {
   const { xp, xpPerSec, upgrades, addXP, buyUpgrade, isUpgradeVisible, isGameComplete } = useGameStore();
 
+  // Calculate progress
+  const totalUpgrades = upgrades.length;
+  const unlockedUpgrades = upgrades.filter(u => u.unlocked).length;
+  const progress = (unlockedUpgrades / totalUpgrades) * 100;
+
   // Handle XP per second
   useEffect(() => {
     const interval = setInterval(() => {
@@ -24,9 +29,18 @@ export default function GameStats() {
     .slice(0, 3);
 
   return (
-    <div className="flex flex-col items-center gap-4 w-full mt-[20px]">
-      <div className="text-2xl font-bold text-[#2563EB]">
-        XP: {xp} (+{xpPerSec}/s)
+    <div className="flex flex-col items-center gap-4 w-full mt-[20px] relative">
+      <div className="h-[32px]">
+        {xp > 0 && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ duration: 0.5, ease: "easeOut" }}
+            className="text-2xl font-bold text-[#2563EB]"
+          >
+            XP: {xp} (+{xpPerSec}/s)
+          </motion.div>
+        )}
       </div>
       
       <div className="relative h-[200px] w-full flex justify-center my-[16px]">
@@ -68,6 +82,29 @@ export default function GameStats() {
           )}
         </AnimatePresence>
       </div>
+
+      {/* Progress Bar */}
+      {unlockedUpgrades > 0 && (
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5, ease: "easeOut" }}
+          className="w-full max-w-[300px] absolute bottom-[-120px] left-1/2 transform -translate-x-1/2"
+        >
+          <div className="flex justify-between text-sm text-[#4B5563] mb-1">
+            <span>Progress</span>
+            <span>{unlockedUpgrades}/{totalUpgrades} Upgrades</span>
+          </div>
+          <div className="w-full h-2 bg-gray-200 rounded-full overflow-hidden">
+            <motion.div
+              initial={{ width: 0 }}
+              animate={{ width: `${progress}%` }}
+              transition={{ duration: 0.5 }}
+              className="h-full bg-[#2563EB] rounded-full"
+            />
+          </div>
+        </motion.div>
+      )}
     </div>
   );
 } 

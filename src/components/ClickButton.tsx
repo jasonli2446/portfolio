@@ -47,20 +47,20 @@ export default function ClickButton() {
         whileTap={{ scale: 0.95 }} // Click down scale
         onClick={handleClick}
         animate={pulseControls} // Apply pulse animation
-        className="relative w-48 h-32 min-w-[16rem] min-h-[10rem] rounded-xl bg-gray-300 text-[#1C1C1C] font-[600] text-[18pt] shadow-lg hover:bg-gray-400 transition-shadow flex items-center justify-center cursor-pointer"
+        className="relative w-48 h-32 min-w-[16rem] min-h-[10rem] rounded-[24px] bg-gray-300 text-[#1C1C1C] font-[600] text-[18pt] shadow-lg hover:bg-gray-400 transition-shadow flex items-center justify-center cursor-pointer"
       >
         {/* Passive XP Pulse Effect */}
         <motion.div
           key={passiveXPTrigger}
           animate={{ scale: [1, 1.01, 1] }}
           transition={{ duration: 0.4 }}
-          className="absolute inset-[-2px] rounded-xl border-2 border-gray-400 opacity-70"
+          className="absolute inset-[-2px] rounded-[24px] border-[3px] border-gray-400 opacity-70"
         />
         <motion.div
           initial={{ scale: 1 }}
           animate={{ scale: [1, 1.01, 1] }}
           transition={{ duration: 0.5, repeat: Infinity, repeatType: "reverse" }}
-          className="absolute inset-0 rounded-xl bg-gray-300 opacity-50"
+          className="absolute inset-0 rounded-[24px] bg-gray-300 opacity-50"
         />
         <span className="relative z-10 whitespace-nowrap">Write Code</span>
       </motion.button>

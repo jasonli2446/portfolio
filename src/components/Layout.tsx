@@ -10,6 +10,7 @@ import ResetButton from './ResetButton';
 import Skills from './Skills';
 import CurrentWork from './CurrentWork';
 import SoundEffects from './SoundEffects';
+import { useState } from 'react';
 
 const projects = [
   {
@@ -45,7 +46,9 @@ const projects = [
 ];
 
 export default function Layout() {
-  const { unlockedSections, upgrades } = useGameStore();
+  const { unlockedSections, upgrades, xp } = useGameStore();
+  const [hasClicked, setHasClicked] = useState(false);
+  const [hasShownKeepClicking, setHasShownKeepClicking] = useState(false);
   
   // Determine which projects to show based on upgrades
   const showProjects = {
@@ -55,6 +58,17 @@ export default function Layout() {
     fourth: upgrades.find(u => u.id === 'game-dev')?.unlocked,
     fifth: upgrades.find(u => u.id === 'python')?.unlocked,
     sixth: upgrades.find(u => u.id === 'ml')?.unlocked
+  };
+
+  const getWelcomeText = () => {
+    if (!hasClicked) {
+      return "Welcome to my portfolio! Click the button below to earn XP.";
+    }
+    if (!hasShownKeepClicking) {
+      setHasShownKeepClicking(true);
+      return "Keep clicking to earn more XP!";
+    }
+    return "Unlock upgrades to learn more about me.";
   };
 
   return (
@@ -110,10 +124,10 @@ export default function Layout() {
             animate={{ opacity: 1, y: 0 }}
             className="text-[min(24px,2vh)] text-[#4B5563] mb-[48px]"
           >
-            Welcome to my portfolio! Click the button below to begin.
+            {getWelcomeText()}
           </motion.p>
-          <ClickButton />
-          <GameStats />
+          <ClickButton onFirstClick={() => setHasClicked(true)} />
+          <GameStats hasClicked={hasClicked} />
         </div>
 
         {/* Right Section - Resume, Skills & Contact */}

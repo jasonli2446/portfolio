@@ -12,11 +12,16 @@ interface Popup {
   y: number;
 }
 
-export default function ClickButton() {
+interface ClickButtonProps {
+  onFirstClick?: () => void;
+}
+
+export default function ClickButton({ onFirstClick }: ClickButtonProps) {
   const { addXP, xpPerClick } = useGameStore();
   const [popups, setPopups] = useState<Popup[]>([]);
   const [isHovering, setIsHovering] = useState(false);
   const [shouldPulse, setShouldPulse] = useState(false);
+  const [hasClicked, setHasClicked] = useState(false);
 
   useEffect(() => {
     let timer: NodeJS.Timeout;
@@ -55,6 +60,11 @@ export default function ClickButton() {
     }]);
 
     addXP(xpPerClick);
+
+    if (!hasClicked) {
+      setHasClicked(true);
+      onFirstClick?.();
+    }
   };
 
   const removePopup = (id: number) => {

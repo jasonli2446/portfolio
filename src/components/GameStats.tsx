@@ -10,7 +10,11 @@ const ReactConfetti = dynamic(() => import('react-confetti'), {
   ssr: false
 });
 
-export default function GameStats() {
+interface GameStatsProps {
+  hasClicked: boolean;
+}
+
+export default function GameStats({ hasClicked }: GameStatsProps) {
   const { xp, xpPerSec, upgrades, addXP, buyUpgrade, isUpgradeVisible, isGameComplete } = useGameStore();
   const [showConfetti, setShowConfetti] = useState(false);
   const [dimensions, setDimensions] = useState({ width: 0, height: 0 });
@@ -68,9 +72,9 @@ export default function GameStats() {
   }, []);
 
   // Get visible upgrades (not unlocked and either affordable or close to affordable)
-  const visibleUpgrades = upgrades
-    .filter((upgrade) => !upgrade.unlocked && isUpgradeVisible(upgrade.id))
-    .slice(0, 3);
+  const visibleUpgrades = hasClicked ? upgrades
+    .filter((upgrade) => !upgrade.unlocked)
+    .slice(0, 3) : [];
 
   return (
     <>

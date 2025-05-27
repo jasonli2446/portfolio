@@ -46,7 +46,7 @@ const projects = [
 ];
 
 export default function Layout() {
-  const { unlockedSections, upgrades, xp } = useGameStore();
+  const { unlockedSections, upgrades } = useGameStore();
   const [hasClicked, setHasClicked] = useState(false);
   const [hasShownKeepClicking, setHasShownKeepClicking] = useState(false);
   

@@ -15,7 +15,7 @@ interface GameStatsProps {
 }
 
 export default function GameStats({ hasClicked }: GameStatsProps) {
-  const { xp, xpPerSec, upgrades, addXP, buyUpgrade, isUpgradeVisible, isGameComplete } = useGameStore();
+  const { xp, xpPerSec, upgrades, addXP, buyUpgrade, isGameComplete } = useGameStore();
   const [showConfetti, setShowConfetti] = useState(false);
   const [dimensions, setDimensions] = useState({ width: 0, height: 0 });
   const [upgradePopups, setUpgradePopups] = useState<{id: number}[]>([]);

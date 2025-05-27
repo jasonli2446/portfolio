@@ -4,6 +4,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { useGameStore } from '@/store/gameStore';
 import { useEffect, useState } from 'react';
 import dynamic from 'next/dynamic';
+import UpgradePopup from './UpgradePopup';
 
 const ReactConfetti = dynamic(() => import('react-confetti'), {
   ssr: false
@@ -13,6 +14,8 @@ export default function GameStats() {
   const { xp, xpPerSec, upgrades, addXP, buyUpgrade, isUpgradeVisible, isGameComplete } = useGameStore();
   const [showConfetti, setShowConfetti] = useState(false);
   const [dimensions, setDimensions] = useState({ width: 0, height: 0 });
+  const [showUpgradePopup, setShowUpgradePopup] = useState(false);
+  const [upgradePopups, setUpgradePopups] = useState<{id: number}[]>([]);
 
   // Calculate progress
   const totalUpgrades = upgrades.length;
@@ -33,17 +36,23 @@ export default function GameStats() {
   // Handle confetti
   useEffect(() => {
     const gameCompleted = isGameComplete();
-    console.log('Game completed:', gameCompleted); // Debug log
     if (gameCompleted) {
-      console.log('Showing confetti'); // Debug log
       setShowConfetti(true);
       const timer = setTimeout(() => {
-        console.log('Hiding confetti'); // Debug log
         setShowConfetti(false);
       }, 5000);
       return () => clearTimeout(timer);
     }
-  }, [isGameComplete, unlockedUpgrades]); // Added unlockedUpgrades as dependency
+  }, [isGameComplete, unlockedUpgrades]);
+
+  const handleUpgradeClick = (upgradeId: string) => {
+    setUpgradePopups(prev => [...prev, { id: Date.now() }]);
+    buyUpgrade(upgradeId);
+  };
+
+  const removeUpgradePopup = (id: number) => {
+    setUpgradePopups(prev => prev.filter(popup => popup.id !== id));
+  };
 
   // Set window dimensions
   useEffect(() => {
@@ -128,9 +137,9 @@ export default function GameStats() {
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
                   exit={{ opacity: 0, y: -20 }}
-                  whileHover={{ scale: 1.05 }}
-                  whileTap={{ scale: 0.95 }}
-                  onClick={() => buyUpgrade(upgrade.id)}
+                  whileHover={{ scale: 1.01 }}
+                  whileTap={{ scale: 0.99 }}
+                  onClick={() => handleUpgradeClick(upgrade.id)}
                   disabled={xp < upgrade.cost}
                   style={{
                     position: 'absolute',
@@ -162,13 +171,21 @@ export default function GameStats() {
               <span className={`text-[min(14px,1.5vh)] ${unlockedUpgrades === totalUpgrades ? 'text-[#16a34a]' : 'text-[#4B5563]'}`}>Progress</span>
               <span className={`text-[min(14px,1.5vh)] ${unlockedUpgrades === totalUpgrades ? 'text-[#16a34a]' : 'text-[#4B5563]'}`}>{unlockedUpgrades}/{totalUpgrades} Upgrades</span>
             </div>
-            <div className="w-full h-2 bg-gray-200 rounded-full overflow-hidden">
+            <div className="w-full h-2 bg-gray-200 rounded-full overflow-hidden relative">
               <motion.div
                 initial={{ width: 0 }}
                 animate={{ width: `${progress}%` }}
                 transition={{ duration: 0.5 }}
                 className="h-full bg-[#2563EB] rounded-full"
               />
+              <AnimatePresence>
+                {upgradePopups.map(popup => (
+                  <UpgradePopup
+                    key={popup.id}
+                    onComplete={() => removeUpgradePopup(popup.id)}
+                  />
+                ))}
+              </AnimatePresence>
             </div>
           </motion.div>
         )}

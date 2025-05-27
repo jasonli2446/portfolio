@@ -63,14 +63,14 @@ export default function Layout() {
       <SoundEffects />
       
       {/* Main Content */}
-      <main className="flex-1 flex flex-row min-w-[1024px] max-w-[1800px] mx-auto w-full">
+      <main className="flex-1 flex flex-row min-w-[1024px] max-w-[1800px] mx-auto w-full gap-8">
         {/* Left Section - Projects */}
         <motion.div
           initial={{ opacity: 0, x: -100 }}
           animate={{ opacity: unlockedSections.projects ? 1 : 0, x: unlockedSections.projects ? 0 : -100 }}
           className="w-1/3 p-4 lg:p-8 text-center text-[#1C1C1C]"
         >
-          <h2 className="text-[min(28px,4vh)] font-bold mb-4 underline decoration-2">Projects</h2>
+          <h2 className="text-[min(28px,4vh)] font-bold mb-8 underline decoration-2">Projects</h2>
           <div className="space-y-4 w-full">
             {showProjects.first && (
               <ProjectCard {...projects[0]} delay={0.2} />
@@ -94,8 +94,8 @@ export default function Layout() {
         </motion.div>
 
         {/* Center Section - Game */}
-        <div className="w-1/3 flex flex-col items-center justify-start gap-12 text-center pt-4">
-          <div className="text-center text-[#1C1C1C] mt-[20px] mb-[100px]">
+        <div className="w-1/3 flex flex-col items-center justify-start text-center pt-4">
+          <div className="text-center text-[#1C1C1C] mt-[20px] mb-[40px]">
             <h1 className="text-[min(48px,5vh)] md:text-[min(36px,4vh)] sm:text-[min(28px,3vh)] min-h-[48px] h-[48px] max-h-[48px] font-bold">Jason Li</h1>
             <motion.p
               initial={{ opacity: 0 }}
@@ -105,12 +105,23 @@ export default function Layout() {
               {unlockedSections.subtitle ? "AI-focused full stack engineer and researcher" : ""}
             </motion.p>
           </div>
+          <motion.p
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="text-[min(24px,2vh)] text-[#4B5563] mb-[48px]"
+          >
+            Welcome to my portfolio! Click the button below to begin.
+          </motion.p>
           <ClickButton />
           <GameStats />
         </div>
 
         {/* Right Section - Resume, Skills & Contact */}
-        <div className="w-1/3 p-4 lg:p-8 text-center text-[#1C1C1C]">
+        <motion.div
+          initial={{ opacity: 0, x: 100 }}
+          animate={{ opacity: 1, x: 0 }}
+          className="w-1/3 p-4 lg:p-8 text-center text-[#1C1C1C]"
+        >
           <div className="flex flex-col gap-[min(32px,2vh)] relative">
             {unlockedSections.skills && <Skills />}
             {unlockedSections.currentWork && <CurrentWork />}
@@ -120,7 +131,7 @@ export default function Layout() {
               animate={{ opacity: unlockedSections.resume ? 1 : 0, x: unlockedSections.resume ? 0 : 100 }}
               className="w-full"
             >
-              <h2 className="text-[min(28px,4vh)] font-bold mb-4 underline decoration-2">Resume</h2>
+              <h2 className="text-[min(28px,4vh)] font-bold mb-8 underline decoration-2">Resume</h2>
               <div className="flex justify-center">
                 <a
                   href="https://jasonli2446.github.io/portfolio/resume.pdf"
@@ -145,13 +156,10 @@ export default function Layout() {
               animate={{ opacity: unlockedSections.contact ? 1 : 0, x: unlockedSections.contact ? 0 : 100 }}
               className="w-full"
             >
-              <h2 className="text-[min(28px,4vh)] font-bold mb-4 underline decoration-2">Contact</h2>
+              <h2 className="text-[min(28px,4vh)] font-bold mb-8 underline decoration-2">Contact</h2>
               <div className="flex justify-center items-center gap-[32px]">
                 <a
                   href="mailto:jasonli2446@gmail.com"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                  }}
                   className="flex flex-col items-center gap-[4px] cursor-pointer hover:opacity-80 transition-opacity"
                 >
                   <div className="w-[min(56px,min(8vw,8vh))] h-[min(56px,min(8vw,8vh))] rounded-[8px] bg-red-500 p-[min(8px,min(0.8vw,0.8vh))] shadow-md">
@@ -204,7 +212,7 @@ export default function Layout() {
               <ResetButton />
             </motion.div>
           </div>
-        </div>
+        </motion.div>
       </main>
     </div>
   );

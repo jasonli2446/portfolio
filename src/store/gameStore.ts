@@ -78,7 +78,7 @@ const initialUpgrades: Upgrade[] = [
   },
   {
     id: 'python',
-    title: 'Master Python',
+    title: 'Practice Python',
     cost: 1000,
     xpPerSec: 75,
     xpPerClick: 25,
@@ -110,7 +110,7 @@ const initialUpgrades: Upgrade[] = [
   },
   {
     id: 'internship',
-    title: 'Get an Internship',
+    title: 'Apply to an Internship',
     cost: 10000,
     xpPerSec: 300,
     xpPerClick: 80,

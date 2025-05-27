@@ -15,53 +15,96 @@ interface Popup {
 export default function ClickButton() {
   const { addXP, xpPerClick, passiveXPTrigger } = useGameStore();
   const [popups, setPopups] = useState<Popup[]>([]);
-  const [nextId, setNextId] = useState(0);
-  const pulseControls = useAnimation(); // Use separate controls for pulsing
+  const [isHovering, setIsHovering] = useState(false);
+  const [shouldPulse, setShouldPulse] = useState(false);
+
+  useEffect(() => {
+    let timer: NodeJS.Timeout;
+    
+    if (isHovering) {
+      setShouldPulse(false);
+    } else {
+      timer = setTimeout(() => {
+        setShouldPulse(true);
+      }, 1000);
+    }
+
+    return () => {
+      if (timer) clearTimeout(timer);
+    };
+  }, [isHovering]);
+
+  const buttonVariants = {
+    idle: {
+      scale: 1,
+      transition: {
+        duration: 0.2
+      }
+    },
+    pulse: {
+      scale: [1, 1.02, 1],
+      transition: {
+        duration: 1,
+        repeat: Infinity,
+        ease: "easeInOut"
+      }
+    },
+    hover: {
+      scale: 1.05,
+      transition: {
+        duration: 0.2
+      }
+    },
+    tap: {
+      scale: 0.95,
+      transition: {
+        duration: 0.1
+      }
+    }
+  };
+
+  const handleHoverStart = () => {
+    setIsHovering(true);
+  };
+
+  const handleHoverEnd = () => {
+    setIsHovering(false);
+  };
 
   const handleClick = (e: React.MouseEvent) => {
     const rect = e.currentTarget.getBoundingClientRect();
     const x = e.clientX - rect.left;
     const y = e.clientY - rect.top;
     
+    setPopups(prev => [...prev, {
+      id: Date.now(),
+      amount: xpPerClick,
+      x,
+      y
+    }]);
+
     addXP(xpPerClick);
-    setPopups(prev => [...prev, { id: nextId, amount: xpPerClick, x, y }]);
-    setNextId(prev => prev + 1);
   };
 
   const removePopup = (id: number) => {
     setPopups(prev => prev.filter(popup => popup.id !== id));
   };
 
-  // Trigger pulse animation on passive XP gain
-  useEffect(() => {
-    pulseControls.start({
-      scale: [1, 1.02, 1],
-      transition: { duration: 0.4, ease: "easeInOut" }
-    });
-  }, [passiveXPTrigger, pulseControls]);
-
   return (
     <div className="relative mb-32">
       <motion.button
-        whileHover={{ scale: 1.02 }}
-        whileTap={{ scale: 0.98 }}
+        variants={buttonVariants}
+        initial="idle"
+        animate={isHovering ? "hover" : shouldPulse ? "pulse" : "idle"}
+        whileTap="tap"
+        onHoverStart={handleHoverStart}
+        onHoverEnd={handleHoverEnd}
         onClick={handleClick}
-        animate={pulseControls}
-        className="relative w-[20vw] h-[12vw] min-w-[200px] max-w-[300px] min-h-[120px] max-h-[180px] rounded-[24px] bg-gray-300 text-[#1C1C1C] font-[600] text-[min(32px,4vh)] md:text-[min(36px,4.5vh)] lg:text-[min(40px,5vh)] shadow-lg hover:bg-gray-400 transition-shadow flex items-center justify-center cursor-pointer"
+        className="relative w-[20vw] h-[12vw] min-w-[200px] max-w-[300px] min-h-[120px] max-h-[180px] rounded-[24px] bg-gray-300 text-[#1C1C1C] font-[600] text-[min(32px,4vh)] md:text-[min(36px,4.5vh)] lg:text-[min(40px,5vh)] shadow-lg hover:bg-gray-400 flex items-center justify-center cursor-pointer"
       >
         {/* Passive XP Pulse Effect */}
-        <motion.div
-          key={passiveXPTrigger}
-          animate={{ scale: [1, 1.01, 1] }}
-          transition={{ duration: 0.4, ease: "easeInOut" }}
-          className="absolute inset-[-2px] rounded-[24px] border-[3px] border-gray-400 opacity-70"
-        />
-        <motion.div
-          initial={{ scale: 1 }}
-          animate={{ scale: [1, 1.01, 1] }}
-          transition={{ duration: 0.5, repeat: Infinity, repeatType: "reverse", ease: "easeInOut" }}
-          className="absolute inset-0 rounded-[24px] bg-gray-300 opacity-50"
-        />
+        <div className="absolute inset-[-2px] rounded-[24px] border-[3px] border-gray-400 opacity-70" />
+        <div className="absolute inset-0 rounded-[24px] bg-gray-300 opacity-50" />
         <span className="relative z-10 whitespace-nowrap">Write Code</span>
       </motion.button>
 

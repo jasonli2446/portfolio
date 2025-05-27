@@ -22,7 +22,7 @@ export default function Skills() {
     <motion.div
       initial={{ opacity: 0, x: 100 }}
       animate={{ opacity: 1, x: 0 }}
-      className="mb-8"
+      className="absolute top-0 left-0 right-0"
     >
       <h2 className="text-2xl font-bold mb-4">Skills</h2>
       <div className="space-y-4">
@@ -30,7 +30,6 @@ export default function Skills() {
           <div key={skill.name} className="space-y-1">
             <div className="flex justify-between">
               <span className="text-gray-700">{skill.name}</span>
-              <span className="text-gray-500">{skill.level}%</span>
             </div>
             <div className="h-2 bg-gray-200 rounded-full overflow-hidden">
               <motion.div

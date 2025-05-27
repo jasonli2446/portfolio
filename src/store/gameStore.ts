@@ -22,6 +22,7 @@ interface GameState {
     skills: boolean;
     resume: boolean;
     contact: boolean;
+    currentWork: boolean;
   };
   messages: string[];
   addXP: (amount: number) => void;
@@ -53,39 +54,39 @@ const initialUpgrades: Upgrade[] = [
   {
     id: 'hackathon',
     title: 'Participate in a Hackathon',
-    cost: 250,
+    cost: 150,
     xpPerSec: 15,
     xpPerClick: 5,
+    unlocked: false,
+  },
+  {
+    id: 'javascript',
+    title: 'Learn JavaScript',
+    cost: 300,
+    xpPerSec: 30,
+    xpPerClick: 10,
     unlocked: false,
   },
   {
     id: 'game-dev',
     title: 'Develop a Game',
     cost: 500,
-    xpPerSec: 30,
-    xpPerClick: 10,
+    xpPerSec: 50,
+    xpPerClick: 15,
     unlocked: false,
   },
   {
     id: 'python',
     title: 'Master Python',
     cost: 1000,
-    xpPerSec: 50,
-    xpPerClick: 15,
+    xpPerSec: 75,
+    xpPerClick: 25,
     unlocked: false,
   },
   {
     id: 'ml',
     title: 'Apply Machine Learning',
     cost: 1500,
-    xpPerSec: 75,
-    xpPerClick: 25,
-    unlocked: false,
-  },
-  {
-    id: 'portfolio',
-    title: 'Create a Portfolio',
-    cost: 2000,
     xpPerSec: 100,
     xpPerClick: 40,
     unlocked: false,
@@ -93,15 +94,23 @@ const initialUpgrades: Upgrade[] = [
   {
     id: 'skills',
     title: 'Master Core Skills',
-    cost: 3000,
+    cost: 2000,
     xpPerSec: 150,
     xpPerClick: 60,
     unlocked: false,
   },
   {
+    id: 'current-work',
+    title: 'Research Novel Compression',
+    cost: 2500,
+    xpPerSec: 180,
+    xpPerClick: 70,
+    unlocked: false,
+  },
+  {
     id: 'internship',
     title: 'Get an Internship',
-    cost: 4000,
+    cost: 3000,
     xpPerSec: 200,
     xpPerClick: 80,
     unlocked: false,
@@ -109,7 +118,7 @@ const initialUpgrades: Upgrade[] = [
   {
     id: 'remote-collab',
     title: 'Collaborate Remotely',
-    cost: 5000,
+    cost: 4000,
     xpPerSec: 250,
     xpPerClick: 100,
     unlocked: false,
@@ -129,50 +138,36 @@ export const useGameStore = create<GameState>()(
         skills: false,
         resume: false,
         contact: false,
+        currentWork: false,
       },
       messages: [],
       addXP: (amount) =>
         set((state) => ({
           xp: state.xp + amount,
         })),
-      buyUpgrade: (upgradeId) =>
-        set((state) => {
-          const upgrade = state.upgrades.find((u) => u.id === upgradeId);
-          if (!upgrade || upgrade.unlocked || state.xp < upgrade.cost) return state;
+      buyUpgrade: (upgradeId) => {
+        const upgrade = get().upgrades.find((u) => u.id === upgradeId);
+        if (!upgrade || upgrade.unlocked || get().xp < upgrade.cost) return;
 
-          const newUpgrades = state.upgrades.map((u) =>
+        set((state) => ({
+          xp: state.xp - upgrade.cost,
+          xpPerSec: state.xpPerSec + upgrade.xpPerSec,
+          xpPerClick: state.xpPerClick + upgrade.xpPerClick,
+          upgrades: state.upgrades.map((u) =>
             u.id === upgradeId ? { ...u, unlocked: true } : u
-          );
-
-          // Handle section unlocks based on upgrade
-          const newUnlockedSections = { ...state.unlockedSections };
-          switch (upgradeId) {
-            case 'hello-world':
-              newUnlockedSections.subtitle = true;
-              break;
-            case 'git-basics':
-              newUnlockedSections.projects = true;
-              break;
-            case 'portfolio':
-              newUnlockedSections.resume = true;
-              break;
-            case 'skills':
-              newUnlockedSections.skills = true;
-              break;
-            case 'remote-collab':
-              newUnlockedSections.contact = true;
-              break;
-          }
-
-          return {
-            xp: state.xp - upgrade.cost,
-            xpPerSec: state.xpPerSec + upgrade.xpPerSec,
-            xpPerClick: state.xpPerClick + upgrade.xpPerClick,
-            upgrades: newUpgrades,
-            unlockedSections: newUnlockedSections,
-            messages: [...state.messages, `${upgrade.title} unlocked!`],
-          };
-        }),
+          ),
+          unlockedSections: {
+            ...state.unlockedSections,
+            subtitle: upgradeId === 'hello-world' ? true : state.unlockedSections.subtitle,
+            projects: upgradeId === 'git-basics' ? true : state.unlockedSections.projects,
+            skills: upgradeId === 'skills' ? true : state.unlockedSections.skills,
+            currentWork: upgradeId === 'current-work' ? true : state.unlockedSections.currentWork,
+            resume: upgradeId === 'internship' ? true : state.unlockedSections.resume,
+            contact: upgradeId === 'remote-collab' ? true : state.unlockedSections.contact,
+          },
+          messages: [...state.messages, `${upgrade.title} unlocked!`],
+        }));
+      },
       addMessage: (message) =>
         set((state) => ({
           messages: [...state.messages, message],
@@ -193,6 +188,7 @@ export const useGameStore = create<GameState>()(
             skills: false,
             resume: false,
             contact: false,
+            currentWork: false,
           },
           messages: ["Game reset! Start your journey again."],
         }),

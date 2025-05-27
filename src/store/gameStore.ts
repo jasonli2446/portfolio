@@ -19,6 +19,7 @@ interface GameState {
   unlockedSections: {
     subtitle: boolean;
     projects: boolean;
+    skills: boolean;
     resume: boolean;
     contact: boolean;
   };
@@ -50,17 +51,9 @@ const initialUpgrades: Upgrade[] = [
     unlocked: false,
   },
   {
-    id: 'website',
-    title: 'Build a Website',
-    cost: 150,
-    xpPerSec: 10,
-    xpPerClick: 3,
-    unlocked: false,
-  },
-  {
     id: 'hackathon',
     title: 'Participate in a Hackathon',
-    cost: 300,
+    cost: 250,
     xpPerSec: 15,
     xpPerClick: 5,
     unlocked: false,
@@ -68,7 +61,7 @@ const initialUpgrades: Upgrade[] = [
   {
     id: 'game-dev',
     title: 'Develop a Game',
-    cost: 600,
+    cost: 500,
     xpPerSec: 30,
     xpPerClick: 10,
     unlocked: false,
@@ -98,11 +91,19 @@ const initialUpgrades: Upgrade[] = [
     unlocked: false,
   },
   {
-    id: 'internship',
-    title: 'Get an Internship',
+    id: 'skills',
+    title: 'Master Core Skills',
     cost: 3000,
     xpPerSec: 150,
     xpPerClick: 60,
+    unlocked: false,
+  },
+  {
+    id: 'internship',
+    title: 'Get an Internship',
+    cost: 4000,
+    xpPerSec: 200,
+    xpPerClick: 80,
     unlocked: false,
   },
   {
@@ -125,6 +126,7 @@ export const useGameStore = create<GameState>()(
       unlockedSections: {
         subtitle: false,
         projects: false,
+        skills: false,
         resume: false,
         contact: false,
       },
@@ -151,8 +153,11 @@ export const useGameStore = create<GameState>()(
             case 'git-basics':
               newUnlockedSections.projects = true;
               break;
-            case 'internship':
+            case 'portfolio':
               newUnlockedSections.resume = true;
+              break;
+            case 'skills':
+              newUnlockedSections.skills = true;
               break;
             case 'remote-collab':
               newUnlockedSections.contact = true;
@@ -185,6 +190,7 @@ export const useGameStore = create<GameState>()(
           unlockedSections: {
             subtitle: false,
             projects: false,
+            skills: false,
             resume: false,
             contact: false,
           },

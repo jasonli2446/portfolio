@@ -15,7 +15,7 @@ export default function ResetButton() {
       whileHover={{ scale: 1.05 }}
       whileTap={{ scale: 0.95 }}
       onClick={resetGame}
-      className="fixed bottom-8 right-8 px-6 py-3 bg-red-600 text-white rounded-lg shadow-lg hover:bg-red-700 transition-colors"
+      className="fixed bottom-8 right-8 px-6 py-3 bg-red-600 text-white rounded-lg shadow-lg hover:bg-red-700 transition-colors z-50"
     >
       Reset Game
     </motion.button>

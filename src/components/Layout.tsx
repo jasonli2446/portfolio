@@ -7,6 +7,7 @@ import GameStats from './GameStats';
 import MessagePopup from './MessagePopup';
 import ProjectCard from './ProjectCard';
 import ResetButton from './ResetButton';
+import Skills from './Skills';
 
 const projects = [
   {
@@ -53,17 +54,16 @@ export default function Layout() {
   const showProjects = {
     first: unlockedSections.projects,
     second: upgrades.find(u => u.id === 'hackathon')?.unlocked,
-    third: upgrades.find(u => u.id === 'open-source')?.unlocked,
-    fourth: upgrades.find(u => u.id === 'game-dev')?.unlocked,
-    fifth: upgrades.find(u => u.id === 'python')?.unlocked,
-    sixth: upgrades.find(u => u.id === 'ml')?.unlocked,
-    seventh: upgrades.find(u => u.id === 'portfolio')?.unlocked
+    third: upgrades.find(u => u.id === 'game-dev')?.unlocked,
+    fourth: upgrades.find(u => u.id === 'python')?.unlocked,
+    fifth: upgrades.find(u => u.id === 'ml')?.unlocked,
+    sixth: upgrades.find(u => u.id === 'portfolio')?.unlocked,
+    seventh: upgrades.find(u => u.id === 'skills')?.unlocked
   };
 
   return (
     <div className="min-h-screen bg-gray-100 flex flex-col">
       <MessagePopup />
-      <ResetButton />
       
       {/* Header */}
       <header className="text-center py-8">
@@ -93,22 +93,22 @@ export default function Layout() {
               <ProjectCard {...projects[0]} delay={0.2} />
             )}
             {showProjects.second && (
-              <ProjectCard {...projects[1]} delay={0.4} />
+              <ProjectCard {...projects[1]} delay={0.2} />
             )}
             {showProjects.third && (
-              <ProjectCard {...projects[2]} delay={0.6} />
+              <ProjectCard {...projects[2]} delay={0.2} />
             )}
             {showProjects.fourth && (
-              <ProjectCard {...projects[3]} delay={0.8} />
+              <ProjectCard {...projects[3]} delay={0.2} />
             )}
             {showProjects.fifth && (
-              <ProjectCard {...projects[4]} delay={1.0} />
+              <ProjectCard {...projects[4]} delay={0.2} />
             )}
             {showProjects.sixth && (
-              <ProjectCard {...projects[5]} delay={1.2} />
+              <ProjectCard {...projects[5]} delay={0.2} />
             )}
             {showProjects.seventh && (
-              <ProjectCard {...projects[6]} delay={1.4} />
+              <ProjectCard {...projects[6]} delay={0.2} />
             )}
           </div>
         </motion.div>
@@ -119,7 +119,7 @@ export default function Layout() {
           <GameStats />
         </div>
 
-        {/* Right Section - Resume & Contact */}
+        {/* Right Section - Resume, Skills & Contact */}
         <div className="w-1/3 p-8">
           <motion.div
             initial={{ opacity: 0, x: 100 }}
@@ -132,6 +132,8 @@ export default function Layout() {
             </button>
           </motion.div>
 
+          {unlockedSections.skills && <Skills />}
+          
           <motion.div
             initial={{ opacity: 0, x: 100 }}
             animate={{ opacity: unlockedSections.contact ? 1 : 0, x: unlockedSections.contact ? 0 : 100 }}
@@ -146,6 +148,11 @@ export default function Layout() {
           </motion.div>
         </div>
       </main>
+
+      {/* Reset Button */}
+      <div className="fixed bottom-8 right-8">
+        <ResetButton />
+      </div>
     </div>
   );
 } 

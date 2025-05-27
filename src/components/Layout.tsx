@@ -16,7 +16,7 @@ const projects = [
   },
   {
     title: "ExpressInk",
-    description: "AI app that analyzes artwork to provide mood insights for parents of nonverbal autistic children. Features include image analysis, mood tracking, and interactive drawing tools.",
+    description: "AI app built for HackCWRU 2025 that analyzes artwork to provide mood insights for parents of nonverbal autistic children. Features include image analysis, mood tracking, and interactive drawing tools.",
     link: "https://github.com/jasonli2446/ExpressInkFrontend"
   },
   {

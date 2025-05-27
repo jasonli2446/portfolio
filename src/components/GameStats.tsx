@@ -5,7 +5,7 @@ import { useGameStore } from '@/store/gameStore';
 import { useEffect } from 'react';
 
 export default function GameStats() {
-  const { xp, xpPerSec, upgrades, addXP, buyUpgrade } = useGameStore();
+  const { xp, xpPerSec, upgrades, addXP, buyUpgrade, isUpgradeVisible } = useGameStore();
 
   // Handle XP per second
   useEffect(() => {
@@ -18,9 +18,9 @@ export default function GameStats() {
     return () => clearInterval(interval);
   }, [xpPerSec, addXP]);
 
-  // Get available upgrades (not unlocked and affordable)
-  const availableUpgrades = upgrades
-    .filter((upgrade) => !upgrade.unlocked && xp >= upgrade.cost)
+  // Get visible upgrades (not unlocked and either affordable or close to affordable)
+  const visibleUpgrades = upgrades
+    .filter((upgrade) => !upgrade.unlocked && isUpgradeVisible(upgrade.id))
     .slice(0, 3);
 
   return (
@@ -31,7 +31,7 @@ export default function GameStats() {
       
       <div className="flex flex-col gap-2">
         <AnimatePresence>
-          {availableUpgrades.map((upgrade) => (
+          {visibleUpgrades.map((upgrade) => (
             <motion.button
               key={upgrade.id}
               initial={{ opacity: 0, y: 20 }}
@@ -40,7 +40,12 @@ export default function GameStats() {
               whileHover={{ scale: 1.02 }}
               whileTap={{ scale: 0.98 }}
               onClick={() => buyUpgrade(upgrade.id)}
-              className="px-4 py-2 bg-green-600 text-white rounded-lg shadow-md hover:shadow-lg transition-shadow"
+              disabled={xp < upgrade.cost}
+              className={`px-4 py-2 rounded-lg shadow-md hover:shadow-lg transition-shadow ${
+                xp >= upgrade.cost
+                  ? 'bg-green-600 text-white'
+                  : 'bg-gray-300 text-gray-600 cursor-not-allowed'
+              }`}
             >
               {upgrade.title} - {upgrade.cost} XP
             </motion.button>

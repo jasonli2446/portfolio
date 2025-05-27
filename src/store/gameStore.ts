@@ -6,6 +6,7 @@ export type Upgrade = {
   title: string;
   cost: number;
   xpPerSec: number;
+  xpPerClick: number;
   unlocked: boolean;
   unlockEffect?: () => void;
 };
@@ -13,6 +14,7 @@ export type Upgrade = {
 interface GameState {
   xp: number;
   xpPerSec: number;
+  xpPerClick: number;
   upgrades: Upgrade[];
   unlockedSections: {
     subtitle: boolean;
@@ -27,21 +29,16 @@ interface GameState {
   removeMessage: (index: number) => void;
   resetGame: () => void;
   isGameComplete: () => boolean;
+  isUpgradeVisible: (upgradeId: string) => boolean;
 }
 
 const initialUpgrades: Upgrade[] = [
   {
-    id: 'first-line',
-    title: 'Write My First Line',
-    cost: 10,
-    xpPerSec: 1,
-    unlocked: false,
-  },
-  {
     id: 'hello-world',
     title: 'Print Hello World',
-    cost: 25,
-    xpPerSec: 2,
+    cost: 10,
+    xpPerSec: 1,
+    xpPerClick: 1,
     unlocked: false,
   },
   {
@@ -49,13 +46,7 @@ const initialUpgrades: Upgrade[] = [
     title: 'Learn Git Basics',
     cost: 50,
     xpPerSec: 5,
-    unlocked: false,
-  },
-  {
-    id: 'first-pr',
-    title: 'Make First Pull Request',
-    cost: 100,
-    xpPerSec: 8,
+    xpPerClick: 2,
     unlocked: false,
   },
   {
@@ -63,6 +54,7 @@ const initialUpgrades: Upgrade[] = [
     title: 'Build a Website',
     cost: 150,
     xpPerSec: 10,
+    xpPerClick: 3,
     unlocked: false,
   },
   {
@@ -70,55 +62,55 @@ const initialUpgrades: Upgrade[] = [
     title: 'Participate in a Hackathon',
     cost: 300,
     xpPerSec: 15,
-    unlocked: false,
-  },
-  {
-    id: 'open-source',
-    title: 'Contribute to Open Source',
-    cost: 500,
-    xpPerSec: 20,
+    xpPerClick: 5,
     unlocked: false,
   },
   {
     id: 'game-dev',
     title: 'Develop a Game',
-    cost: 700,
-    xpPerSec: 50,
+    cost: 600,
+    xpPerSec: 30,
+    xpPerClick: 10,
     unlocked: false,
   },
   {
     id: 'python',
     title: 'Master Python',
-    cost: 900,
-    xpPerSec: 75,
+    cost: 1000,
+    xpPerSec: 50,
+    xpPerClick: 15,
     unlocked: false,
   },
   {
     id: 'ml',
     title: 'Apply Machine Learning',
-    cost: 1100,
-    xpPerSec: 100,
+    cost: 1500,
+    xpPerSec: 75,
+    xpPerClick: 25,
     unlocked: false,
   },
   {
     id: 'portfolio',
     title: 'Create a Portfolio',
-    cost: 1300,
-    xpPerSec: 150,
+    cost: 2000,
+    xpPerSec: 100,
+    xpPerClick: 40,
     unlocked: false,
   },
   {
     id: 'internship',
     title: 'Get an Internship',
-    cost: 1500,
-    xpPerSec: 250,
+    cost: 3000,
+    xpPerSec: 150,
+    xpPerClick: 60,
     unlocked: false,
   },
   {
     id: 'remote-collab',
     title: 'Collaborate Remotely',
-    cost: 2000,
-    xpPerSec: 500,
+    cost: 5000,
+    xpPerSec: 250,
+    xpPerClick: 100,
     unlocked: false,
   }
 ];
@@ -128,6 +120,7 @@ export const useGameStore = create<GameState>()(
     (set, get) => ({
       xp: 0,
       xpPerSec: 0,
+      xpPerClick: 1,
       upgrades: initialUpgrades,
       unlockedSections: {
         subtitle: false,
@@ -155,7 +148,7 @@ export const useGameStore = create<GameState>()(
             case 'hello-world':
               newUnlockedSections.subtitle = true;
               break;
-            case 'website':
+            case 'git-basics':
               newUnlockedSections.projects = true;
               break;
             case 'internship':
@@ -169,6 +162,7 @@ export const useGameStore = create<GameState>()(
           return {
             xp: state.xp - upgrade.cost,
             xpPerSec: state.xpPerSec + upgrade.xpPerSec,
+            xpPerClick: state.xpPerClick + upgrade.xpPerClick,
             upgrades: newUpgrades,
             unlockedSections: newUnlockedSections,
             messages: [...state.messages, `${upgrade.title} unlocked!`],
@@ -186,6 +180,7 @@ export const useGameStore = create<GameState>()(
         set({
           xp: 0,
           xpPerSec: 0,
+          xpPerClick: 1,
           upgrades: initialUpgrades,
           unlockedSections: {
             subtitle: false,
@@ -198,6 +193,14 @@ export const useGameStore = create<GameState>()(
       isGameComplete: () => {
         const state = get();
         return state.upgrades.every((upgrade) => upgrade.unlocked);
+      },
+      isUpgradeVisible: (upgradeId) => {
+        const state = get();
+        const upgrade = state.upgrades.find((u) => u.id === upgradeId);
+        if (!upgrade) return false;
+        if (upgrade.unlocked) return true;
+        // Show upgrade when player has 50% of required XP
+        return state.xp >= upgrade.cost * 0.5;
       },
     }),
     {

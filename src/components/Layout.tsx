@@ -10,7 +10,7 @@ import ResetButton from './ResetButton';
 import Skills from './Skills';
 import CurrentWork from './CurrentWork';
 import SoundEffects from './SoundEffects';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 
 const projects = [
   {
@@ -46,7 +46,7 @@ const projects = [
 ];
 
 export default function Layout() {
-  const { unlockedSections, upgrades } = useGameStore();
+  const { unlockedSections, upgrades, xp } = useGameStore();
   const [hasClicked, setHasClicked] = useState(false);
   const [hasShownKeepClicking, setHasShownKeepClicking] = useState(false);
   
@@ -60,12 +60,17 @@ export default function Layout() {
     sixth: upgrades.find(u => u.id === 'ml')?.unlocked
   };
 
+  useEffect(() => {
+    if (xp >= 10) {
+      setHasShownKeepClicking(true);
+    }
+  }, [xp]);
+
   const getWelcomeText = () => {
     if (!hasClicked) {
       return "Welcome to my portfolio! Click the button below to earn XP.";
     }
     if (!hasShownKeepClicking) {
-      setHasShownKeepClicking(true);
       return "Keep clicking to earn more XP!";
     }
     return "Unlock upgrades to learn more about me.";

@@ -29,14 +29,14 @@ export default function GameStats() {
     .slice(0, 3);
 
   return (
-    <div className="flex flex-col items-center gap-4 w-full mt-[20px] relative">
+    <div className="flex flex-col items-center gap-4 w-full mt-[30px] relative">
       <div className="h-[32px]">
         {xp > 0 && (
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ duration: 0.5, ease: "easeOut" }}
-            className="text-2xl font-bold text-[#2563EB]"
+            className="text-[min(24px,2vh)] font-bold text-[#2563EB]"
           >
             XP: {xp} (+{xpPerSec}/s)
           </motion.div>
@@ -51,8 +51,8 @@ export default function GameStats() {
               animate={{ opacity: 1, y: 0 }}
               className="text-center text-gray-600"
             >
-              <p className="text-xl font-semibold mb-2">🎉 Congratulations! 🎉</p>
-              <p>All sections have been unlocked!</p>
+              <p className="text-[min(20px,2.5vh)] font-semibold mb-2">🎉 Congratulations! 🎉</p>
+              <p className="text-[min(16px,2vh)]">All sections have been unlocked!</p>
             </motion.div>
           ) : (
             visibleUpgrades.map((upgrade, index) => (
@@ -69,14 +69,14 @@ export default function GameStats() {
                   position: 'absolute',
                   top: `${index * 70}px`,
                 }}
-                className={`px-6 py-3 rounded-xl shadow-lg hover:shadow-xl transition-all duration-200 w-[250px] cursor-pointer ${
+                className={`px-6 py-3 rounded-[12px] shadow-lg hover:shadow-xl transition-all duration-200 w-[250px] cursor-pointer ${
                   xp >= upgrade.cost
                     ? 'bg-gray-300 text-[#1C1C1C] hover:bg-gray-400'
                     : 'bg-gradient-to-r from-gray-300 to-gray-400 text-gray-600 cursor-not-allowed'
                 }`}
               >
-                <div className="font-bold">{upgrade.title}</div>
-                <div className="text-sm opacity-90">{upgrade.cost} XP</div>
+                <div className="font-bold text-[min(16px,2vh)]">{upgrade.title}</div>
+                <div className="text-[min(14px,1.5vh)] opacity-90">{upgrade.cost} XP</div>
               </motion.button>
             ))
           )}
@@ -89,11 +89,11 @@ export default function GameStats() {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5, ease: "easeOut" }}
-          className="w-full max-w-[300px] absolute bottom-[-120px] left-1/2 transform -translate-x-1/2"
+          className="w-full max-w-[300px] absolute bottom-[-80px] left-1/2 transform -translate-x-1/2"
         >
           <div className="flex justify-between text-sm text-[#4B5563] mb-1">
-            <span>Progress</span>
-            <span>{unlockedUpgrades}/{totalUpgrades} Upgrades</span>
+            <span className="text-[min(14px,1.5vh)] text-[#4B5563]">Progress</span>
+            <span className="text-[min(14px,1.5vh)] text-[#4B5563]">{unlockedUpgrades}/{totalUpgrades} Upgrades</span>
           </div>
           <div className="w-full h-2 bg-gray-200 rounded-full overflow-hidden">
             <motion.div

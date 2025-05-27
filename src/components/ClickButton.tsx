@@ -35,31 +35,31 @@ export default function ClickButton() {
   // Trigger pulse animation on passive XP gain
   useEffect(() => {
     pulseControls.start({
-      scale: [1, 1.02, 1], // Small pulse scale, relative to current state
-      transition: { duration: 0.4 }
+      scale: [1, 1.02, 1],
+      transition: { duration: 0.4, ease: "easeInOut" }
     });
   }, [passiveXPTrigger, pulseControls]);
 
   return (
     <div className="relative mb-32">
       <motion.button
-        whileHover={{ scale: 1.05 }} // Subtle hover scale
-        whileTap={{ scale: 0.95 }} // Click down scale
+        whileHover={{ scale: 1.02 }}
+        whileTap={{ scale: 0.98 }}
         onClick={handleClick}
-        animate={pulseControls} // Apply pulse animation
-        className="relative w-48 h-32 min-w-[16rem] min-h-[10rem] rounded-[24px] bg-gray-300 text-[#1C1C1C] font-[600] text-[18pt] shadow-lg hover:bg-gray-400 transition-shadow flex items-center justify-center cursor-pointer"
+        animate={pulseControls}
+        className="relative w-[20vw] h-[12vw] min-w-[200px] max-w-[300px] min-h-[120px] max-h-[180px] rounded-[24px] bg-gray-300 text-[#1C1C1C] font-[600] text-[min(32px,4vh)] md:text-[min(36px,4.5vh)] lg:text-[min(40px,5vh)] shadow-lg hover:bg-gray-400 transition-shadow flex items-center justify-center cursor-pointer"
       >
         {/* Passive XP Pulse Effect */}
         <motion.div
           key={passiveXPTrigger}
           animate={{ scale: [1, 1.01, 1] }}
-          transition={{ duration: 0.4 }}
+          transition={{ duration: 0.4, ease: "easeInOut" }}
           className="absolute inset-[-2px] rounded-[24px] border-[3px] border-gray-400 opacity-70"
         />
         <motion.div
           initial={{ scale: 1 }}
           animate={{ scale: [1, 1.01, 1] }}
-          transition={{ duration: 0.5, repeat: Infinity, repeatType: "reverse" }}
+          transition={{ duration: 0.5, repeat: Infinity, repeatType: "reverse", ease: "easeInOut" }}
           className="absolute inset-0 rounded-[24px] bg-gray-300 opacity-50"
         />
         <span className="relative z-10 whitespace-nowrap">Write Code</span>

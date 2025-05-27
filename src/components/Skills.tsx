@@ -36,9 +36,9 @@ export default function Skills() {
     <motion.div
       initial={{ opacity: 0, x: 100 }}
       animate={{ opacity: 1, x: 0 }}
-      className="absolute top-0 left-0 right-0 text-center w-full"
+      className="w-full"
     >
-      <h2 className="text-[28px] font-bold mb-8 underline decoration-2">Skills</h2>
+      <h2 className="text-[min(28px,4vh)] font-bold mb-8 underline decoration-2">Skills</h2>
       <div className="flex justify-center items-center gap-[32px]">
         {skills.map((skill, index) => (
           <motion.div
@@ -48,14 +48,14 @@ export default function Skills() {
             transition={{ delay: index * 0.1 }}
             className="flex flex-col items-center gap-[4px]"
           >
-            <div className={`w-[48px] h-[48px] rounded-[8px] ${skill.color} p-[8px] shadow-md`}>
+            <div className={`w-[min(56px,min(8vw,8vh))] h-[min(56px,min(8vw,8vh))] rounded-[8px] ${skill.color} p-[min(8px,min(0.8vw,0.8vh))] shadow-md`}>
               <img 
                 src={skill.icon} 
                 alt={skill.name} 
                 className="w-full h-full object-contain"
               />
             </div>
-            <span className="text-[#1C1C1C] text-[14px] font-medium">{skill.name}</span>
+            <span className="text-[#1C1C1C] text-[min(14px,2vh)] font-medium">{skill.name}</span>
           </motion.div>
         ))}
       </div>

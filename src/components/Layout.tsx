@@ -123,14 +123,14 @@ export default function Layout() {
               <h2 className="text-[min(28px,4vh)] font-bold mb-4 underline decoration-2">Resume</h2>
               <div className="flex justify-center">
                 <a
-                  href="/resume.pdf"
+                  href="https://jasonli2446.github.io/portfolio/resume.pdf"
                   target="_blank"
                   rel="noopener noreferrer"
                   className="flex items-center gap-[12px] cursor-pointer hover:opacity-80 transition-opacity"
                 >
                   <div className="w-[min(56px,min(8vw,8vh))] h-[min(56px,min(8vw,8vh))] rounded-[8px] bg-blue-500 p-[min(8px,min(0.8vw,0.8vh))] shadow-md">
                     <img 
-                      src="/file.svg"
+                      src="https://jasonli2446.github.io/portfolio/file.svg"
                       alt="Resume"
                       className="w-full h-full object-contain"
                     />

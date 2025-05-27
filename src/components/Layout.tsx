@@ -9,6 +9,7 @@ import ProjectCard from './ProjectCard';
 import ResetButton from './ResetButton';
 import Skills from './Skills';
 import CurrentWork from './CurrentWork';
+import SoundEffects from './SoundEffects';
 
 const projects = [
   {
@@ -59,6 +60,7 @@ export default function Layout() {
   return (
     <div className="min-h-screen bg-gray-100 flex flex-col">
       <MessagePopup />
+      <SoundEffects />
       
       {/* Header */}
       <div className="relative h-32 w-full">

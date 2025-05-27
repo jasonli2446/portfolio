@@ -23,7 +23,7 @@ export default function ClickPopup({ amount, x, y, onComplete }: ClickPopupProps
         pointerEvents: 'none',
         zIndex: 1000,
       }}
-      className="text-green-500 font-bold select-none"
+      className="text-[#2563EB] font-bold select-none"
     >
       +{amount}
     </motion.div>

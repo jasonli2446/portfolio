@@ -24,12 +24,12 @@ export default function GameStats() {
     .slice(0, 3);
 
   return (
-    <div className="flex flex-col items-center gap-4 w-full">
-      <div className="text-2xl font-bold">
+    <div className="flex flex-col items-center gap-4 w-full mt-[20px]">
+      <div className="text-2xl font-bold text-[#2563EB]">
         XP: {xp} (+{xpPerSec}/s)
       </div>
       
-      <div className="relative h-[200px] w-full flex justify-center">
+      <div className="relative h-[200px] w-full flex justify-center my-[16px]">
         <AnimatePresence>
           {isGameComplete() ? (
             <motion.div
@@ -47,21 +47,22 @@ export default function GameStats() {
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, y: -20 }}
-                whileHover={{ scale: 1.02 }}
-                whileTap={{ scale: 0.98 }}
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
                 onClick={() => buyUpgrade(upgrade.id)}
                 disabled={xp < upgrade.cost}
                 style={{
                   position: 'absolute',
-                  top: `${index * 60}px`,
+                  top: `${index * 70}px`,
                 }}
-                className={`px-4 py-2 rounded-lg shadow-md hover:shadow-lg transition-shadow w-[200px] ${
+                className={`px-6 py-3 rounded-xl shadow-lg hover:shadow-xl transition-all duration-200 w-[250px] cursor-pointer ${
                   xp >= upgrade.cost
-                    ? 'bg-green-600 text-white'
-                    : 'bg-gray-300 text-gray-600 cursor-not-allowed'
+                    ? 'bg-gray-300 text-[#1C1C1C] hover:bg-gray-400'
+                    : 'bg-gradient-to-r from-gray-300 to-gray-400 text-gray-600 cursor-not-allowed'
                 }`}
               >
-                {upgrade.title} - {upgrade.cost} XP
+                <div className="font-bold">{upgrade.title}</div>
+                <div className="text-sm opacity-90">{upgrade.cost} XP</div>
               </motion.button>
             ))
           )}

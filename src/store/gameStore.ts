@@ -32,6 +32,7 @@ interface GameState {
   resetGame: () => void;
   isGameComplete: () => boolean;
   isUpgradeVisible: (upgradeId: string) => boolean;
+  passiveXPTrigger: number;
 }
 
 const initialUpgrades: Upgrade[] = [
@@ -102,7 +103,7 @@ const initialUpgrades: Upgrade[] = [
   {
     id: 'current-work',
     title: 'Continue Development',
-    cost: 2500,
+    cost: 5000,
     xpPerSec: 180,
     xpPerClick: 70,
     unlocked: false,
@@ -110,7 +111,7 @@ const initialUpgrades: Upgrade[] = [
   {
     id: 'internship',
     title: 'Get an Internship',
-    cost: 3000,
+    cost: 10000,
     xpPerSec: 200,
     xpPerClick: 80,
     unlocked: false,
@@ -118,7 +119,7 @@ const initialUpgrades: Upgrade[] = [
   {
     id: 'remote-collab',
     title: 'Collaborate Remotely',
-    cost: 4000,
+    cost: 15000,
     xpPerSec: 250,
     xpPerClick: 100,
     unlocked: false,
@@ -141,10 +142,17 @@ export const useGameStore = create<GameState>()(
         currentWork: false,
       },
       messages: [],
-      addXP: (amount) =>
+      addXP: (amount) => {
         set((state) => ({
           xp: state.xp + amount,
-        })),
+        }));
+        // Check if this is passive XP (assuming passive XP is added in 1s intervals where xpPerSec > 0)
+        // A more robust way might involve passing a source flag to addXP if needed elsewhere
+        const isPassive = amount === get().xpPerSec && get().xpPerSec > 0;
+        if (isPassive) {
+          set(state => ({ passiveXPTrigger: state.passiveXPTrigger + 1 }));
+        }
+      },
       buyUpgrade: (upgradeId) => {
         const upgrade = get().upgrades.find((u) => u.id === upgradeId);
         if (!upgrade || upgrade.unlocked || get().xp < upgrade.cost) return;
@@ -204,6 +212,7 @@ export const useGameStore = create<GameState>()(
         // Show upgrade when player has 50% of required XP
         return state.xp >= upgrade.cost * 0.5;
       },
+      passiveXPTrigger: 0,
     }),
     {
       name: 'game-storage',

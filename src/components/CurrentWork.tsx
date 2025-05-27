@@ -12,7 +12,7 @@ export default function CurrentWork() {
       <h2 className="text-2xl font-bold mb-4">Current Work</h2>
       <div className="space-y-4">
         <p className="text-gray-700">
-          Developing novel KV cache compression technique using low-rank approximation techniques.
+          Developing novel KV cache compression technique using low-rank approximation techniques for machine learning models, optimizing memory usage while maintaining model performance.
         </p>
         <a
           href="https://github.com/jasonli2446/kv-cache-visualization"

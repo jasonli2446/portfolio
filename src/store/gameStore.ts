@@ -101,7 +101,7 @@ const initialUpgrades: Upgrade[] = [
   },
   {
     id: 'current-work',
-    title: 'Research Novel Compression',
+    title: 'Continue Development',
     cost: 2500,
     xpPerSec: 180,
     xpPerClick: 70,

@@ -8,6 +8,7 @@ import MessagePopup from './MessagePopup';
 import ProjectCard from './ProjectCard';
 import ResetButton from './ResetButton';
 import Skills from './Skills';
+import CurrentWork from './CurrentWork';
 
 const projects = [
   {
@@ -114,13 +115,14 @@ export default function Layout() {
 
         {/* Right Section - Resume, Skills & Contact */}
         <div className="w-1/3 p-8 relative">
-          <div className="relative min-h-[400px]">
+          <div className="relative min-h-[600px]">
             {unlockedSections.skills && <Skills />}
+            {unlockedSections.currentWork && <CurrentWork />}
 
             <motion.div
               initial={{ opacity: 0, x: 100 }}
               animate={{ opacity: unlockedSections.resume ? 1 : 0, x: unlockedSections.resume ? 0 : 100 }}
-              className="absolute top-[300px] left-0 right-0"
+              className="absolute top-[400px] left-0 right-0"
             >
               <h2 className="text-2xl font-bold mb-4">Resume</h2>
               <button className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors">
@@ -131,7 +133,7 @@ export default function Layout() {
             <motion.div
               initial={{ opacity: 0, x: 100 }}
               animate={{ opacity: unlockedSections.contact ? 1 : 0, x: unlockedSections.contact ? 0 : 100 }}
-              className="absolute top-[400px] left-0 right-0"
+              className="absolute top-[500px] left-0 right-0"
             >
               <h2 className="text-2xl font-bold mb-4">Contact</h2>
               <div className="space-y-2">
@@ -161,7 +163,7 @@ export default function Layout() {
             </motion.div>
           </div>
 
-          <div className="mt-[500px]">
+          <div className="mt-[600px]">
             <ResetButton />
           </div>
         </div>

@@ -149,6 +149,9 @@ export default function Layout() {
               <div className="flex justify-center items-center gap-[32px]">
                 <a
                   href="mailto:jasonli2446@gmail.com"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                  }}
                   className="flex flex-col items-center gap-[4px] cursor-pointer hover:opacity-80 transition-opacity"
                 >
                   <div className="w-[min(56px,min(8vw,8vh))] h-[min(56px,min(8vw,8vh))] rounded-[8px] bg-red-500 p-[min(8px,min(0.8vw,0.8vh))] shadow-md">
@@ -158,7 +161,7 @@ export default function Layout() {
                       className="w-full h-full object-contain"
                     />
                   </div>
-                  <div className="text-[#1C1C1C] text-[min(14px,2vh)] font-medium hover:text-[#0077B6] transition-colors">Email</div>
+                  <div className="text-[#1C1C1C] text-[min(14px,2vh)] font-medium hover:text-[#0077B6] transition-colors">jasonli2446@gmail.com</div>
                 </a>
                 <a
                   href="https://linkedin.com/in/jasonli2446"

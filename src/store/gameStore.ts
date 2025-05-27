@@ -25,77 +25,107 @@ interface GameState {
   buyUpgrade: (upgradeId: string) => void;
   addMessage: (message: string) => void;
   removeMessage: (index: number) => void;
+  resetGame: () => void;
+  isGameComplete: () => boolean;
 }
 
 const initialUpgrades: Upgrade[] = [
   {
     id: 'first-line',
-    title: 'Wrote My First Line',
+    title: 'Write My First Line',
     cost: 10,
     xpPerSec: 1,
     unlocked: false,
   },
   {
     id: 'hello-world',
-    title: 'Hello World',
+    title: 'Print Hello World',
     cost: 25,
-    xpPerSec: 1,
+    xpPerSec: 2,
     unlocked: false,
   },
   {
-    id: 'cli-tool',
-    title: 'Built a CLI Tool',
-    cost: 75,
-    xpPerSec: 1,
+    id: 'git-basics',
+    title: 'Learn Git Basics',
+    cost: 50,
+    xpPerSec: 5,
+    unlocked: false,
+  },
+  {
+    id: 'first-pr',
+    title: 'Make First Pull Request',
+    cost: 100,
+    xpPerSec: 8,
     unlocked: false,
   },
   {
     id: 'website',
-    title: 'Made a Website',
+    title: 'Build a Website',
     cost: 150,
-    xpPerSec: 1,
+    xpPerSec: 10,
     unlocked: false,
   },
   {
     id: 'hackathon',
-    title: 'Joined a Hackathon',
+    title: 'Participate in a Hackathon',
     cost: 300,
-    xpPerSec: 1,
-    unlocked: false,
-  },
-  {
-    id: 'internship',
-    title: 'Got an Internship',
-    cost: 500,
-    xpPerSec: 1,
+    xpPerSec: 15,
     unlocked: false,
   },
   {
     id: 'open-source',
-    title: 'Published Open Source',
-    cost: 700,
-    xpPerSec: 1,
+    title: 'Contribute to Open Source',
+    cost: 500,
+    xpPerSec: 20,
     unlocked: false,
   },
   {
-    id: 'api-server',
-    title: 'Built API Server',
+    id: 'game-dev',
+    title: 'Develop a Game',
+    cost: 700,
+    xpPerSec: 50,
+    unlocked: false,
+  },
+  {
+    id: 'python',
+    title: 'Master Python',
     cost: 900,
-    xpPerSec: 1,
+    xpPerSec: 75,
+    unlocked: false,
+  },
+  {
+    id: 'ml',
+    title: 'Apply Machine Learning',
+    cost: 1100,
+    xpPerSec: 100,
+    unlocked: false,
+  },
+  {
+    id: 'portfolio',
+    title: 'Create a Portfolio',
+    cost: 1300,
+    xpPerSec: 150,
+    unlocked: false,
+  },
+  {
+    id: 'internship',
+    title: 'Get an Internship',
+    cost: 1500,
+    xpPerSec: 250,
     unlocked: false,
   },
   {
     id: 'remote-collab',
-    title: 'Collaborated Remotely',
-    cost: 1200,
-    xpPerSec: 2,
+    title: 'Collaborate Remotely',
+    cost: 2000,
+    xpPerSec: 500,
     unlocked: false,
-  },
+  }
 ];
 
 export const useGameStore = create<GameState>()(
   persist(
-    (set) => ({
+    (set, get) => ({
       xp: 0,
       xpPerSec: 0,
       upgrades: initialUpgrades,
@@ -152,6 +182,23 @@ export const useGameStore = create<GameState>()(
         set((state) => ({
           messages: state.messages.filter((_, i) => i !== index),
         })),
+      resetGame: () =>
+        set({
+          xp: 0,
+          xpPerSec: 0,
+          upgrades: initialUpgrades,
+          unlockedSections: {
+            subtitle: false,
+            projects: false,
+            resume: false,
+            contact: false,
+          },
+          messages: ["Game reset! Start your journey again."],
+        }),
+      isGameComplete: () => {
+        const state = get();
+        return state.upgrades.every((upgrade) => upgrade.unlocked);
+      },
     }),
     {
       name: 'game-storage',

@@ -6,22 +6,43 @@ import ClickButton from './ClickButton';
 import GameStats from './GameStats';
 import MessagePopup from './MessagePopup';
 import ProjectCard from './ProjectCard';
+import ResetButton from './ResetButton';
 
 const projects = [
   {
-    title: "Personal Portfolio",
-    description: "A game-like interactive portfolio built with Next.js and Framer Motion.",
-    link: "https://github.com/yourusername/portfolio"
+    title: "SnapMenu",
+    description: "AI-powered mobile app that scans menus and displays dish information with real images. Built with React Native, FastAPI, and OpenAI. Features OCR menu scanning, AI-generated dish summaries, and real food image search.",
+    link: "https://github.com/jasonli2446/snapmenu"
   },
   {
-    title: "CLI Tool",
-    description: "A command-line interface tool for automating development workflows.",
-    link: "https://github.com/yourusername/cli-tool"
+    title: "ExpressInk",
+    description: "AI app that analyzes artwork to provide mood insights for parents of nonverbal autistic children. Features include image analysis, mood tracking, and interactive drawing tools.",
+    link: "https://github.com/jasonli2446/ExpressInkFrontend"
   },
   {
-    title: "API Server",
-    description: "A RESTful API server built with Node.js and Express.",
-    link: "https://github.com/yourusername/api-server"
+    title: "Turret Dodge Game",
+    description: "Browser-based survival game where players dodge bullets from turrets. Features include progressive difficulty, power-ups, and real-time combat mechanics.",
+    link: "https://github.com/jasonli2446/turret-dodge-game"
+  },
+  {
+    title: "Brick'd Up",
+    description: "Unity-based puzzle platformer where players place blocks to create paths. Features include physics-based gameplay, resource management, and progressive difficulty.",
+    link: "https://github.com/jasonli2446/BrickdUp"
+  },
+  {
+    title: "Blackjack Simulator",
+    description: "Python-based blackjack simulator with strategy analysis. Features include probability calculations, betting strategies, and statistical analysis.",
+    link: "https://github.com/jasonli2446/blackjack-simulator"
+  },
+  {
+    title: "Premier League Prediction Model",
+    description: "Machine learning model using random forest regression to predict Premier League standings. Achieved 75% accuracy within two positions and R² of 0.73 for 2024 season.",
+    link: "https://github.com/jasonli2446/premier-league-predictor"
+  },
+  {
+    title: "Portfolio",
+    description: "Interactive portfolio website built with Next.js and Framer Motion. Features include game-like progression, animated transitions, and responsive design.",
+    link: "https://github.com/jasonli2446/portfolio"
   }
 ];
 
@@ -32,12 +53,17 @@ export default function Layout() {
   const showProjects = {
     first: unlockedSections.projects,
     second: upgrades.find(u => u.id === 'hackathon')?.unlocked,
-    third: upgrades.find(u => u.id === 'open-source')?.unlocked
+    third: upgrades.find(u => u.id === 'open-source')?.unlocked,
+    fourth: upgrades.find(u => u.id === 'game-dev')?.unlocked,
+    fifth: upgrades.find(u => u.id === 'python')?.unlocked,
+    sixth: upgrades.find(u => u.id === 'ml')?.unlocked,
+    seventh: upgrades.find(u => u.id === 'portfolio')?.unlocked
   };
 
   return (
     <div className="min-h-screen bg-gray-100 flex flex-col">
       <MessagePopup />
+      <ResetButton />
       
       {/* Header */}
       <header className="text-center py-8">
@@ -48,7 +74,7 @@ export default function Layout() {
             animate={{ opacity: 1 }}
             className="text-xl text-gray-600 mt-2"
           >
-            CS + CE @ CWRU · Building with intention
+            AI-driven full stack engineer | Researcher | Builder of practical, high-impact tools
           </motion.p>
         )}
       </header>
@@ -71,6 +97,18 @@ export default function Layout() {
             )}
             {showProjects.third && (
               <ProjectCard {...projects[2]} delay={0.6} />
+            )}
+            {showProjects.fourth && (
+              <ProjectCard {...projects[3]} delay={0.8} />
+            )}
+            {showProjects.fifth && (
+              <ProjectCard {...projects[4]} delay={1.0} />
+            )}
+            {showProjects.sixth && (
+              <ProjectCard {...projects[5]} delay={1.2} />
+            )}
+            {showProjects.seventh && (
+              <ProjectCard {...projects[6]} delay={1.4} />
             )}
           </div>
         </motion.div>

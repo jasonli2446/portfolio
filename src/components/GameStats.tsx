@@ -14,7 +14,6 @@ export default function GameStats() {
   const { xp, xpPerSec, upgrades, addXP, buyUpgrade, isUpgradeVisible, isGameComplete } = useGameStore();
   const [showConfetti, setShowConfetti] = useState(false);
   const [dimensions, setDimensions] = useState({ width: 0, height: 0 });
-  const [showUpgradePopup, setShowUpgradePopup] = useState(false);
   const [upgradePopups, setUpgradePopups] = useState<{id: number}[]>([]);
 
   // Calculate progress

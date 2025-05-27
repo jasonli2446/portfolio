@@ -1,6 +1,6 @@
 "use client";
 
-import { motion, AnimatePresence, useAnimation } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 import { useGameStore } from '@/store/gameStore';
 import { useState, useEffect } from 'react';
 import ClickPopup from './ClickPopup';
@@ -13,7 +13,7 @@ interface Popup {
 }
 
 export default function ClickButton() {
-  const { addXP, xpPerClick, passiveXPTrigger } = useGameStore();
+  const { addXP, xpPerClick } = useGameStore();
   const [popups, setPopups] = useState<Popup[]>([]);
   const [isHovering, setIsHovering] = useState(false);
   const [shouldPulse, setShouldPulse] = useState(false);
@@ -33,6 +33,33 @@ export default function ClickButton() {
       if (timer) clearTimeout(timer);
     };
   }, [isHovering]);
+
+  const handleHoverStart = () => {
+    setIsHovering(true);
+  };
+
+  const handleHoverEnd = () => {
+    setIsHovering(false);
+  };
+
+  const handleClick = (e: React.MouseEvent) => {
+    const rect = e.currentTarget.getBoundingClientRect();
+    const x = e.clientX - rect.left;
+    const y = e.clientY - rect.top;
+    
+    setPopups(prev => [...prev, {
+      id: Date.now(),
+      amount: xpPerClick,
+      x,
+      y
+    }]);
+
+    addXP(xpPerClick);
+  };
+
+  const removePopup = (id: number) => {
+    setPopups(prev => prev.filter(popup => popup.id !== id));
+  };
 
   const buttonVariants = {
     idle: {
@@ -61,33 +88,6 @@ export default function ClickButton() {
         duration: 0.1
       }
     }
-  };
-
-  const handleHoverStart = () => {
-    setIsHovering(true);
-  };
-
-  const handleHoverEnd = () => {
-    setIsHovering(false);
-  };
-
-  const handleClick = (e: React.MouseEvent) => {
-    const rect = e.currentTarget.getBoundingClientRect();
-    const x = e.clientX - rect.left;
-    const y = e.clientY - rect.top;
-    
-    setPopups(prev => [...prev, {
-      id: Date.now(),
-      amount: xpPerClick,
-      x,
-      y
-    }]);
-
-    addXP(xpPerClick);
-  };
-
-  const removePopup = (id: number) => {
-    setPopups(prev => prev.filter(popup => popup.id !== id));
   };
 
   return (

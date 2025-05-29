@@ -12,7 +12,7 @@ const skills: Skill[] = [
   { 
     name: 'JavaScript',
     icon: 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/javascript/javascript-original.svg',
-    color: 'bg-yellow-400'
+    color: 'bg-[#F7DF1E]'
   },
   { 
     name: 'Java',
@@ -27,7 +27,7 @@ const skills: Skill[] = [
   { 
     name: 'C#',
     icon: 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/csharp/csharp-original.svg',
-    color: 'bg-purple-500'
+    color: 'bg-[rgb(104,33,122)]'
   },
 ];
 
@@ -48,7 +48,7 @@ export default function Skills() {
             transition={{ delay: index * 0.1 }}
             className="flex flex-col items-center gap-[4px]"
           >
-            <div className={`w-[min(56px,min(8vw,8vh))] h-[min(56px,min(8vw,8vh))] rounded-[8px] ${skill.color} p-[min(8px,min(0.8vw,0.8vh))] shadow-md`}>
+            <div className={`w-[min(72px,min(12vw,12vh))] h-[min(72px,min(12vw,12vh))] lg:w-[min(56px,min(8vw,8vh))] lg:h-[min(56px,min(8vw,8vh))] rounded-[8px] ${skill.name === 'C#' ? 'bg-[#68217A]/20' : skill.name === 'JavaScript' ? 'bg-[#F7DF1E]/20' : `${skill.color}/20`} p-[min(8px,min(0.8vw,0.8vh))] shadow-md`}>
               <img 
                 src={skill.icon} 
                 alt={skill.name} 

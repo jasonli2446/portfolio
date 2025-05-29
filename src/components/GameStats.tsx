@@ -76,6 +76,8 @@ export default function GameStats({ hasClicked }: GameStatsProps) {
     .filter((upgrade) => !upgrade.unlocked)
     .slice(0, 3) : [];
 
+  if (!hasClicked) return null;
+
   return (
     <>
       {showConfetti && (
@@ -105,7 +107,7 @@ export default function GameStats({ hasClicked }: GameStatsProps) {
           )}
         </div>
         
-        <div className="relative h-[200px] w-full flex justify-center my-[16px]">
+        <div className="relative h-[200px] w-full flex justify-center my-[8px] lg:my-0">
           <AnimatePresence>
             {isGameComplete() ? (
               <motion.div
@@ -134,30 +136,44 @@ export default function GameStats({ hasClicked }: GameStatsProps) {
                 <p className="text-[min(16px,2vh)]">All sections have been unlocked!</p>
               </motion.div>
             ) : (
-              visibleUpgrades.map((upgrade, index) => (
-                <motion.button
-                  key={upgrade.id}
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, y: -20 }}
-                  whileHover={{ scale: 1.01 }}
-                  whileTap={{ scale: 0.99 }}
-                  onClick={() => handleUpgradeClick(upgrade.id)}
-                  disabled={xp < upgrade.cost}
-                  style={{
-                    position: 'absolute',
-                    top: `${index * 70}px`,
-                  }}
-                  className={`px-6 py-3 rounded-[12px] shadow-lg hover:shadow-xl transition-all duration-200 w-[250px] cursor-pointer ${
-                    xp >= upgrade.cost
-                      ? 'bg-gray-300 text-[#1C1C1C] hover:bg-gray-400'
-                      : 'bg-gradient-to-r from-gray-300 to-gray-400 text-gray-600 cursor-not-allowed'
-                  }`}
-                >
-                  <div className="font-bold text-[min(16px,2vh)]">{upgrade.title}</div>
-                  <div className="text-[min(14px,1.5vh)] opacity-90">{upgrade.cost} XP</div>
-                </motion.button>
-              ))
+              <div className="flex flex-col gap-3">
+                <AnimatePresence mode="sync">
+                  {visibleUpgrades.map((upgrade, index) => (
+                    <motion.div
+                      key={upgrade.id}
+                      layout
+                      initial={{ opacity: 0, y: 20 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      exit={{ opacity: 0, y: -20 }}
+                      transition={{
+                        layout: {
+                          type: "spring",
+                          bounce: 0.2,
+                          duration: 0.6
+                        }
+                      }}
+                    >
+                      <motion.button
+                        whileHover={{ scale: 1.01 }}
+                        whileTap={{ scale: 0.99 }}
+                        onClick={() => handleUpgradeClick(upgrade.id)}
+                        disabled={xp < upgrade.cost}
+                        className={`px-4 py-2 rounded-[8px] shadow-lg hover:shadow-xl transition-all duration-200 w-[220px] cursor-pointer ${
+                          xp >= upgrade.cost
+                            ? 'bg-gradient-to-r from-gray-100 to-gray-200 text-gray-800 hover:from-gray-200 hover:to-gray-300 border border-gray-300'
+                            : 'bg-gradient-to-r from-gray-50 to-gray-100 text-gray-400 cursor-not-allowed border border-gray-200'
+                        }`}
+                      >
+                        <div className="font-bold text-[min(14px,1.8vh)] mb-0.5 truncate">{upgrade.title}</div>
+                        <div className="text-[min(12px,1.5vh)] opacity-90 flex items-center justify-center gap-1">
+                          <span className="text-amber-500">★</span>
+                          {upgrade.cost} XP
+                        </div>
+                      </motion.button>
+                    </motion.div>
+                  ))}
+                </AnimatePresence>
+              </div>
             )}
           </AnimatePresence>
         </div>
@@ -168,27 +184,12 @@ export default function GameStats({ hasClicked }: GameStatsProps) {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5, ease: "easeOut" }}
-            className="w-full max-w-[300px] absolute bottom-[min(-40px,-4vh)] sm:bottom-[min(-50px,-5vh)] md:bottom-[min(-60px,-6vh)] lg:bottom-[min(-70px,-7vh)] left-1/2 transform -translate-x-1/2"
+            className="w-[300px] max-w-[300px] absolute bottom-[min(-100px,-8vh)] sm:bottom-[min(-50px,-5vh)] md:bottom-[min(-60px,-6vh)] lg:bottom-[min(-120px,-7vh)]"
           >
-            <div className="flex justify-between text-sm text-[#4B5563] mb-1">
-              <span className={`text-[min(14px,1.5vh)] ${unlockedUpgrades === totalUpgrades ? 'text-[#16a34a]' : 'text-[#4B5563]'}`}>Progress</span>
-              <span className={`text-[min(14px,1.5vh)] ${unlockedUpgrades === totalUpgrades ? 'text-[#16a34a]' : 'text-[#4B5563]'}`}>{unlockedUpgrades}/{totalUpgrades} Upgrades</span>
-            </div>
-            <div className="w-full h-2 bg-gray-200 rounded-full overflow-hidden relative">
-              <motion.div
-                initial={{ width: 0 }}
-                animate={{ width: `${progress}%` }}
-                transition={{ duration: 0.5 }}
-                className="h-full bg-[#2563EB] rounded-full"
-              />
-              <AnimatePresence>
-                {upgradePopups.map(popup => (
-                  <UpgradePopup
-                    key={popup.id}
-                    onComplete={() => removeUpgradePopup(popup.id)}
-                  />
-                ))}
-              </AnimatePresence>
+            <div className="flex justify-center">
+              <div className={`text-[min(16px,2vh)] ${unlockedUpgrades === totalUpgrades ? 'text-[#16a34a]' : 'text-[#4B5563]'}`}>
+                Progress&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{unlockedUpgrades}/{totalUpgrades} Upgrades
+              </div>
             </div>
           </motion.div>
         )}

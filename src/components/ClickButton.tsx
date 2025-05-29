@@ -41,10 +41,14 @@ export default function ClickButton({ onFirstClick }: ClickButtonProps) {
 
   const handleHoverStart = () => {
     setIsHovering(true);
+    setShouldPulse(false);
   };
 
   const handleHoverEnd = () => {
     setIsHovering(false);
+    setTimeout(() => {
+      setShouldPulse(true);
+    }, 1000);
   };
 
   const handleClick = (e: React.MouseEvent) => {
@@ -110,7 +114,7 @@ export default function ClickButton({ onFirstClick }: ClickButtonProps) {
         onHoverStart={handleHoverStart}
         onHoverEnd={handleHoverEnd}
         onClick={handleClick}
-        className="relative w-[20vw] h-[12vw] min-w-[200px] max-w-[300px] min-h-[120px] max-h-[180px] rounded-[24px] bg-gray-300 text-[#1C1C1C] font-[600] text-[min(32px,4vh)] md:text-[min(36px,4.5vh)] lg:text-[min(40px,5vh)] shadow-lg hover:bg-gray-400 flex items-center justify-center cursor-pointer"
+        className="relative w-[20vw] h-[12vw] min-w-[280px] max-w-[300px] min-h-[160px] max-h-[180px] lg:min-w-[200px] lg:min-h-[120px] rounded-[24px] bg-gray-300 text-[#1C1C1C] font-[600] text-[min(32px,4vh)] md:text-[min(36px,4.5vh)] lg:text-[min(40px,5vh)] shadow-lg hover:bg-gray-400 flex items-center justify-center cursor-pointer"
       >
         {/* Passive XP Pulse Effect */}
         <div className="absolute inset-[-2px] rounded-[24px] border-[3px] border-gray-400 opacity-70" />

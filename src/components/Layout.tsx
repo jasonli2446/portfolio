@@ -49,18 +49,7 @@ export default function Layout() {
   const { unlockedSections, upgrades, xp } = useGameStore();
   const [hasClicked, setHasClicked] = useState(false);
   const [hasShownKeepClicking, setHasShownKeepClicking] = useState(false);
-  const [viewportWidth, setViewportWidth] = useState(0);
   
-  useEffect(() => {
-    const updateWidth = () => {
-      setViewportWidth(window.innerWidth);
-    };
-    
-    updateWidth();
-    window.addEventListener('resize', updateWidth);
-    return () => window.removeEventListener('resize', updateWidth);
-  }, []);
-
   // Determine which projects to show based on upgrades
   const showProjects = {
     first: unlockedSections.projects,

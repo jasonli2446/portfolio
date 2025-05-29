@@ -73,6 +73,9 @@ export default function Layout() {
     if (!hasShownKeepClicking) {
       return "Keep clicking to earn more XP!";
     }
+    if (upgrades.every(u => u.unlocked)) {
+      return "Thanks for exploring my portfolio! Feel free to reset and play again.";
+    }
     return "Unlock upgrades to learn more about me.";
   };
 

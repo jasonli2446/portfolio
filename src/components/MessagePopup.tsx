@@ -25,7 +25,7 @@ export default function MessagePopup() {
             initial={{ opacity: 0, y: -20 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -20 }}
-            className="bg-[#8B4513]/20 text-[#8B4513] px-6 py-3 rounded-lg shadow-lg max-w-[90vw] text-center"
+            className="bg-[#8B4513]/20 text-[#8B4513] px-4 sm:px-6 py-2 sm:py-3 rounded-lg shadow-lg max-w-[90vw] text-center text-[14px] sm:text-[16px]"
           >
             {messages[0]}
           </motion.div>

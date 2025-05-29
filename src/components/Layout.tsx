@@ -185,7 +185,7 @@ export default function Layout() {
             className="w-full lg:w-1/3 flex flex-col items-center justify-start text-center pt-4 order-1 lg:order-2 mb-24 lg:mb-0"
           >
             <div className="text-center text-[#1C1C1C] mt-12 mb-[40px]">
-              <h1 className="text-[min(48px,5vh)] lg:text-[min(60px,6vh)] lg:mb-8 sm:text-[min(28px,3vh)] h-[48px] font-bold">Jason Li</h1>
+              <h1 className="text-[min(48px,5vh)] lg:text-[min(60px,6vh)] lg:mb-8 md:text-[min(56px,6vh)] sm:text-[min(28px,4vh)] h-[48px] font-bold">Jason Li</h1>
               <motion.p
                 initial={{ opacity: 0 }}
                 animate={{ opacity: unlockedSections.subtitle ? 1 : 0 }}

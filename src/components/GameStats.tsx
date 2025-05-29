@@ -4,6 +4,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { useGameStore } from '@/store/gameStore';
 import { useEffect, useState } from 'react';
 import dynamic from 'next/dynamic';
+import UpgradePopup from './UpgradePopup';
 
 const ReactConfetti = dynamic(() => import('react-confetti'), {
   ssr: false
@@ -17,6 +18,7 @@ export default function GameStats({ hasClicked }: GameStatsProps) {
   const { xp, xpPerSec, upgrades, addXP, buyUpgrade, isGameComplete } = useGameStore();
   const [showConfetti, setShowConfetti] = useState(false);
   const [dimensions, setDimensions] = useState({ width: 0, height: 0 });
+  const [upgradePopups, setUpgradePopups] = useState<{id: number}[]>([]);
 
   // Calculate progress
   const totalUpgrades = upgrades.length;
@@ -46,7 +48,12 @@ export default function GameStats({ hasClicked }: GameStatsProps) {
   }, [isGameComplete, unlockedUpgrades]);
 
   const handleUpgradeClick = (upgradeId: string) => {
+    setUpgradePopups(prev => [...prev, { id: Date.now() }]);
     buyUpgrade(upgradeId);
+  };
+
+  const removeUpgradePopup = (id: number) => {
+    setUpgradePopups(prev => prev.filter(popup => popup.id !== id));
   };
 
   // Set window dimensions
@@ -178,10 +185,19 @@ export default function GameStats({ hasClicked }: GameStatsProps) {
             transition={{ duration: 0.5, ease: "easeOut" }}
             className="w-[300px] max-w-[300px] absolute bottom-[min(-100px,-8vh)] sm:bottom-[min(-50px,-5vh)] md:bottom-[min(-60px,-6vh)] lg:bottom-[min(-120px,-7vh)]"
           >
-            <div className="flex justify-center">
+            <div className="flex justify-center relative">
               <div className={`text-[min(16px,2vh)] ${unlockedUpgrades === totalUpgrades ? 'text-[#16a34a]' : 'text-[#4B5563]'}`}>
                 Progress&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{unlockedUpgrades}/{totalUpgrades} Upgrades
               </div>
+              {/* Upgrade Popups */}
+              <AnimatePresence>
+                {upgradePopups.map((popup) => (
+                  <UpgradePopup
+                    key={popup.id}
+                    onComplete={() => removeUpgradePopup(popup.id)}
+                  />
+                ))}
+              </AnimatePresence>
             </div>
           </motion.div>
         )}

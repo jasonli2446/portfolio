@@ -157,24 +157,30 @@ export const useGameStore = create<GameState>()(
         const upgrade = get().upgrades.find((u) => u.id === upgradeId);
         if (!upgrade || upgrade.unlocked || get().xp < upgrade.cost) return;
 
-        set((state) => ({
-          xp: state.xp - upgrade.cost,
-          xpPerSec: state.xpPerSec + upgrade.xpPerSec,
-          xpPerClick: upgrade.xpPerClick,
-          upgrades: state.upgrades.map((u) =>
+        set((state) => {
+          // Unlock the upgrade
+          const newUpgrades = state.upgrades.map((u) =>
             u.id === upgradeId ? { ...u, unlocked: true } : u
-          ),
-          unlockedSections: {
-            ...state.unlockedSections,
-            subtitle: upgradeId === 'hello-world' ? true : state.unlockedSections.subtitle,
-            projects: upgradeId === 'git-basics' ? true : state.unlockedSections.projects,
-            skills: upgradeId === 'skills' ? true : state.unlockedSections.skills,
-            currentWork: upgradeId === 'current-work' ? true : state.unlockedSections.currentWork,
-            resume: upgradeId === 'internship' ? true : state.unlockedSections.resume,
-            contact: upgradeId === 'remote-collab' ? true : state.unlockedSections.contact,
-          },
-          messages: [...state.messages, `${upgrade.title} unlocked!`],
-        }));
+          );
+          // Find max xpPerClick among unlocked upgrades
+          const maxXpPerClick = Math.max(1, ...newUpgrades.filter(u => u.unlocked).map(u => u.xpPerClick));
+          return {
+            xp: state.xp - upgrade.cost,
+            xpPerSec: state.xpPerSec + upgrade.xpPerSec,
+            xpPerClick: maxXpPerClick,
+            upgrades: newUpgrades,
+            unlockedSections: {
+              ...state.unlockedSections,
+              subtitle: upgradeId === 'hello-world' ? true : state.unlockedSections.subtitle,
+              projects: upgradeId === 'git-basics' ? true : state.unlockedSections.projects,
+              skills: upgradeId === 'skills' ? true : state.unlockedSections.skills,
+              currentWork: upgradeId === 'current-work' ? true : state.unlockedSections.currentWork,
+              resume: upgradeId === 'internship' ? true : state.unlockedSections.resume,
+              contact: upgradeId === 'remote-collab' ? true : state.unlockedSections.contact,
+            },
+            messages: [...state.messages, `${upgrade.title} unlocked!`],
+          };
+        });
       },
       addMessage: (message) =>
         set((state) => ({

@@ -40,7 +40,7 @@ const initialUpgrades: Upgrade[] = [
     id: 'hello-world',
     title: 'Print Hello World',
     cost: 10,
-    xpPerSec: 30000000,
+    xpPerSec: 3,
     xpPerClick: 2,
     unlocked: false,
   },

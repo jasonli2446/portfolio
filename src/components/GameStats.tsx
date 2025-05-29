@@ -4,7 +4,6 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { useGameStore } from '@/store/gameStore';
 import { useEffect, useState } from 'react';
 import dynamic from 'next/dynamic';
-import UpgradePopup from './UpgradePopup';
 
 const ReactConfetti = dynamic(() => import('react-confetti'), {
   ssr: false
@@ -18,12 +17,10 @@ export default function GameStats({ hasClicked }: GameStatsProps) {
   const { xp, xpPerSec, upgrades, addXP, buyUpgrade, isGameComplete } = useGameStore();
   const [showConfetti, setShowConfetti] = useState(false);
   const [dimensions, setDimensions] = useState({ width: 0, height: 0 });
-  const [upgradePopups, setUpgradePopups] = useState<{id: number}[]>([]);
 
   // Calculate progress
   const totalUpgrades = upgrades.length;
   const unlockedUpgrades = upgrades.filter(u => u.unlocked).length;
-  const progress = (unlockedUpgrades / totalUpgrades) * 100;
 
   // Handle XP per second
   useEffect(() => {
@@ -49,12 +46,7 @@ export default function GameStats({ hasClicked }: GameStatsProps) {
   }, [isGameComplete, unlockedUpgrades]);
 
   const handleUpgradeClick = (upgradeId: string) => {
-    setUpgradePopups(prev => [...prev, { id: Date.now() }]);
     buyUpgrade(upgradeId);
-  };
-
-  const removeUpgradePopup = (id: number) => {
-    setUpgradePopups(prev => prev.filter(popup => popup.id !== id));
   };
 
   // Set window dimensions
@@ -138,7 +130,7 @@ export default function GameStats({ hasClicked }: GameStatsProps) {
             ) : (
               <div className="flex flex-col gap-3">
                 <AnimatePresence mode="sync">
-                  {visibleUpgrades.map((upgrade, index) => (
+                  {visibleUpgrades.map((upgrade) => (
                     <motion.div
                       key={upgrade.id}
                       layout

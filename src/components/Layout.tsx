@@ -69,18 +69,6 @@ export default function Layout() {
       xl: viewportWidth >= 1280
     };
   };
-
-  const breakpoints = getBreakpointStatus();
-  
-  const getCurrentBreakpoint = () => {
-    if (viewportWidth >= 1280) return 'xl';
-    if (viewportWidth >= 1024) return 'lg';
-    if (viewportWidth >= 768) return 'md';
-    if (viewportWidth >= 640) return 'sm';
-    return 'xs';
-  };
-
-  const currentBreakpoint = getCurrentBreakpoint();
   
   // Determine which projects to show based on upgrades
   const showProjects = {

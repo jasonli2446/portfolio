@@ -168,7 +168,7 @@ export default function GameStats({ hasClicked }: GameStatsProps) {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5, ease: "easeOut" }}
-            className="w-full max-w-[300px] absolute bottom-[-80px] left-1/2 transform -translate-x-1/2"
+            className="w-full max-w-[300px] absolute bottom-[min(-40px,-4vh)] sm:bottom-[min(-50px,-5vh)] md:bottom-[min(-60px,-6vh)] lg:bottom-[min(-70px,-7vh)] left-1/2 transform -translate-x-1/2"
           >
             <div className="flex justify-between text-sm text-[#4B5563] mb-1">
               <span className={`text-[min(14px,1.5vh)] ${unlockedUpgrades === totalUpgrades ? 'text-[#16a34a]' : 'text-[#4B5563]'}`}>Progress</span>

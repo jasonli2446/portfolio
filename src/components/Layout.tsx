@@ -61,15 +61,6 @@ export default function Layout() {
     return () => window.removeEventListener('resize', updateWidth);
   }, []);
 
-  const getBreakpointStatus = () => {
-    return {
-      sm: viewportWidth >= 640,
-      md: viewportWidth >= 768,
-      lg: viewportWidth >= 1024,
-      xl: viewportWidth >= 1280
-    };
-  };
-  
   // Determine which projects to show based on upgrades
   const showProjects = {
     first: unlockedSections.projects,

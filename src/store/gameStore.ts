@@ -226,6 +226,7 @@ export const useGameStore = create<GameState>()(
     }),
     {
       name: 'game-storage',
+      skipHydration: true,
     }
   )
 ); 

@@ -50,6 +50,11 @@ export default function Layout() {
   const { unlockedSections, upgrades, xp } = useGameStore();
   const [hasClicked, setHasClicked] = useState(false);
   const [hasShownKeepClicking, setHasShownKeepClicking] = useState(false);
+
+  // Rehydrate Zustand persist store on client mount
+  useEffect(() => {
+    useGameStore.persist.rehydrate();
+  }, []);
   
   // Determine which projects to show based on upgrades
   const showProjects = {

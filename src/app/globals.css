@@ -34,8 +34,8 @@ body.allow-scroll {
 }
 
 @keyframes subtle-pulse {
-  0%, 100% { transform: scale(1); }
-  50% { transform: scale(1.02); }
+  0%, 100% { box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1), 0 2px 4px -2px rgba(0,0,0,0.1); }
+  50% { box-shadow: 0 10px 15px -3px rgba(0,0,0,0.15), 0 4px 6px -4px rgba(0,0,0,0.1); }
 }
 
 .animate-subtle-pulse {

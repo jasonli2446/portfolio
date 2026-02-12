@@ -186,8 +186,9 @@ export default function GameStats({ hasClicked }: GameStatsProps) {
             className="w-[300px] max-w-[300px] absolute bottom-[min(-100px,-8vh)] sm:bottom-[min(-50px,-5vh)] md:bottom-[min(-60px,-6vh)] lg:bottom-[min(-120px,-7vh)]"
           >
             <div className="flex justify-center relative">
-              <div className={`text-[min(16px,2vh)] ${unlockedUpgrades === totalUpgrades ? 'text-[#16a34a]' : 'text-[#4B5563]'}`}>
-                Progress&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{unlockedUpgrades}/{totalUpgrades} Upgrades
+              <div className={`text-[min(16px,2vh)] flex justify-between w-full ${unlockedUpgrades === totalUpgrades ? 'text-[#16a34a]' : 'text-[#4B5563]'}`}>
+                <span>Progress</span>
+                <span>{unlockedUpgrades}/{totalUpgrades} Upgrades</span>
               </div>
               {/* Upgrade Popups */}
               <AnimatePresence>

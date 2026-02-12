@@ -13,14 +13,8 @@ export const metadata: Metadata = {
   description: "Interactive developer portfolio showcasing projects, skills, and experience through an engaging clicker game interface.",
   icons: {
     icon: [
-      { url: '/favicon.ico' },
-      { url: '/icon.png', type: 'image/png' },
-      { url: '/globe.svg', type: 'image/svg+xml' },
+      { url: '/portfolio/favicon.svg', type: 'image/svg+xml' },
     ],
-    apple: [
-      { url: '/apple-icon.png' },
-    ],
-    shortcut: ['/favicon.ico'],
   },
 };
 

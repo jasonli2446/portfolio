@@ -14,34 +14,34 @@ import { useState, useEffect } from 'react';
 
 const projects = [
   {
+    title: "CampusGuessr",
+    description: "GeoGuessr-inspired game for CWRU played by 1,000+ students, featuring 360° locations, leaderboards, and real-time multiplayer.",
+    link: "https://github.com/jasonli2446/campusguessr"
+  },
+  {
+    title: "AI Avatar Kiosk",
+    description: "Permanent interactive exhibit at CWRU's Weatherhead School with real-time AI avatar conversations via WebRTC and SSO authentication.",
+    link: "https://github.com/jasonli2446"
+  },
+  {
+    title: "AI Benchmarking Platform",
+    description: "Full-stack platform used by 5 paying clients to evaluate and benchmark organizational AI adoption and maturity.",
+    link: "https://github.com/jasonli2446"
+  },
+  {
     title: "SnapMenu",
-    description: "AI-powered mobile app that scans menus and displays dish information with real images.",
+    description: "AI-powered mobile app that scans restaurant menus and displays real dish images using computer vision.",
     link: "https://github.com/jasonli2446/snapmenu"
   },
   {
-    title: "ExpressInk",
-    description: "AI app built for HackCWRU 2025 that analyzes artwork to provide mood insights for parents of nonverbal autistic children.",
-    link: "https://github.com/jasonli2446/ExpressInkFrontend"
+    title: "Ariadne",
+    description: "Tool that generates complete HTML pages on the fly using LLMs, turning natural language prompts into functional web pages.",
+    link: "https://github.com/jasonli2446/ariadne"
   },
   {
-    title: "Turret Dodge Game",
-    description: "Browser-based survival game where players dodge bullets from turrets.",
-    link: "https://github.com/jasonli2446/turret-dodge-game"
-  },
-  {
-    title: "Brick'd Up",
-    description: "Unity-based puzzle platformer where players place blocks.",
+    title: "BrickdUp",
+    description: "Real-time puzzle platformer built in Unity featuring player-placeable tiles and cooperative gameplay mechanics.",
     link: "https://github.com/jasonli2446/BrickdUp"
-  },
-  {
-    title: "Blackjack Simulator",
-    description: "Python-based blackjack simulator with strategy analysis, probability calculations, strategies, and statistical analysis.",
-    link: "https://github.com/jasonli2446/blackjack-simulator"
-  },
-  {
-    title: "Premier League Prediction Model",
-    description: "Machine learning model that predicts table standings.",
-    link: "https://github.com/jasonli2446/premier-league-predictor"
   }
 ];
 

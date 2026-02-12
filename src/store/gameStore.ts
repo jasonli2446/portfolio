@@ -23,6 +23,7 @@ interface GameState {
     resume: boolean;
     contact: boolean;
     currentWork: boolean;
+    experience: boolean;
   };
   messages: string[];
   addXP: (amount: number) => void;
@@ -62,7 +63,7 @@ const initialUpgrades: Upgrade[] = [
   },
   {
     id: 'javascript',
-    title: 'Learn JavaScript',
+    title: 'Land First Internship',
     cost: 100,
     xpPerSec: 50,
     xpPerClick: 25,
@@ -78,7 +79,7 @@ const initialUpgrades: Upgrade[] = [
   },
   {
     id: 'python',
-    title: 'Practice Python',
+    title: 'Build AI Agents',
     cost: 500,
     xpPerSec: 200,
     xpPerClick: 100,
@@ -102,7 +103,7 @@ const initialUpgrades: Upgrade[] = [
   },
   {
     id: 'current-work',
-    title: 'Continue Development',
+    title: 'Lead a Dev Team',
     cost: 5000,
     xpPerSec: 1000,
     xpPerClick: 1000,
@@ -110,7 +111,7 @@ const initialUpgrades: Upgrade[] = [
   },
   {
     id: 'internship',
-    title: 'Apply to an Internship',
+    title: 'Publish Research',
     cost: 10000,
     xpPerSec: 2000,
     xpPerClick: 2000,
@@ -118,7 +119,7 @@ const initialUpgrades: Upgrade[] = [
   },
   {
     id: 'remote-collab',
-    title: 'Collaborate Remotely',
+    title: 'Ship to Production',
     cost: 25000,
     xpPerSec: 5000,
     xpPerClick: 3000,
@@ -140,6 +141,7 @@ export const useGameStore = create<GameState>()(
         resume: false,
         contact: false,
         currentWork: false,
+        experience: false,
       },
       messages: [],
       addXP: (amount) => {
@@ -173,6 +175,7 @@ export const useGameStore = create<GameState>()(
               ...state.unlockedSections,
               subtitle: upgradeId === 'hello-world' ? true : state.unlockedSections.subtitle,
               projects: upgradeId === 'git-basics' ? true : state.unlockedSections.projects,
+              experience: upgradeId === 'javascript' ? true : state.unlockedSections.experience,
               skills: upgradeId === 'skills' ? true : state.unlockedSections.skills,
               currentWork: upgradeId === 'current-work' ? true : state.unlockedSections.currentWork,
               resume: upgradeId === 'internship' ? true : state.unlockedSections.resume,
@@ -203,6 +206,7 @@ export const useGameStore = create<GameState>()(
             resume: false,
             contact: false,
             currentWork: false,
+            experience: false,
           },
           messages: ["Game reset! Start your journey again."],
         }),

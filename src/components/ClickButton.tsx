@@ -55,13 +55,13 @@ export default function ClickButton({ onFirstClick }: ClickButtonProps) {
   };
 
   return (
-    <div className="relative mb-32">
+    <div className="relative mb-32 lg:mb-20">
       <motion.button
         ref={buttonRef}
         whileHover={{ scale: 1.05 }}
         whileTap={{ scale: 0.95 }}
         onClick={handleClick}
-        className="relative w-[20vw] h-[12vw] min-w-[280px] max-w-[300px] min-h-[160px] max-h-[180px] lg:min-w-[200px] lg:min-h-[120px] rounded-[24px] bg-gray-300 text-[#1C1C1C] font-[600] text-[min(32px,4vh)] md:text-[min(36px,4.5vh)] lg:text-[min(40px,5vh)] shadow-lg hover:bg-gray-400 flex items-center justify-center cursor-pointer animate-subtle-pulse"
+        className="relative w-[20vw] h-[12vw] min-w-[280px] max-w-[300px] min-h-[160px] max-h-[180px] lg:min-w-[180px] lg:max-w-[220px] lg:min-h-[100px] lg:max-h-[120px] rounded-[24px] bg-gray-300 text-[#1C1C1C] font-[600] text-[min(32px,4vh)] md:text-[min(36px,4.5vh)] lg:text-[min(32px,4vh)] shadow-lg hover:bg-gray-400 flex items-center justify-center cursor-pointer animate-subtle-pulse"
       >
         <div className="absolute inset-[-2px] rounded-[24px] border-[3px] border-gray-400 opacity-70" />
         <div className="absolute inset-0 rounded-[24px] bg-gray-300 opacity-50" />

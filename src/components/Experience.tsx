@@ -43,22 +43,22 @@ export default function Experience() {
       animate={{ opacity: 1, x: 0 }}
       className="w-full"
     >
-      <h2 className="text-[min(28px,4vh)] font-bold mb-4 underline decoration-2">Experience</h2>
-      <div className="space-y-3">
+      <h2 className="text-[min(28px,4vh)] lg:text-[min(18px,2.2vh)] font-bold mb-4 lg:mb-1 underline decoration-2">Experience</h2>
+      <div className="space-y-3 lg:space-y-0 lg:grid lg:grid-cols-2 lg:gap-0.5">
         {experiences.map((exp, index) => (
           <motion.div
             key={exp.company}
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: index * 0.1 }}
-            className="bg-white rounded-lg shadow-md p-3 hover:shadow-lg transition-shadow text-left"
+            className="bg-white rounded-lg shadow-md p-3 lg:p-1.5 hover:shadow-lg transition-shadow text-left"
           >
             <div className="flex justify-between items-start gap-2">
-              <h3 className="text-[min(16px,2vh)] font-bold">{exp.title}</h3>
-              <span className="text-[min(12px,1.5vh)] text-gray-400 whitespace-nowrap">{exp.dates}</span>
+              <h3 className="text-[min(16px,2vh)] lg:text-[min(12px,1.4vh)] font-bold">{exp.title}</h3>
+              <span className="text-[min(12px,1.5vh)] lg:text-[min(10px,1.2vh)] text-gray-400 whitespace-nowrap">{exp.dates}</span>
             </div>
-            <p className="text-[min(13px,1.6vh)] text-blue-600 font-medium">{exp.company}</p>
-            <p className="text-[min(13px,1.6vh)] text-gray-600 mt-1">{exp.description}</p>
+            <p className="text-[min(13px,1.6vh)] lg:text-[min(11px,1.3vh)] text-blue-600 font-medium">{exp.company}</p>
+            <p className="text-[min(13px,1.6vh)] lg:text-[min(10px,1.2vh)] text-gray-600 mt-1 lg:mt-0 lg:line-clamp-1">{exp.description}</p>
           </motion.div>
         ))}
       </div>

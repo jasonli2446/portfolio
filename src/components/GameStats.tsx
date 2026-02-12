@@ -99,14 +99,14 @@ export default function GameStats({ hasClicked }: GameStatsProps) {
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               transition={{ duration: 0.5, ease: "easeOut" }}
-              className="text-[min(24px,2vh)] font-bold text-[#2563EB]"
+              className="text-[min(24px,2vh)] lg:text-[min(18px,1.6vh)] font-bold text-[#2563EB]"
             >
               XP: {xp} (+{xpPerSec}/s)
             </motion.div>
           )}
         </div>
         
-        <div className="relative h-[200px] w-full flex justify-center my-[8px] lg:my-0">
+        <div className="relative h-[200px] lg:h-[160px] w-full flex justify-center my-[8px] lg:my-0">
           <AnimatePresence>
             {isGameComplete() ? (
               <motion.div
@@ -183,7 +183,7 @@ export default function GameStats({ hasClicked }: GameStatsProps) {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5, ease: "easeOut" }}
-            className="w-[300px] max-w-[300px] absolute bottom-[min(-100px,-8vh)] sm:bottom-[min(-50px,-5vh)] md:bottom-[min(-60px,-6vh)] lg:bottom-[min(-120px,-7vh)]"
+            className="w-[300px] max-w-[300px] absolute bottom-[min(-100px,-8vh)] sm:bottom-[min(-50px,-5vh)] md:bottom-[min(-60px,-6vh)] lg:bottom-[min(-80px,-5vh)]"
           >
             <div className="flex justify-center relative">
               <div className={`text-[min(16px,2vh)] flex justify-between w-full ${unlockedUpgrades === totalUpgrades ? 'text-[#16a34a]' : 'text-[#4B5563]'}`}>

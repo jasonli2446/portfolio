@@ -56,8 +56,8 @@ export default function Skills() {
       animate={{ opacity: 1, x: 0 }}
       className="w-full"
     >
-      <h2 className="text-[min(28px,4vh)] font-bold mb-6 underline decoration-2">Skills</h2>
-      <div className="space-y-4">
+      <h2 className="text-[min(28px,4vh)] lg:text-[min(18px,2.2vh)] font-bold mb-6 lg:mb-1 underline decoration-2">Skills</h2>
+      <div className="space-y-4 lg:space-y-0.5">
         {categories.map((category, catIndex) => (
           <motion.div
             key={category.label}
@@ -65,24 +65,24 @@ export default function Skills() {
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: catIndex * 0.15 }}
           >
-            <h3 className="text-[min(14px,1.8vh)] font-semibold text-gray-500 mb-2">{category.label}</h3>
-            <div className="flex flex-wrap justify-center gap-3">
+            <h3 className="text-[min(14px,1.8vh)] lg:text-[min(10px,1.2vh)] font-semibold text-gray-500 mb-2 lg:mb-0">{category.label}</h3>
+            <div className="flex flex-wrap justify-center gap-3 lg:gap-1.5">
               {category.skills.map((skill, index) => (
                 <motion.div
                   key={skill.name}
                   initial={{ opacity: 0, scale: 0.8 }}
                   animate={{ opacity: 1, scale: 1 }}
                   transition={{ delay: catIndex * 0.15 + index * 0.05 }}
-                  className="flex flex-col items-center gap-1"
+                  className="flex flex-col items-center gap-1 lg:gap-0"
                 >
-                  <div className={`w-[min(48px,min(8vw,8vh))] h-[min(48px,min(8vw,8vh))] lg:w-[min(40px,min(6vw,6vh))] lg:h-[min(40px,min(6vw,6vh))] rounded-[6px] ${skill.bgColor} p-[min(6px,min(0.6vw,0.6vh))] shadow-sm`}>
+                  <div className={`w-[min(48px,min(8vw,8vh))] h-[min(48px,min(8vw,8vh))] lg:w-[min(24px,min(3.5vw,3.5vh))] lg:h-[min(24px,min(3.5vw,3.5vh))] rounded-[6px] ${skill.bgColor} p-[min(6px,min(0.6vw,0.6vh))] lg:p-[min(3px,min(0.3vw,0.3vh))] shadow-sm`} title={skill.name}>
                     <img
                       src={skill.icon}
                       alt={skill.name}
                       className="w-full h-full object-contain"
                     />
                   </div>
-                  <span className="text-[#1C1C1C] text-[min(11px,1.4vh)] font-medium">{skill.name}</span>
+                  <span className="text-[#1C1C1C] text-[min(11px,1.4vh)] lg:text-[min(8px,1vh)] font-medium lg:leading-none">{skill.name}</span>
                 </motion.div>
               ))}
             </div>

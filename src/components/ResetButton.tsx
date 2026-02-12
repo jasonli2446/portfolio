@@ -7,28 +7,8 @@ export default function ResetButton() {
   const { isGameComplete, resetGame } = useGameStore();
 
   const handleReset = () => {
-    // Reset the game first
     resetGame();
-    
-    // Force scroll to top with multiple methods and a small delay
-    setTimeout(() => {
-      // Method 1: window.scrollTo
-      window.scrollTo(0, 0);
-      
-      // Method 2: documentElement.scrollTo
-      document.documentElement.scrollTo(0, 0);
-      
-      // Method 3: scrollIntoView
-      document.body.scrollIntoView({ behavior: 'instant', block: 'start' });
-      
-      // Method 4: Set scrollTop directly
-      document.documentElement.scrollTop = 0;
-      document.body.scrollTop = 0;
-      
-      // Disable vertical scrolling only
-      document.documentElement.style.overflowY = 'hidden';
-      document.body.style.overflowY = 'hidden';
-    }, 0);
+    window.scrollTo({ top: 0, behavior: 'instant' });
   };
 
   if (!isGameComplete()) return null;
@@ -45,4 +25,4 @@ export default function ResetButton() {
       <div className="font-[600] text-[14pt]">Reset Game</div>
     </motion.button>
   );
-} 
+}

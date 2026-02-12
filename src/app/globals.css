@@ -32,3 +32,16 @@ body.allow-scroll {
   overflow-x: hidden;
   background-color: rgb(var(--background-rgb));
 }
+
+@keyframes subtle-pulse {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.02); }
+}
+
+.animate-subtle-pulse {
+  animation: subtle-pulse 2s ease-in-out infinite;
+}
+
+.animate-subtle-pulse:hover {
+  animation: none;
+}

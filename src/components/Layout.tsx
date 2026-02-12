@@ -65,51 +65,31 @@ export default function Layout() {
   const shouldAllowScroll = upgradeCount >= 2;
   const allUpgradesPurchased = upgrades.every(u => u.unlocked);
 
-  // Watch for reset (when xp goes to 0)
-  useEffect(() => {
-    if (xp === 0) {
-      // Force scroll to top
-      window.scrollTo({
-        top: 0,
-        left: 0,
-        behavior: 'instant'
-      });
-      document.documentElement.scrollTo({
-        top: 0,
-        left: 0,
-        behavior: 'instant'
-      });
-      document.documentElement.style.overflow = 'hidden';
-      document.body.style.overflow = 'hidden';
-      document.body.classList.remove('allow-scroll');
-    }
-  }, [xp]);
-
   useEffect(() => {
     if (xp >= 10) {
       setHasShownKeepClicking(true);
     }
   }, [xp]);
 
-  // Handle scroll behavior
+  // Unified scroll management
   useEffect(() => {
-    if (!shouldAllowScroll) {
-      document.documentElement.style.overflowY = 'hidden';
-      document.body.style.overflowY = 'hidden';
-      document.body.classList.remove('allow-scroll');
-    } else {
-      document.documentElement.style.overflowY = 'auto';
-      document.body.style.overflowY = 'auto';
-      document.body.classList.add('allow-scroll');
+    if (xp === 0) {
+      window.scrollTo({ top: 0, behavior: 'instant' });
     }
 
-    // Cleanup function to ensure scroll is disabled when component unmounts
+    if (shouldAllowScroll) {
+      document.documentElement.style.overflowY = 'auto';
+      document.body.style.overflowY = 'auto';
+    } else {
+      document.documentElement.style.overflowY = 'hidden';
+      document.body.style.overflowY = 'hidden';
+    }
+
     return () => {
       document.documentElement.style.overflowY = 'auto';
       document.body.style.overflowY = 'auto';
-      document.body.classList.remove('allow-scroll');
     };
-  }, [shouldAllowScroll]);
+  }, [shouldAllowScroll, xp]);
 
   const getWelcomeText = () => {
     if (!hasClicked) {

@@ -9,6 +9,7 @@ import ProjectCard from './ProjectCard';
 import ResetButton from './ResetButton';
 import Skills from './Skills';
 import CurrentWork from './CurrentWork';
+import Experience from './Experience';
 import SoundEffects from './SoundEffects';
 import { useState, useEffect } from 'react';
 
@@ -195,6 +196,7 @@ export default function Layout() {
           >
             <div className="flex flex-col gap-[min(50px,4vh)] lg:gap-[min(32px,2vh)] relative">
               {unlockedSections.skills && <Skills />}
+              {unlockedSections.experience && <Experience />}
               {unlockedSections.currentWork && <CurrentWork />}
 
               <motion.div

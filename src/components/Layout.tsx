@@ -8,7 +8,6 @@ import MessagePopup from './MessagePopup';
 import ProjectCard from './ProjectCard';
 import ResetButton from './ResetButton';
 import Skills from './Skills';
-import CurrentWork from './CurrentWork';
 import Experience from './Experience';
 import SoundEffects from './SoundEffects';
 import { useState, useEffect } from 'react';
@@ -22,12 +21,12 @@ const projects = [
   {
     title: "AI Avatar Kiosk",
     description: "Permanent interactive exhibit at CWRU's Weatherhead School with real-time AI avatar conversations via WebRTC and SSO authentication.",
-    link: "https://github.com/jasonli2446"
+    link: "https://linkedin.com/in/jasonli2446"
   },
   {
     title: "AI Benchmarking Platform",
     description: "Full-stack platform used by 5 paying clients to evaluate and benchmark organizational AI adoption and maturity.",
-    link: "https://github.com/jasonli2446"
+    link: "https://linkedin.com/in/jasonli2446"
   },
   {
     title: "SnapMenu",
@@ -185,17 +184,16 @@ export default function Layout() {
             animate={{ opacity: 1, x: 0 }}
             className={`w-full lg:w-1/3 p-4 lg:p-2 lg:pt-2 text-center text-[#1C1C1C] order-3 lg:overflow-y-auto lg:h-screen hide-scrollbar ${allUpgradesPurchased ? 'pb-[64px] lg:pb-2' : ''}`}
           >
-            <div className="flex flex-col gap-[min(50px,4vh)] lg:gap-[min(6px,0.8vh)] relative">
+            <div className="flex flex-col gap-[min(50px,4vh)] lg:gap-[min(12px,1.5vh)] relative">
               {unlockedSections.skills && <Skills />}
               {unlockedSections.experience && <Experience />}
-              {unlockedSections.currentWork && <CurrentWork />}
 
               <motion.div
                 initial={{ opacity: 0, x: 100 }}
                 animate={{ opacity: unlockedSections.resume ? 1 : 0, x: unlockedSections.resume ? 0 : 100 }}
                 className="w-full"
               >
-                <h2 className="text-[min(28px,4vh)] lg:text-[min(18px,2.2vh)] font-bold mb-8 lg:mb-1 underline decoration-2">Resume</h2>
+                <h2 className="text-[min(28px,4vh)] lg:text-[min(20px,2.5vh)] font-bold mb-8 lg:mb-2 underline decoration-2">Resume</h2>
                 <div className="flex justify-center">
                   <a
                     href="https://jasonli2446.github.io/portfolio/resume.pdf"
@@ -203,7 +201,7 @@ export default function Layout() {
                     rel="noopener noreferrer"
                     className="flex items-center gap-[12px] lg:gap-[8px] cursor-pointer hover:opacity-80 transition-opacity"
                   >
-                    <div className="w-[min(72px,min(12vw,12vh))] h-[min(72px,min(12vw,12vh))] lg:w-[min(28px,min(4vw,4vh))] lg:h-[min(28px,min(4vw,4vh))] rounded-[8px] lg:rounded-[4px] bg-blue-500/20 p-[min(8px,min(0.8vw,0.8vh))] lg:p-[min(4px,min(0.4vw,0.4vh))] shadow-md">
+                    <div className="w-[min(72px,min(12vw,12vh))] h-[min(72px,min(12vw,12vh))] lg:w-[min(36px,min(5vw,5vh))] lg:h-[min(36px,min(5vw,5vh))] rounded-[8px] bg-blue-500/20 p-[min(8px,min(0.8vw,0.8vh))] lg:p-[min(5px,min(0.5vw,0.5vh))] shadow-md">
                       <img 
                         src="https://jasonli2446.github.io/portfolio/file.svg"
                         alt="Resume"
@@ -220,20 +218,20 @@ export default function Layout() {
                 animate={{ opacity: unlockedSections.contact ? 1 : 0, x: unlockedSections.contact ? 0 : 100 }}
                 className="w-full"
               >
-                <h2 className="text-[min(28px,4vh)] lg:text-[min(18px,2.2vh)] font-bold mb-8 lg:mb-1 underline decoration-2">Contact</h2>
-                <div className="flex justify-center items-center gap-[32px] lg:gap-[16px]">
+                <h2 className="text-[min(28px,4vh)] lg:text-[min(20px,2.5vh)] font-bold mb-8 lg:mb-2 underline decoration-2">Contact</h2>
+                <div className="flex justify-center items-center gap-[32px] lg:gap-[20px]">
                   <a
                     href="mailto:jasonli2446@gmail.com"
                     className="flex flex-col items-center gap-[4px] lg:gap-0 cursor-pointer hover:opacity-80 transition-opacity w-[120px] lg:w-auto"
                   >
-                    <div className="w-[min(72px,min(12vw,12vh))] h-[min(72px,min(12vw,12vh))] lg:w-[min(28px,min(4vw,4vh))] lg:h-[min(28px,min(4vw,4vh))] rounded-[8px] lg:rounded-[4px] bg-red-500/20 p-[min(8px,min(0.8vw,0.8vh))] lg:p-[min(4px,min(0.4vw,0.4vh))] shadow-md">
+                    <div className="w-[min(72px,min(12vw,12vh))] h-[min(72px,min(12vw,12vh))] lg:w-[min(36px,min(5vw,5vh))] lg:h-[min(36px,min(5vw,5vh))] rounded-[8px] bg-red-500/20 p-[min(8px,min(0.8vw,0.8vh))] lg:p-[min(4px,min(0.4vw,0.4vh))] shadow-md">
                       <img
                         src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/google/google-original.svg"
                         alt="Email"
                         className="w-full h-full object-contain"
                       />
                     </div>
-                    <div className="text-[#1C1C1C] text-[min(14px,2vh)] lg:text-[min(9px,1.1vh)] font-medium hover:text-[#0077B6] transition-colors truncate w-full text-center">jasonli2446@gmail.com</div>
+                    <div className="text-[#1C1C1C] text-[min(14px,2vh)] lg:text-[min(11px,1.3vh)] font-medium hover:text-[#0077B6] transition-colors truncate w-full text-center">jasonli2446@gmail.com</div>
                   </a>
                   <a
                     href="https://linkedin.com/in/jasonli2446"
@@ -241,14 +239,14 @@ export default function Layout() {
                     rel="noopener noreferrer"
                     className="flex flex-col items-center gap-[4px] lg:gap-0 cursor-pointer hover:opacity-80 transition-opacity w-[120px] lg:w-auto"
                   >
-                    <div className="w-[min(72px,min(12vw,12vh))] h-[min(72px,min(12vw,12vh))] lg:w-[min(28px,min(4vw,4vh))] lg:h-[min(28px,min(4vw,4vh))] rounded-[8px] lg:rounded-[4px] bg-blue-600/20 p-[min(8px,min(0.8vw,0.8vh))] lg:p-[min(4px,min(0.4vw,0.4vh))] shadow-md">
+                    <div className="w-[min(72px,min(12vw,12vh))] h-[min(72px,min(12vw,12vh))] lg:w-[min(36px,min(5vw,5vh))] lg:h-[min(36px,min(5vw,5vh))] rounded-[8px] bg-blue-600/20 p-[min(8px,min(0.8vw,0.8vh))] lg:p-[min(4px,min(0.4vw,0.4vh))] shadow-md">
                       <img
                         src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/linkedin/linkedin-original.svg"
                         alt="LinkedIn"
                         className="w-full h-full object-contain"
                       />
                     </div>
-                    <div className="text-[#1C1C1C] text-[min(14px,2vh)] lg:text-[min(9px,1.1vh)] font-medium hover:text-[#0077B6] transition-colors truncate w-full text-center">LinkedIn</div>
+                    <div className="text-[#1C1C1C] text-[min(14px,2vh)] lg:text-[min(11px,1.3vh)] font-medium hover:text-[#0077B6] transition-colors truncate w-full text-center">LinkedIn</div>
                   </a>
                   <a
                     href="https://github.com/jasonli2446"
@@ -256,14 +254,14 @@ export default function Layout() {
                     rel="noopener noreferrer"
                     className="flex flex-col items-center gap-[4px] lg:gap-0 cursor-pointer hover:opacity-80 transition-opacity w-[120px] lg:w-auto"
                   >
-                    <div className="w-[min(72px,min(12vw,12vh))] h-[min(72px,min(12vw,12vh))] lg:w-[min(28px,min(4vw,4vh))] lg:h-[min(28px,min(4vw,4vh))] rounded-[8px] lg:rounded-[4px] bg-gray-800/20 p-[min(8px,min(0.8vw,0.8vh))] lg:p-[min(4px,min(0.4vw,0.4vh))] shadow-md">
+                    <div className="w-[min(72px,min(12vw,12vh))] h-[min(72px,min(12vw,12vh))] lg:w-[min(36px,min(5vw,5vh))] lg:h-[min(36px,min(5vw,5vh))] rounded-[8px] bg-gray-800/20 p-[min(8px,min(0.8vw,0.8vh))] lg:p-[min(4px,min(0.4vw,0.4vh))] shadow-md">
                       <img
                         src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/github/github-original.svg"
                         alt="GitHub"
                         className="w-full h-full object-contain"
                       />
                     </div>
-                    <div className="text-[#1C1C1C] text-[min(14px,2vh)] lg:text-[min(9px,1.1vh)] font-medium hover:text-[#0077B6] transition-colors truncate w-full text-center">GitHub</div>
+                    <div className="text-[#1C1C1C] text-[min(14px,2vh)] lg:text-[min(11px,1.3vh)] font-medium hover:text-[#0077B6] transition-colors truncate w-full text-center">GitHub</div>
                   </a>
                 </div>
               </motion.div>

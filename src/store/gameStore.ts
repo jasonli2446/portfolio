@@ -22,7 +22,6 @@ interface GameState {
     skills: boolean;
     resume: boolean;
     contact: boolean;
-    currentWork: boolean;
     experience: boolean;
   };
   messages: string[];
@@ -140,7 +139,6 @@ export const useGameStore = create<GameState>()(
         skills: false,
         resume: false,
         contact: false,
-        currentWork: false,
         experience: false,
       },
       messages: [],
@@ -177,7 +175,6 @@ export const useGameStore = create<GameState>()(
               projects: upgradeId === 'git-basics' ? true : state.unlockedSections.projects,
               experience: upgradeId === 'javascript' ? true : state.unlockedSections.experience,
               skills: upgradeId === 'skills' ? true : state.unlockedSections.skills,
-              currentWork: upgradeId === 'current-work' ? true : state.unlockedSections.currentWork,
               resume: upgradeId === 'internship' ? true : state.unlockedSections.resume,
               contact: upgradeId === 'remote-collab' ? true : state.unlockedSections.contact,
             },
@@ -205,7 +202,6 @@ export const useGameStore = create<GameState>()(
             skills: false,
             resume: false,
             contact: false,
-            currentWork: false,
             experience: false,
           },
           messages: ["Game reset! Start your journey again."],

@@ -56,7 +56,7 @@ export default function Skills() {
       animate={{ opacity: 1, x: 0 }}
       className="w-full"
     >
-      <h2 className="text-[min(28px,4vh)] lg:text-[min(20px,2.5vh)] font-bold mb-6 lg:mb-2 underline decoration-2">Skills</h2>
+      <h2 className="text-[clamp(18px,4vh,28px)] lg:text-[clamp(14px,2.5vh,20px)] font-bold mb-6 lg:mb-2 underline decoration-2">Skills</h2>
       <div className="space-y-4 lg:space-y-1">
         {categories.map((category, catIndex) => (
           <motion.div
@@ -65,7 +65,7 @@ export default function Skills() {
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: catIndex * 0.15 }}
           >
-            <h3 className="text-[min(14px,1.8vh)] lg:text-[min(11px,1.3vh)] font-semibold text-gray-500 mb-2 lg:mb-0.5">{category.label}</h3>
+            <h3 className="text-[clamp(10px,1.8vh,14px)] lg:text-[clamp(8px,1.3vh,11px)] font-semibold text-gray-500 mb-2 lg:mb-0.5">{category.label}</h3>
             <div className="flex flex-wrap justify-center gap-3 lg:gap-1.5">
               {category.skills.map((skill, index) => (
                 <motion.div
@@ -75,14 +75,14 @@ export default function Skills() {
                   transition={{ delay: catIndex * 0.15 + index * 0.05 }}
                   className="flex flex-col items-center gap-1 lg:gap-0"
                 >
-                  <div className={`w-[min(48px,min(8vw,8vh))] h-[min(48px,min(8vw,8vh))] lg:w-[min(30px,min(4vw,4vh))] lg:h-[min(30px,min(4vw,4vh))] rounded-[6px] ${skill.bgColor} p-[min(6px,min(0.6vw,0.6vh))] lg:p-[min(4px,min(0.4vw,0.4vh))] shadow-sm`} title={skill.name}>
+                  <div className={`w-[clamp(30px,min(8vw,8vh),48px)] h-[clamp(30px,min(8vw,8vh),48px)] lg:w-[clamp(20px,min(4vw,4vh),30px)] lg:h-[clamp(20px,min(4vw,4vh),30px)] rounded-[6px] ${skill.bgColor} p-[clamp(3px,min(0.6vw,0.6vh),6px)] lg:p-[clamp(2px,min(0.4vw,0.4vh),4px)] shadow-sm`} title={skill.name}>
                     <img
                       src={skill.icon}
                       alt={skill.name}
                       className="w-full h-full object-contain"
                     />
                   </div>
-                  <span className="text-[#1C1C1C] text-[min(11px,1.4vh)] lg:text-[min(9px,1.1vh)] font-medium">{skill.name}</span>
+                  <span className="text-[#1C1C1C] text-[clamp(8px,1.4vh,11px)] lg:text-[clamp(7px,1.1vh,9px)] font-medium">{skill.name}</span>
                 </motion.div>
               ))}
             </div>

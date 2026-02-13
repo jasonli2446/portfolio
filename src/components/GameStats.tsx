@@ -99,7 +99,7 @@ export default function GameStats({ hasClicked }: GameStatsProps) {
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               transition={{ duration: 0.5, ease: "easeOut" }}
-              className="text-[min(24px,2vh)] lg:text-[min(18px,1.6vh)] font-bold text-[#2563EB]"
+              className="text-[clamp(14px,2vh,24px)] lg:text-[clamp(12px,1.6vh,18px)] font-bold text-[#2563EB]"
             >
               XP: {xp} (+{xpPerSec}/s)
             </motion.div>
@@ -115,7 +115,7 @@ export default function GameStats({ hasClicked }: GameStatsProps) {
                 className="text-center text-gray-600"
               >
                 <motion.p 
-                  className="text-[min(20px,2.5vh)] font-semibold mb-2"
+                  className="text-[clamp(14px,2.5vh,20px)] font-semibold mb-2"
                   animate={{ 
                     scale: [1, 1.02, 1],
                     textShadow: [
@@ -132,7 +132,7 @@ export default function GameStats({ hasClicked }: GameStatsProps) {
                 >
                   🎉 Congratulations! 🎉
                 </motion.p>
-                <p className="text-[min(16px,2vh)]">All sections have been unlocked!</p>
+                <p className="text-[clamp(12px,2vh,16px)]">All sections have been unlocked!</p>
               </motion.div>
             ) : (
               <div className="flex flex-col gap-3">
@@ -163,8 +163,8 @@ export default function GameStats({ hasClicked }: GameStatsProps) {
                             : 'bg-gradient-to-r from-gray-50 to-gray-100 text-gray-400 cursor-not-allowed border border-gray-200'
                         }`}
                       >
-                        <div className="font-bold text-[min(14px,1.8vh)] mb-0.5 truncate">{upgrade.title}</div>
-                        <div className="text-[min(12px,1.5vh)] opacity-90 flex items-center justify-center gap-1">
+                        <div className="font-bold text-[clamp(10px,1.8vh,14px)] mb-0.5 truncate">{upgrade.title}</div>
+                        <div className="text-[clamp(9px,1.5vh,12px)] opacity-90 flex items-center justify-center gap-1">
                           <span className="text-amber-500">★</span>
                           {upgrade.cost} XP
                         </div>
@@ -183,10 +183,10 @@ export default function GameStats({ hasClicked }: GameStatsProps) {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5, ease: "easeOut" }}
-            className="w-[300px] max-w-[300px] absolute bottom-[min(-100px,-8vh)] sm:bottom-[min(-50px,-5vh)] md:bottom-[min(-60px,-6vh)] lg:bottom-[min(-80px,-5vh)]"
+            className="w-[300px] max-w-[300px] absolute bottom-[clamp(-100px,-8vh,-50px)] sm:bottom-[clamp(-60px,-5vh,-40px)] md:bottom-[clamp(-70px,-6vh,-50px)] lg:bottom-[clamp(-80px,-5vh,-50px)]"
           >
             <div className="flex justify-center relative">
-              <div className={`text-[min(16px,2vh)] flex justify-between w-full ${unlockedUpgrades === totalUpgrades ? 'text-[#16a34a]' : 'text-[#4B5563]'}`}>
+              <div className={`text-[clamp(12px,2vh,16px)] flex justify-between w-full ${unlockedUpgrades === totalUpgrades ? 'text-[#16a34a]' : 'text-[#4B5563]'}`}>
                 <span>Progress</span>
                 <span>{unlockedUpgrades}/{totalUpgrades} Upgrades</span>
               </div>

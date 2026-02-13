@@ -6,16 +6,17 @@ import { useEffect } from 'react';
 
 export default function MessagePopup() {
   const { messages, removeMessage } = useGameStore();
+  const currentMessage = messages[0];
 
   useEffect(() => {
-    if (messages.length > 0) {
+    if (currentMessage) {
       const timer = setTimeout(() => {
         removeMessage(0);
-      }, 3000);
+      }, 2000);
 
       return () => clearTimeout(timer);
     }
-  }, [messages, removeMessage]);
+  }, [currentMessage, removeMessage]);
 
   return (
     <div className="fixed top-[12px] left-1/2 transform -translate-x-1/2 z-50">

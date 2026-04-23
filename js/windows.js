@@ -1,48 +1,98 @@
 export const windows = [];
 
 let draggedWin = null;
-let dragStartX = 0, dragStartY = 0;
-let winStartLeft = 0, winStartTop = 0;
-let wallMatrix = null;
 
 /**
- * Get the accumulated CSS 3D transform matrix from a wall element
- * all the way up to the viewport, then invert it so we can project
- * screen-space deltas back into wall-local pixel deltas.
+ * Build the full screen→wall-local projection for a given wall.
+ *
+ * CSS 3D pipeline:
+ *   1. Translate to transform-origin
+ *   2. Apply the element's transform (rotateY, translateZ, etc.)
+ *   3. Translate back from transform-origin
+ *   4. Translate by element's offset (top/left within parent)
+ *   5. Apply perspective from the parent container
+ *
+ * We replicate this, then invert to go screen→local.
  */
-function getWallInverseMatrix(wallEl) {
-  // Walk up from the wall to the perspective container (#room)
-  // and accumulate the full transform chain.
-  // CSS getComputedStyle().transform gives the resolved matrix for each element.
-  const matrices = [];
-  let el = wallEl;
-  while (el && el !== document.documentElement) {
-    const style = getComputedStyle(el);
-    const t = style.transform;
-    if (t && t !== 'none') {
-      matrices.push(new DOMMatrix(t));
-    }
-    el = el.parentElement;
-  }
+function getScreenToLocal(wallEl) {
+  const room = document.getElementById('room');
+  const perspective = parseFloat(getComputedStyle(room).perspective);
+  // perspective-origin (defaults to 50% 50%)
+  const poStyle = getComputedStyle(room).perspectiveOrigin;
+  const poParts = poStyle.split(' ');
+  const poX = parseFloat(poParts[0]);  // already in px from computed
+  const poY = parseFloat(poParts[1]);
 
-  // Multiply in reverse order (outermost first) to get the full transform
-  let full = new DOMMatrix();
-  for (let i = matrices.length - 1; i >= 0; i--) {
-    full = full.multiply(matrices[i]);
-  }
-  return full.inverse();
+  // The CSS perspective matrix:
+  //   perspective(p) translates to a matrix where m34 = -1/p
+  //   but it's applied relative to perspective-origin, so:
+  //   translate(poX, poY) * perspective(p) * translate(-poX, -poY)
+  const perspMatrix = new DOMMatrix();
+  perspMatrix.m34 = -1 / perspective;
+
+  const toPO = new DOMMatrix().translateSelf(poX, poY, 0);
+  const fromPO = new DOMMatrix().translateSelf(-poX, -poY, 0);
+  const fullPersp = toPO.multiply(perspMatrix).multiply(fromPO);
+
+  // Element's offset in the parent (its CSS top/left position)
+  const offsetLeft = wallEl.offsetLeft;
+  const offsetTop  = wallEl.offsetTop;
+  const elOffset = new DOMMatrix().translateSelf(offsetLeft, offsetTop, 0);
+
+  // Transform-origin (resolved in px by computed style)
+  const toStyle = getComputedStyle(wallEl).transformOrigin;
+  const toParts = toStyle.split(' ');
+  const toX = parseFloat(toParts[0]);
+  const toY = parseFloat(toParts[1]);
+  const toZ = toParts[2] ? parseFloat(toParts[2]) : 0;
+
+  // The element's own CSS transform
+  const rawTransform = getComputedStyle(wallEl).transform;
+  const elTransform = rawTransform && rawTransform !== 'none'
+    ? new DOMMatrix(rawTransform)
+    : new DOMMatrix();
+
+  // Full chain: perspective * offset * toOrigin * transform * fromOrigin
+  const toOrigin = new DOMMatrix().translateSelf(toX, toY, toZ);
+  const fromOrigin = new DOMMatrix().translateSelf(-toX, -toY, -toZ);
+
+  const wallToScreen = fullPersp
+    .multiply(elOffset)
+    .multiply(toOrigin)
+    .multiply(elTransform)
+    .multiply(fromOrigin);
+
+  return wallToScreen.inverse();
 }
 
 /**
- * Convert a screen-space delta (dx, dy) to wall-local delta
- * using the wall's inverse transform matrix.
+ * Given a screen point (clientX, clientY), unproject to
+ * wall-local (x, y) coordinates using the inverse matrix.
+ *
+ * Screen points are 2D but represent a ray from the viewer
+ * through the screen. We need the intersection with the wall plane.
+ *
+ * For a perspective projection, a screen pixel (sx, sy) corresponds
+ * to the 3D point (sx, sy, 0) in the #room's coordinate space.
+ * We transform this through the inverse to get wall-local coords.
  */
-function screenDeltaToWallLocal(invMatrix, screenDX, screenDY) {
-  // Transform two points: origin and origin+delta
-  // The difference gives us the wall-local delta
-  const p0 = invMatrix.transformPoint(new DOMPoint(0, 0, 0));
-  const p1 = invMatrix.transformPoint(new DOMPoint(screenDX, screenDY, 0));
-  return { dx: p1.x - p0.x, dy: p1.y - p0.y };
+function screenToWallLocal(invMatrix, sx, sy) {
+  // The screen point is at z=0 in room-space, w=1
+  const p = invMatrix.transformPoint(new DOMPoint(sx, sy, 0, 1));
+  // Perspective divide
+  if (Math.abs(p.w) < 1e-10) return null;
+  return { x: p.x / p.w, y: p.y / p.w };
+}
+
+/**
+ * Find which wall element is under the given screen point.
+ */
+function wallUnderPoint(sx, sy) {
+  const els = document.elementsFromPoint(sx, sy);
+  for (const el of els) {
+    if (el.classList.contains('wall')) return el;
+  }
+  return null;
 }
 
 export function createWindow(title, widthPx, heightPx, contentHTML, parentWall) {
@@ -92,14 +142,21 @@ export function createWindow(title, widthPx, heightPx, contentHTML, parentWall) 
     e.stopPropagation();
     e.preventDefault();
     draggedWin = win;
-    dragStartX = e.clientX;
-    dragStartY = e.clientY;
-    winStartLeft = parseInt(el.style.left) || 0;
-    winStartTop  = parseInt(el.style.top)  || 0;
-    wallMatrix = getWallInverseMatrix(parentWall);
+
+
+    // Compute grab offset in wall-local coords
+    const invMatrix = getScreenToLocal(parentWall);
+    const localPos = screenToWallLocal(invMatrix, e.clientX, e.clientY);
+    if (localPos) {
+      draggedWin._grabOffsetX = localPos.x - (parseInt(el.style.left) || 0);
+      draggedWin._grabOffsetY = localPos.y - (parseInt(el.style.top) || 0);
+    } else {
+      draggedWin._grabOffsetX = 0;
+      draggedWin._grabOffsetY = 0;
+    }
+
     content.style.pointerEvents = 'none';
     titlebar.setPointerCapture(e.pointerId);
-    console.log('[drag] pointerdown', title, 'at', e.clientX, e.clientY, 'winPos', winStartLeft, winStartTop);
   });
 
   return win;
@@ -117,36 +174,45 @@ export function centerWindow(win, offsetX = 0, offsetY = 0) {
 
 // Drag move
 document.addEventListener('pointermove', (e) => {
-  if (!draggedWin || !wallMatrix) return;
-
-  const screenDX = e.clientX - dragStartX;
-  const screenDY = e.clientY - dragStartY;
-
-  const local = screenDeltaToWallLocal(wallMatrix, screenDX, screenDY);
-
-  console.log('[drag] move screenΔ', screenDX.toFixed(0), screenDY.toFixed(0),
-    '→ localΔ', local.dx.toFixed(1), local.dy.toFixed(1));
+  if (!draggedWin) return;
 
   const el = draggedWin.element;
-  const wall = draggedWin.parentWall;
+  let wall = draggedWin.parentWall;
+
+  // Check if pointer has moved to a different wall
+  // Temporarily hide the window so elementsFromPoint hits the wall
+  el.style.visibility = 'hidden';
+  const hitWall = wallUnderPoint(e.clientX, e.clientY);
+  el.style.visibility = '';
+
+  if (hitWall && hitWall !== wall) {
+    // Reparent the window to the new wall
+    hitWall.appendChild(el);
+    draggedWin.parentWall = hitWall;
+    wall = hitWall;
+  }
+
+  // Unproject screen position to wall-local coords
+  const invMatrix = getScreenToLocal(wall);
+  const localPos = screenToWallLocal(invMatrix, e.clientX, e.clientY);
+  if (!localPos) return;
+
   const pw = wall.offsetWidth;
   const ph = wall.offsetHeight;
   const ew = el.offsetWidth;
   const eh = el.offsetHeight;
   const margin = 10;
 
-  const newLeft = Math.max(margin, Math.min(pw - ew - margin, winStartLeft + local.dx));
-  const newTop  = Math.max(margin, Math.min(ph - eh - margin, winStartTop  + local.dy));
+  const newLeft = localPos.x - draggedWin._grabOffsetX;
+  const newTop  = localPos.y - draggedWin._grabOffsetY;
 
-  el.style.left = newLeft + 'px';
-  el.style.top  = newTop  + 'px';
+  el.style.left = Math.max(margin, Math.min(pw - ew - margin, newLeft)) + 'px';
+  el.style.top  = Math.max(margin, Math.min(ph - eh - margin, newTop))  + 'px';
 });
 
 // Drag end
 document.addEventListener('pointerup', () => {
   if (!draggedWin) return;
-  console.log('[drag] pointerup');
   draggedWin.content.style.pointerEvents = '';
   draggedWin = null;
-  wallMatrix = null;
 });

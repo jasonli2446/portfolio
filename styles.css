@@ -1,0 +1,401 @@
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body {
+  overflow: hidden;
+  background: #050010;
+  font-family: system-ui, -apple-system, sans-serif;
+  color: #e0e0e0;
+}
+
+/* ── Room container = viewport = front face of box ── */
+#room {
+  position: fixed;
+  inset: 0;
+  perspective: 800px;
+  perspective-origin: 50% 50%;
+  overflow: hidden;
+}
+
+#box {
+  position: absolute;
+  inset: 0;
+  transform-style: preserve-3d;
+}
+
+/* ── Walls ───────────────────────────────────────── */
+.wall {
+  position: absolute;
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+}
+
+/* Back wall: full viewport size, pushed back */
+.wall-back {
+  inset: 0;
+  transform: translateZ(calc(var(--depth) * -1));
+  background:
+    repeating-linear-gradient(90deg,  transparent, transparent 79px, rgba(100,140,255,0.18) 79px, rgba(100,140,255,0.18) 80px),
+    repeating-linear-gradient(0deg,   transparent, transparent 79px, rgba(100,140,255,0.18) 79px, rgba(100,140,255,0.18) 80px),
+    radial-gradient(ellipse at 50% 60%, rgba(80, 0, 180, 0.5) 0%, transparent 65%),
+    linear-gradient(180deg, #1a0844 0%, #0e0040 40%, #06003a 100%);
+}
+
+/* Left wall: hinges from left edge of viewport, rotates right */
+.wall-left {
+  top: 0; bottom: 0; left: 0;
+  width: calc(var(--depth) + 2px);
+  transform-origin: left center;
+  transform: rotateY(90deg);
+  background:
+    repeating-linear-gradient(90deg,  transparent, transparent 79px, rgba(80,120,255,0.15) 79px, rgba(80,120,255,0.15) 80px),
+    repeating-linear-gradient(0deg,   transparent, transparent 79px, rgba(80,120,255,0.15) 79px, rgba(80,120,255,0.15) 80px),
+    radial-gradient(ellipse at 60% 50%, rgba(0, 40, 180, 0.4) 0%, transparent 65%),
+    linear-gradient(135deg, #120050 0%, #0a0060 50%, #060040 100%);
+}
+
+/* Right wall: hinges from right edge of viewport, rotates left */
+.wall-right {
+  top: 0; bottom: 0; right: 0;
+  width: calc(var(--depth) + 2px);
+  transform-origin: right center;
+  transform: rotateY(-90deg);
+  background:
+    repeating-linear-gradient(90deg,  transparent, transparent 79px, rgba(120,80,255,0.15) 79px, rgba(120,80,255,0.15) 80px),
+    repeating-linear-gradient(0deg,   transparent, transparent 79px, rgba(120,80,255,0.15) 79px, rgba(120,80,255,0.15) 80px),
+    radial-gradient(ellipse at 40% 50%, rgba(100, 0, 180, 0.4) 0%, transparent 65%),
+    linear-gradient(225deg, #180050 0%, #0e0060 50%, #060040 100%);
+}
+
+/* Floor: hinges from bottom edge of viewport, rotates up */
+.wall-floor {
+  left: 0; right: 0; bottom: 0;
+  height: calc(var(--depth) + 2px);
+  transform-origin: center bottom;
+  transform: rotateX(90deg);
+  background:
+    repeating-linear-gradient(90deg,  transparent, transparent 79px, rgba(0,140,255,0.2) 79px, rgba(0,140,255,0.2) 80px),
+    repeating-linear-gradient(0deg,   transparent, transparent 79px, rgba(0,140,255,0.2) 79px, rgba(0,140,255,0.2) 80px),
+    radial-gradient(ellipse at 50% 30%, rgba(0, 80, 255, 0.3) 0%, transparent 60%),
+    linear-gradient(180deg, #040020 0%, #0a0050 50%, #0e0070 100%);
+}
+
+/* Ceiling: hinges from top edge of viewport, rotates down */
+.wall-ceiling {
+  left: 0; right: 0; top: 0;
+  height: calc(var(--depth) + 2px);
+  transform-origin: center top;
+  transform: rotateX(-90deg);
+  background:
+    repeating-linear-gradient(90deg,  transparent, transparent 79px, rgba(80,60,200,0.12) 79px, rgba(80,60,200,0.12) 80px),
+    repeating-linear-gradient(0deg,   transparent, transparent 79px, rgba(80,60,200,0.12) 79px, rgba(80,60,200,0.12) 80px),
+    radial-gradient(ellipse at 50% 70%, rgba(60, 0, 160, 0.25) 0%, transparent 60%),
+    linear-gradient(0deg, #080030 0%, #0a0040 100%);
+}
+
+/* ── Neon edge lines where walls meet ─────────────── */
+
+/* Back wall edges — top, bottom, left, right */
+.wall-back::before {
+  content: ''; position: absolute; bottom: 0; left: 0; right: 0; height: 2px;
+  background: linear-gradient(90deg, rgba(0,120,255,0.8), rgba(140,0,255,1), rgba(0,120,255,0.8));
+  box-shadow: 0 0 15px 2px rgba(80,0,255,0.6);
+}
+.wall-back::after {
+  content: ''; position: absolute; top: 0; left: 0; right: 0; height: 2px;
+  background: linear-gradient(90deg, rgba(0,100,255,0.6), rgba(100,0,200,0.8), rgba(0,100,255,0.6));
+  box-shadow: 0 0 10px 1px rgba(60,0,200,0.4);
+}
+.wall-back {
+  box-shadow:
+    inset 2px 0 12px -1px rgba(100, 0, 220, 0.5),
+    inset -2px 0 12px -1px rgba(140, 0, 255, 0.5);
+}
+
+/* Left wall — back edge (right side) and top/bottom running edges */
+.wall-left::before {
+  content: ''; position: absolute; top: 0; bottom: 0; right: 0; width: 2px;
+  background: linear-gradient(180deg, rgba(100,0,220,0.7), rgba(0,120,255,0.9), rgba(100,0,220,0.7));
+  box-shadow: 0 0 12px 2px rgba(0,80,255,0.5);
+}
+.wall-left::after {
+  content: ''; position: absolute; top: 0; left: 0; right: 0; height: 2px;
+  background: linear-gradient(90deg, rgba(80,0,200,0.6), rgba(0,120,255,0.9), rgba(80,0,200,0.6));
+  box-shadow: 0 0 12px 2px rgba(0,80,255,0.5);
+}
+.wall-left {
+  box-shadow: inset 0 -2px 12px -1px rgba(0, 120, 255, 0.5);
+}
+
+/* Right wall — back edge (left side) and top/bottom running edges */
+.wall-right::before {
+  content: ''; position: absolute; top: 0; bottom: 0; left: 0; width: 2px;
+  background: linear-gradient(180deg, rgba(140,0,255,0.7), rgba(0,120,255,0.9), rgba(140,0,255,0.7));
+  box-shadow: 0 0 12px 2px rgba(80,0,255,0.5);
+}
+.wall-right::after {
+  content: ''; position: absolute; bottom: 0; left: 0; right: 0; height: 2px;
+  background: linear-gradient(90deg, rgba(140,0,255,0.6), rgba(0,120,255,0.9), rgba(140,0,255,0.6));
+  box-shadow: 0 0 12px 2px rgba(80,0,255,0.5);
+}
+.wall-right {
+  box-shadow: inset 0 -2px 12px -1px rgba(80, 0, 255, 0.5);
+}
+
+/* Floor — back edge (top) and left/right running edges */
+.wall-floor::before {
+  content: ''; position: absolute; top: 0; left: 0; right: 0; height: 2px;
+  background: linear-gradient(90deg, rgba(0,100,255,0.8), rgba(0,200,255,1), rgba(0,100,255,0.8));
+  box-shadow: 0 0 15px 2px rgba(0,150,255,0.6);
+}
+.wall-floor::after {
+  content: ''; position: absolute; top: 0; bottom: 0; left: 0; width: 2px;
+  background: linear-gradient(180deg, rgba(0,100,255,0.8), rgba(0,200,255,1), rgba(0,100,255,0.8));
+  box-shadow: 0 0 12px 2px rgba(0,150,255,0.5);
+}
+.wall-floor {
+  box-shadow: inset -2px 0 12px -1px rgba(0, 150, 255, 0.5);
+}
+
+/* Ceiling — back edge (bottom) and left/right running edges */
+.wall-ceiling::before {
+  content: ''; position: absolute; bottom: 0; left: 0; right: 0; height: 2px;
+  background: linear-gradient(90deg, rgba(80,0,200,0.6), rgba(120,0,255,0.8), rgba(80,0,200,0.6));
+  box-shadow: 0 0 10px 1px rgba(60,0,180,0.4);
+}
+.wall-ceiling::after {
+  content: ''; position: absolute; top: 0; bottom: 0; right: 0; width: 2px;
+  background: linear-gradient(180deg, rgba(80,0,200,0.6), rgba(120,0,255,0.8), rgba(80,0,200,0.6));
+  box-shadow: 0 0 10px 1px rgba(60,0,180,0.4);
+}
+.wall-ceiling {
+  box-shadow: inset 2px 0 12px -1px rgba(60, 0, 180, 0.4);
+}
+
+/* ── Overlay UI ──────────────────────────────── */
+#webcam-container {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  width: 180px;
+  border-radius: 12px;
+  overflow: hidden;
+  border: 2px solid rgba(255, 255, 255, 0.15);
+  z-index: 10;
+  opacity: 0.75;
+  transition: opacity 0.3s;
+}
+#webcam-container:hover { opacity: 1; }
+#webcam {
+  width: 100%;
+  display: block;
+  transform: scaleX(-1);
+}
+
+#status {
+  position: fixed;
+  top: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  color: #fff;
+  font-size: 14px;
+  background: rgba(0, 0, 0, 0.7);
+  padding: 10px 20px;
+  border-radius: 10px;
+  z-index: 10;
+  transition: opacity 0.8s;
+}
+
+#debug {
+  position: fixed;
+  bottom: 20px;
+  left: 20px;
+  color: rgba(255, 255, 255, 0.4);
+  font-size: 11px;
+  font-family: 'SF Mono', 'Fira Code', monospace;
+  z-index: 10;
+}
+
+/* ── Windows ─────────────────────────────────── */
+.window {
+  position: absolute;
+  background: rgba(15, 15, 35, 0.94);
+  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow:
+    0 8px 32px rgba(0, 0, 0, 0.5),
+    0 0 1px rgba(255, 255, 255, 0.1),
+    inset 0 1px 0 rgba(255, 255, 255, 0.05);
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  font-family: system-ui, -apple-system, sans-serif;
+}
+
+.window-titlebar {
+  height: 38px;
+  background: rgba(255, 255, 255, 0.05);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 14px;
+  cursor: grab;
+  user-select: none;
+  -webkit-user-select: none;
+  flex-shrink: 0;
+}
+.window-titlebar:active { cursor: grabbing; }
+
+.window-title {
+  font-size: 13px;
+  font-weight: 600;
+  color: rgba(255, 255, 255, 0.75);
+  letter-spacing: 0.3px;
+}
+
+.window-controls { display: flex; gap: 6px; }
+
+.window-btn {
+  width: 22px;
+  height: 22px;
+  border: none;
+  border-radius: 6px;
+  background: rgba(255, 255, 255, 0.07);
+  color: rgba(255, 255, 255, 0.45);
+  font-size: 11px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.15s, color 0.15s;
+}
+.window-btn:hover {
+  background: rgba(255, 255, 255, 0.14);
+  color: rgba(255, 255, 255, 0.8);
+}
+.window-btn-close:hover {
+  background: rgba(255, 60, 60, 0.5);
+  color: #fff;
+}
+
+.window-content {
+  flex: 1;
+  padding: 16px;
+  overflow-y: auto;
+  font-size: 14px;
+  line-height: 1.6;
+  color: #d0d0e0;
+}
+
+/* ── Notes window ────────────────────────────── */
+.notes-textarea {
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.2);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 8px;
+  color: #d0d0e0;
+  font-family: 'SF Mono', 'Fira Code', 'Cascadia Code', monospace;
+  font-size: 13px;
+  line-height: 1.5;
+  padding: 12px;
+  resize: none;
+  outline: none;
+}
+.notes-textarea:focus {
+  border-color: rgba(100, 160, 255, 0.3);
+}
+.notes-textarea::placeholder {
+  color: rgba(255, 255, 255, 0.2);
+}
+
+/* ── Calculator window ───────────────────────── */
+.calc-display {
+  background: rgba(0, 0, 0, 0.3);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: 8px;
+  padding: 12px 16px;
+  text-align: right;
+  font-family: 'SF Mono', 'Fira Code', monospace;
+  font-size: 28px;
+  color: #fff;
+  margin-bottom: 12px;
+  min-height: 56px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.calc-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 8px;
+}
+
+.calc-btn {
+  height: 44px;
+  border: none;
+  border-radius: 8px;
+  font-size: 16px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.1s, transform 0.1s;
+  font-family: system-ui, -apple-system, sans-serif;
+}
+.calc-btn:active {
+  transform: scale(0.95);
+}
+
+.calc-btn-num {
+  background: rgba(255, 255, 255, 0.08);
+  color: #e0e0e0;
+}
+.calc-btn-num:hover { background: rgba(255, 255, 255, 0.14); }
+
+.calc-btn-op {
+  background: rgba(100, 160, 255, 0.2);
+  color: #8ac4ff;
+}
+.calc-btn-op:hover { background: rgba(100, 160, 255, 0.3); }
+
+.calc-btn-eq {
+  background: rgba(100, 200, 150, 0.25);
+  color: #8affcc;
+}
+.calc-btn-eq:hover { background: rgba(100, 200, 150, 0.35); }
+
+.calc-btn-clear {
+  background: rgba(255, 80, 80, 0.2);
+  color: #ff8888;
+}
+.calc-btn-clear:hover { background: rgba(255, 80, 80, 0.3); }
+
+/* ── Clock window ────────────────────────────── */
+.clock-face {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+}
+
+.clock-time {
+  font-family: 'SF Mono', 'Fira Code', monospace;
+  font-size: 48px;
+  font-weight: 300;
+  color: #fff;
+  letter-spacing: 4px;
+}
+
+.clock-date {
+  font-size: 14px;
+  color: rgba(255, 255, 255, 0.4);
+  margin-top: 8px;
+  letter-spacing: 1px;
+}
+
+.clock-seconds {
+  font-family: 'SF Mono', 'Fira Code', monospace;
+  font-size: 20px;
+  color: rgba(100, 160, 255, 0.6);
+  margin-top: 4px;
+}

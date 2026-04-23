@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>3D OS</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <!-- The room: perspective container = viewport = front face of box -->
+  <div id="room">
+    <div id="box">
+      <div class="wall wall-back"></div>
+      <div class="wall wall-left"></div>
+      <div class="wall wall-right"></div>
+      <div class="wall wall-floor"></div>
+      <div class="wall wall-ceiling"></div>
+    </div>
+  </div>
+
+  <!-- Overlay UI -->
+  <div id="status">Loading face tracking model...</div>
+  <div id="webcam-container">
+    <video id="webcam" autoplay playsinline muted></video>
+  </div>
+  <div id="debug"></div>
+
+  <script type="module" src="js/main.js"></script>
+</body>
+</html>

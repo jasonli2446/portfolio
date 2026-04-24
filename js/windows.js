@@ -68,19 +68,19 @@ function buildForwardMatrix(wallEl) {
     .translateSelf(-toX, -toY, -toZ);
 }
 
-function getFwd(wallEl) {
+export function getFwd(wallEl) {
   let m = fwdCache.get(wallEl);
   if (!m) { m = buildForwardMatrix(wallEl); fwdCache.set(wallEl, m); }
   return m;
 }
 
-function invalidateCache() {
+export function invalidateCache() {
   document.querySelectorAll('.wall').forEach(w => fwdCache.delete(w));
 }
 
 // ── Screen → wall-local unprojection (Cramer's rule) ─────
 
-function screenToLocal(fwd, sx, sy) {
+export function screenToLocal(fwd, sx, sy) {
   const A = fwd.m11 - sx * fwd.m14;
   const B = fwd.m21 - sx * fwd.m24;
   const C = fwd.m12 - sy * fwd.m14;

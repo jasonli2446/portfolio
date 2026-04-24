@@ -1,6 +1,6 @@
 import { showTesseract } from './tesseract.js';
+import { screenToLocal, getFwd, invalidateCache } from './windows.js';
 
-// Use screen-space deltas for icon dragging (simpler than window unprojection)
 // Desktop icons on the back wall — draggable, selectable
 
 const icons = [
@@ -32,7 +32,7 @@ let dockClickHandler = null;
 let iconElements = [];
 let selectedIcons = new Set();
 let draggingIcons = false;
-let dragStartX = 0, dragStartY = 0;
+let iconGrabOffsets = new Map(); // el → { grabX, grabY }
 let selectionBox = null;
 let selStartX = 0, selStartY = 0;
 
@@ -74,10 +74,22 @@ export function initDesktop() {
       }
       selectIcon(el);
 
-      // Start drag
+      // Compute grab offsets for each selected icon using unprojection
       draggingIcons = true;
-      dragStartX = e.clientX;
-      dragStartY = e.clientY;
+      invalidateCache();
+      iconGrabOffsets.clear();
+      for (const entry of iconElements) {
+        if (!selectedIcons.has(entry.el)) continue;
+        const wall = entry.el.parentElement.closest('.wall') || entry.el.parentElement;
+        const fwd = getFwd(wall);
+        const local = screenToLocal(fwd, e.clientX, e.clientY);
+        if (local) {
+          iconGrabOffsets.set(entry.el, {
+            grabX: local.x - (parseFloat(entry.el.style.left) || 0),
+            grabY: local.y - (parseFloat(entry.el.style.top) || 0),
+          });
+        }
+      }
     });
 
     container.appendChild(el);
@@ -106,9 +118,6 @@ export function initDesktop() {
   // Pointermove: drag icons or draw selection
   document.addEventListener('pointermove', (e) => {
     if (draggingIcons && selectedIcons.size > 0) {
-      const dx = e.clientX - dragStartX;
-      const dy = e.clientY - dragStartY;
-
       for (const entry of iconElements) {
         if (!selectedIcons.has(entry.el)) continue;
 
@@ -121,32 +130,34 @@ export function initDesktop() {
           if (hit.classList.contains('wall')) { targetWall = hit; break; }
         }
 
+        const currentParent = entry.el.parentElement.closest('.wall') || entry.el.parentElement;
+
         // If cursor is over a different wall, reparent the icon
-        if (targetWall && targetWall !== entry.el.parentElement) {
-          const pw = targetWall.offsetWidth;
-          const ph = targetWall.offsetHeight;
+        if (targetWall && targetWall !== currentParent) {
           targetWall.appendChild(entry.el);
-          // Place at the edge closest to where it came from
-          // Use screen-space position mapped roughly to new wall
-          const rect = targetWall.getBoundingClientRect();
-          let newLeft = ((e.clientX - rect.left) / rect.width) * pw - 40;
-          let newTop = ((e.clientY - rect.top) / rect.height) * ph - 38;
-          newLeft = Math.max(10, Math.min(pw - 90, newLeft));
-          newTop = Math.max(10, Math.min(ph - 86, newTop));
-          entry.el.style.left = newLeft + 'px';
-          entry.el.style.top = newTop + 'px';
-          dragStartX = e.clientX;
-          dragStartY = e.clientY;
-          continue;
+          invalidateCache();
+          // Recompute grab offset for new wall
+          const fwd = getFwd(targetWall);
+          const local = screenToLocal(fwd, e.clientX, e.clientY);
+          if (local) {
+            iconGrabOffsets.set(entry.el, {
+              grabX: local.x - (parseFloat(entry.el.style.left) || 0),
+              grabY: local.y - (parseFloat(entry.el.style.top) || 0),
+            });
+          }
         }
 
-        const left = parseFloat(entry.el.style.left) || 0;
-        const top = parseFloat(entry.el.style.top) || 0;
-        entry.el.style.left = (left + dx) + 'px';
-        entry.el.style.top = (top + dy) + 'px';
+        // Unproject screen position to wall-local coords (same as window drag)
+        const wall = entry.el.parentElement.closest('.wall') || entry.el.parentElement;
+        const fwd = getFwd(wall);
+        const local = screenToLocal(fwd, e.clientX, e.clientY);
+        const grab = iconGrabOffsets.get(entry.el);
+
+        if (local && grab) {
+          entry.el.style.left = (local.x - grab.grabX) + 'px';
+          entry.el.style.top  = (local.y - grab.grabY) + 'px';
+        }
       }
-      dragStartX = e.clientX;
-      dragStartY = e.clientY;
       return;
     }
 

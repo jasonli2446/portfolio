@@ -25,7 +25,7 @@ function newGame() {
       { wall: 'back', r: 8, c: 5 },
     ],
     dir: { dr: 0, dc: 1 },
-    nextDir: { dr: 0, dc: 1 },
+    inputQueue: [],
     apple: null,
     score: 0,
     alive: true,
@@ -83,7 +83,10 @@ function wrapPosition(wall, r, c) {
 
 function tick() {
   if (!state || !state.alive) return;
-  state.dir = state.nextDir;
+  // Consume one input from the queue per tick
+  if (state.inputQueue.length > 0) {
+    state.dir = state.inputQueue.shift();
+  }
   const head = state.snake[0];
   const newHead = wrapPosition(head.wall, head.r + state.dir.dr, head.c + state.dir.dc);
 
@@ -202,21 +205,22 @@ function render() {
       }
     }
 
-    // Game over on back wall
+    // Game over on back wall — text only, no dark overlay
     if (!state.alive && wn === 'back') {
-      ctx.fillStyle = 'rgba(0,0,0,0.6)';
-      ctx.fillRect(0, 0, w, h);
-      ctx.fillStyle = '#fff';
+      ctx.fillStyle = 'rgba(255, 80, 80, 0.9)';
       ctx.font = 'bold 32px system-ui';
       ctx.textAlign = 'center';
+      ctx.shadowColor = 'rgba(0,0,0,0.8)';
+      ctx.shadowBlur = 12;
       ctx.fillText('Game Over', w / 2, h / 2 - 20);
-      ctx.font = '18px system-ui';
       ctx.fillStyle = 'rgba(100, 220, 150, 0.9)';
+      ctx.font = '18px system-ui';
       ctx.fillText(`Score: ${state.score}`, w / 2, h / 2 + 10);
+      ctx.fillStyle = 'rgba(255,255,255,0.5)';
       ctx.font = '13px system-ui';
-      ctx.fillStyle = 'rgba(255,255,255,0.4)';
       ctx.fillText('Enter to restart · Escape to exit', w / 2, h / 2 + 40);
       ctx.textAlign = 'left';
+      ctx.shadowBlur = 0;
     }
   }
 
@@ -274,12 +278,22 @@ export function startSnake(onExit) {
 
 function onKey(e) {
   if (!active) return;
-  // Validate against committed dir (not nextDir) to prevent fast-tap deaths
-  const d = state.dir;
-  if ((e.key === 'ArrowUp'    || e.key === 'w') && d.dr !== 1)  { state.nextDir = { dr: -1, dc: 0 }; e.preventDefault(); }
-  if ((e.key === 'ArrowDown'  || e.key === 's') && d.dr !== -1) { state.nextDir = { dr: 1, dc: 0 }; e.preventDefault(); }
-  if ((e.key === 'ArrowLeft'  || e.key === 'a') && d.dc !== 1)  { state.nextDir = { dr: 0, dc: -1 }; e.preventDefault(); }
-  if ((e.key === 'ArrowRight' || e.key === 'd') && d.dc !== -1) { state.nextDir = { dr: 0, dc: 1 }; e.preventDefault(); }
+  // Validate against the last queued direction (or current dir if queue empty)
+  const q = state.inputQueue;
+  const d = q.length > 0 ? q[q.length - 1] : state.dir;
+
+  let newDir = null;
+  if ((e.key === 'ArrowUp'    || e.key === 'w') && d.dr !== 1)  newDir = { dr: -1, dc: 0 };
+  if ((e.key === 'ArrowDown'  || e.key === 's') && d.dr !== -1) newDir = { dr: 1, dc: 0 };
+  if ((e.key === 'ArrowLeft'  || e.key === 'a') && d.dc !== 1)  newDir = { dr: 0, dc: -1 };
+  if ((e.key === 'ArrowRight' || e.key === 'd') && d.dc !== -1) newDir = { dr: 0, dc: 1 };
+
+  if (newDir) {
+    q.push(newDir);
+    // Cap queue at 3 to prevent buffering too far ahead
+    if (q.length > 3) q.shift();
+    e.preventDefault();
+  }
   if (e.key === 'Escape') { stopSnake(); e.preventDefault(); }
   if (e.key === 'Enter' && !state.alive) { state = newGame(); render(); e.preventDefault(); }
 }

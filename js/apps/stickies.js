@@ -1,6 +1,6 @@
 const defaultNotes = [
   { color: '#2a1f4e', text: 'SVD compression\npaper draft due\nFriday', rotate: -2 },
-  { color: '#1f2a4e', text: 'KKR prep:\n- system design\n- behavioral\n- market sizing', rotate: 1.5 },
+  { color: '#1f2a4e', text: 'read:\nDesigning Data-\nIntensive Apps\nch. 5-7', rotate: 1.5 },
   { color: '#2a1f3e', text: 'ship portfolio\nbefore end of\nApril', rotate: -1 },
   { color: '#1f3a2e', text: 'look into\nWebGPU for\nnext project', rotate: 2.5 },
 ];

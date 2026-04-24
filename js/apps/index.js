@@ -6,6 +6,7 @@ import notes from './notes.js';
 import clock from './clock.js';
 import calculator from './calculator.js';
 import trash from './trash.js';
+import snake from './snake.js';
 import education from './education.js';
 import sysmonitor from './sysmonitor.js';
 import nowplaying from './nowplaying.js';
@@ -24,5 +25,6 @@ export const apps = [
   stickies,
   calculator,
   sysmonitor,
+  snake,
   trash,
 ];

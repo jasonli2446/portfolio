@@ -26,8 +26,7 @@ $ cat experience.txt
     Jan – May 2025
     > AI training platform with RAG-powered simulated customers
     > Reduced onboarding time by 40%
-
-$ `;
+`;
 
 let typewriterTimeout = null;
 
@@ -146,9 +145,46 @@ export default {
     const inputRow = win.element.querySelector('#exp-input-row');
     const input = win.element.querySelector('#exp-input');
 
+    let typewriterDone = false;
+
+    function finishTypewriter() {
+      if (typewriterDone) return;
+      typewriterDone = true;
+      // Cancel ongoing typewriter
+      if (typewriterTimeout) { clearTimeout(typewriterTimeout); typewriterTimeout = null; }
+      // Dump all remaining text at once
+      output.innerHTML = '';
+      const lines = terminalText.split('\n');
+      for (const line of lines) {
+        if (line.startsWith('$')) {
+          output.innerHTML += `<span class="term-prompt">${line}</span><br>`;
+        } else if (line.startsWith('>')) {
+          output.innerHTML += `<span class="term-dim">${line}</span><br>`;
+        } else if (/^\[[\d]\]/.test(line)) {
+          output.innerHTML += `<span class="term-accent">${line}</span><br>`;
+        } else {
+          output.innerHTML += line + '<br>';
+        }
+      }
+      if (inputRow) inputRow.style.display = '';
+      if (input) input.focus();
+      const term = win.element.querySelector('.term');
+      if (term) term.scrollTop = term.scrollHeight;
+    }
+
+    // Enter key skips typewriter
+    function onSkip(e) {
+      if (e.key === 'Enter' && !typewriterDone) {
+        finishTypewriter();
+        document.removeEventListener('keydown', onSkip);
+      }
+    }
+    document.addEventListener('keydown', onSkip);
+
     if (output) {
       typeWriter(output, terminalText, 0, () => {
-        // Show input after typewriter finishes
+        typewriterDone = true;
+        document.removeEventListener('keydown', onSkip);
         if (inputRow) inputRow.style.display = '';
         if (input) input.focus();
       });

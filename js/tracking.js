@@ -78,9 +78,9 @@ export function detectFace() {
 export function updatePerspective() {
   // Map face position to perspective-origin (percentage)
   // Move head left → see more of right side → origin shifts right
-  // sEyeX positive = head moved left → pctX > 50 = origin right
+  // Move head up → see more of ceiling → origin shifts up (lower %)
   const pctX = 50 + sEyeX * 50;
-  const pctY = 50 + sEyeY * 50;
+  const pctY = 50 - sEyeY * 50;
 
   // Map distance to perspective value (closer = smaller perspective = more extreme)
   const perspective = (sEyeZ / EYE_DIST) * BASE_PERSPECTIVE;

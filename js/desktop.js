@@ -27,7 +27,7 @@ const icons = [
   { id: 'sysmonitor',  svg: '<svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="20" height="14" rx="2"></rect><line x1="8" y1="21" x2="16" y2="21"></line><line x1="12" y1="17" x2="12" y2="21"></line><polyline points="6 10 9 7 12 10 15 7 18 10"></polyline></svg>', label: 'Monitor', type: 'app' },
   { id: 'stickies',    svg: '<svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M16 3H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V8z"></path><polyline points="16 3 16 8 21 8"></polyline></svg>', label: 'Stickies', type: 'app' },
 
-  { id: 'snake',       svg: '<svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12h4l2-4 4 8 2-4h4"></path><circle cx="20" cy="12" r="2"></circle></svg>', label: 'Snake', type: 'app' },
+  { svg: '<svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12h4l2-4 4 8 2-4h4"></path><circle cx="20" cy="12" r="2"></circle></svg>', label: 'Snake', type: 'snake' },
 
   // Fun
   { svg: '<svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"></path><line x1="12" y1="17" x2="12.01" y2="17"></line></svg>', label: '???', type: 'secret' },
@@ -312,6 +312,8 @@ function handleIconClick(icon) {
     showReadme();
   } else if (icon.type === 'secret') {
     showTesseract();
+  } else if (icon.type === 'snake') {
+    import('./snake.js').then(({ startSnake }) => startSnake());
   }
 }
 

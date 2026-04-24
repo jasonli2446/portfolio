@@ -1,7 +1,8 @@
 import { DEPTH, BASE_PERSPECTIVE } from './config.js';
 import { createWindow, centerWindow, onWindowStateChange } from './windows.js';
 import { apps } from './apps/index.js';
-import { registerApp, setAppWindow, updateIndicators } from './dock.js';
+import { registerApp, setAppWindow, updateIndicators, handleDockClick } from './dock.js';
+import { initDesktop, setDockClickHandler } from './desktop.js';
 
 // Sync dock indicators whenever any window state changes
 onWindowStateChange(updateIndicators);
@@ -22,6 +23,10 @@ for (const app of apps) {
   }
 }
 updateIndicators();
+
+// Desktop icons
+setDockClickHandler(handleDockClick);
+initDesktop();
 
 // Lazy-load face tracking after initial paint
 let detectFace = () => {};

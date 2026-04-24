@@ -25,7 +25,7 @@ export function setAppWindow(appId, win) {
   updateIndicators();
 }
 
-function handleDockClick(appId) {
+export function handleDockClick(appId) {
   const entry = dockItems.get(appId);
   if (!entry) return;
 

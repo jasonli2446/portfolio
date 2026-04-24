@@ -140,6 +140,53 @@ body {
   background: linear-gradient(180deg, transparent, rgba(60,40,160,0.2), transparent);
 }
 
+/* ── Desktop icons ───────────────────────────────── */
+#desktop-icons {
+  position: absolute;
+  top: 24px;
+  right: 24px;
+  display: grid;
+  grid-template-columns: repeat(2, 80px);
+  gap: 8px;
+  z-index: 1;
+}
+
+.desktop-icon {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  padding: 10px 4px 6px;
+  border-radius: 10px;
+  cursor: default;
+  user-select: none;
+  -webkit-user-select: none;
+  transition: background 0.15s;
+}
+.desktop-icon:hover {
+  background: rgba(255, 255, 255, 0.06);
+}
+.desktop-icon:active {
+  background: rgba(100, 160, 255, 0.12);
+}
+
+.desktop-icon-img {
+  font-size: 36px;
+  line-height: 1;
+  filter: drop-shadow(0 2px 4px rgba(0,0,0,0.3));
+}
+
+.desktop-icon-label {
+  font-size: 11px;
+  color: rgba(255, 255, 255, 0.75);
+  text-align: center;
+  text-shadow: 0 1px 3px rgba(0,0,0,0.5);
+  max-width: 72px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
 /* ── Overlay UI (hidden by default) ──────────────── */
 #webcam-container { display: none; }
 #webcam { display: none; }

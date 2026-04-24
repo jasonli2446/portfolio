@@ -1,5 +1,5 @@
 // Room depth in CSS pixels
-export const DEPTH = 400;
+export const DEPTH = 300;
 
 // Face tracking
 export const EYE_DIST    = 5;

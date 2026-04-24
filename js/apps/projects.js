@@ -75,7 +75,7 @@ export default {
   width: 620,
   height: 520,
   wall: 'back',
-  openOnStart: true,
+  openOnStart: false,
   offsetX: 200,
   offsetY: -20,
   content: () =>

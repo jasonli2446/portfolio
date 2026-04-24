@@ -7,7 +7,7 @@ export default {
   width: 300,
   height: 230,
   wall: 'left',
-  openOnStart: true,
+  openOnStart: false,
   offsetX: 0,
   offsetY: 200,
   content: () =>

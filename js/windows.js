@@ -19,6 +19,12 @@ let draggedWin = null;
 let dragGrabX = 0, dragGrabY = 0;
 let lastScreenX = 0, lastScreenY = 0;
 
+// ── Resize state ──────────────────────────────────────────
+let resizingWin = null;
+let resizeStartW = 0, resizeStartH = 0;
+let resizeStartSX = 0, resizeStartSY = 0;
+let resizeStartLocal = null;
+
 // ── Focus z-ordering (per-wall) ───────────────────────────
 let focusedWin = null;
 const wallZCounters = new Map();
@@ -394,8 +400,12 @@ export function createWindow(descriptor) {
   content.className = 'window-content';
   content.innerHTML = contentHTML;
 
+  const resizeHandle = document.createElement('div');
+  resizeHandle.className = 'window-resize-handle';
+
   el.appendChild(titlebar);
   el.appendChild(content);
+  el.appendChild(resizeHandle);
   parentWall.appendChild(el);
 
   const win = {
@@ -465,6 +475,27 @@ export function createWindow(descriptor) {
     focusWindow(win);
   });
 
+  // ── Resize ──
+  resizeHandle.addEventListener('pointerdown', (e) => {
+    if (win.state !== 'normal') return;
+    e.stopPropagation();
+    e.preventDefault();
+
+    resizingWin = win;
+    resizeStartW = el.offsetWidth;
+    resizeStartH = el.offsetHeight;
+    resizeStartSX = e.clientX;
+    resizeStartSY = e.clientY;
+
+    invalidateCache();
+    const fwd = getFwd(win.parentWall);
+    resizeStartLocal = screenToLocal(fwd, e.clientX, e.clientY);
+
+    content.style.pointerEvents = 'none';
+    resizeHandle.setPointerCapture(e.pointerId);
+    focusWindow(win);
+  });
+
   // Run app init
   if (initFn) initFn(win);
 
@@ -484,6 +515,30 @@ export function centerWindow(win, offsetX = 0, offsetY = 0) {
 // ── Drag move ────────────────────────────────────────────
 
 document.addEventListener('pointermove', (e) => {
+  // ── Resize move ──
+  if (resizingWin) {
+    const el = resizingWin.element;
+    const wall = resizingWin.parentWall;
+    const fwd = getFwd(wall);
+    const local = screenToLocal(fwd, e.clientX, e.clientY);
+
+    if (local && resizeStartLocal) {
+      const dxLocal = local.x - resizeStartLocal.x;
+      const dyLocal = local.y - resizeStartLocal.y;
+      const newW = Math.max(200, resizeStartW + dxLocal);
+      const newH = Math.max(120, resizeStartH + dyLocal);
+      el.style.width  = newW + 'px';
+      el.style.height = newH + 'px';
+    } else {
+      // Fallback: screen-space
+      const dx = e.clientX - resizeStartSX;
+      const dy = e.clientY - resizeStartSY;
+      el.style.width  = Math.max(200, resizeStartW + dx) + 'px';
+      el.style.height = Math.max(120, resizeStartH + dy) + 'px';
+    }
+    return;
+  }
+
   if (!draggedWin) return;
 
   const el = draggedWin.element;
@@ -551,6 +606,13 @@ document.addEventListener('pointermove', (e) => {
 // ── Drag end ─────────────────────────────────────────────
 
 document.addEventListener('pointerup', () => {
+  if (resizingWin) {
+    resizingWin.content.style.pointerEvents = '';
+    updateClones(resizingWin);
+    resizingWin = null;
+    resizeStartLocal = null;
+    return;
+  }
   if (!draggedWin) return;
   draggedWin.content.style.pointerEvents = '';
   draggedWin = null;

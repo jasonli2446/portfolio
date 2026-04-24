@@ -53,7 +53,7 @@ export default {
   width: 440,
   height: 480,
   wall: 'right',
-  openOnStart: true,
+  openOnStart: false,
   content: () =>
     `<div class="settings-panel">
        <div class="settings-grid">${categories.map(renderCategoryIcon).join('')}</div>

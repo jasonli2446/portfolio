@@ -73,7 +73,7 @@ export default {
   width: 520,
   height: 440,
   wall: 'left',
-  openOnStart: true,
+  openOnStart: false,
   offsetX: 0,
   offsetY: -50,
 

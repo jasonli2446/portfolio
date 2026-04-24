@@ -229,8 +229,22 @@ export function initDesktop() {
   });
 
   document.addEventListener('pointerup', () => {
-    // Keep clones if icon is split across walls (like windows do)
+    if (draggingIcons) {
+      // On drop: clamp icons to wall bounds and clear clones
+      for (const entry of iconElements) {
+        if (!selectedIcons.has(entry.el)) continue;
+        const wall = entry.el.parentElement.closest('.wall') || entry.el.parentElement;
+        const pw = wall.offsetWidth, ph = wall.offsetHeight;
+        const left = parseFloat(entry.el.style.left) || 0;
+        const top = parseFloat(entry.el.style.top) || 0;
+        entry.el.style.left = Math.max(4, Math.min(pw - 84, left)) + 'px';
+        entry.el.style.top  = Math.max(4, Math.min(ph - 80, top)) + 'px';
+        clearElementClones(entry.el, entry._clones);
+        entry.el.style.clipPath = '';
+      }
+    }
     draggingIcons = false;
+    dragPrimaryEl = null;
     if (selectionBox) {
       selectionBox.remove();
       selectionBox = null;
@@ -246,11 +260,16 @@ function selectIcon(el) {
 function deselectIcon(el) {
   selectedIcons.delete(el);
   el.classList.remove('desktop-icon-selected');
+  // Clean up any clones for this icon
+  const entry = iconElements.find(e => e.el === el);
+  if (entry) { clearElementClones(el, entry._clones); el.style.clipPath = ''; }
 }
 
 function clearSelection() {
   for (const el of selectedIcons) {
     el.classList.remove('desktop-icon-selected');
+    const entry = iconElements.find(e => e.el === el);
+    if (entry) { clearElementClones(el, entry._clones); el.style.clipPath = ''; }
   }
   selectedIcons.clear();
 }

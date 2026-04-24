@@ -1,3 +1,5 @@
+import { showTesseract } from './tesseract.js';
+
 // Desktop icons on the back wall — draggable, selectable
 
 const icons = [
@@ -106,12 +108,41 @@ export function initDesktop() {
       const dx = e.clientX - dragStartX;
       const dy = e.clientY - dragStartY;
 
-      for (const { el } of iconElements) {
-        if (!selectedIcons.has(el)) continue;
-        const left = parseFloat(el.style.left) || 0;
-        const top = parseFloat(el.style.top) || 0;
-        el.style.left = (left + dx) + 'px';
-        el.style.top = (top + dy) + 'px';
+      for (const entry of iconElements) {
+        if (!selectedIcons.has(entry.el)) continue;
+
+        // Detect wall under cursor
+        entry.el.style.pointerEvents = 'none';
+        const els = document.elementsFromPoint(e.clientX, e.clientY);
+        entry.el.style.pointerEvents = '';
+        let targetWall = null;
+        for (const hit of els) {
+          if (hit.classList.contains('wall')) { targetWall = hit; break; }
+        }
+
+        // If cursor is over a different wall, reparent the icon
+        if (targetWall && targetWall !== entry.el.parentElement) {
+          const pw = targetWall.offsetWidth;
+          const ph = targetWall.offsetHeight;
+          targetWall.appendChild(entry.el);
+          // Place at the edge closest to where it came from
+          // Use screen-space position mapped roughly to new wall
+          const rect = targetWall.getBoundingClientRect();
+          let newLeft = ((e.clientX - rect.left) / rect.width) * pw - 40;
+          let newTop = ((e.clientY - rect.top) / rect.height) * ph - 38;
+          newLeft = Math.max(10, Math.min(pw - 90, newLeft));
+          newTop = Math.max(10, Math.min(ph - 86, newTop));
+          entry.el.style.left = newLeft + 'px';
+          entry.el.style.top = newTop + 'px';
+          dragStartX = e.clientX;
+          dragStartY = e.clientY;
+          continue;
+        }
+
+        const left = parseFloat(entry.el.style.left) || 0;
+        const top = parseFloat(entry.el.style.top) || 0;
+        entry.el.style.left = (left + dx) + 'px';
+        entry.el.style.top = (top + dy) + 'px';
       }
       dragStartX = e.clientX;
       dragStartY = e.clientY;
@@ -179,7 +210,7 @@ function handleIconClick(icon) {
   } else if (icon.type === 'readme') {
     showReadme();
   } else if (icon.type === 'secret') {
-    showSecret();
+    showTesseract();
   }
 }
 
@@ -212,245 +243,4 @@ github.com/jasonli2446/3d-os`;
   }
 }
 
-function showSecret() {
-  // 4D Tesseract (hypercube) wireframe — transparent overlay
-  if (document.querySelector('.tesseract-canvas')) return;
-
-  const canvas = document.createElement('canvas');
-  canvas.className = 'tesseract-canvas';
-  canvas.style.cssText = 'position:fixed; inset:0; width:100%; height:100%; z-index:15;';
-  document.body.appendChild(canvas);
-
-  const msg = document.createElement('div');
-  msg.className = 'tesseract-msg';
-  msg.style.cssText = 'position:fixed; bottom:40px; left:50%; transform:translateX(-50%); text-align:center; z-index:16; pointer-events:none;';
-  msg.innerHTML = `
-    <div style="font-size:13px; color:rgba(255,255,255,0.3); font-family:monospace; margin-bottom:4px;">4D Hypercube · drag to rotate · move hand to control · click to dismiss</div>
-  `;
-  document.body.appendChild(msg);
-
-  const ctx = canvas.getContext('2d');
-  canvas.width = window.innerWidth;
-  canvas.height = window.innerHeight;
-  const cx = canvas.width / 2, cy = canvas.height / 2;
-
-  // 4D hypercube: 16 vertices
-  const verts4D = [];
-  for (let i = 0; i < 16; i++) {
-    verts4D.push([
-      (i & 1) ? 1 : -1,
-      (i & 2) ? 1 : -1,
-      (i & 4) ? 1 : -1,
-      (i & 8) ? 1 : -1,
-    ]);
-  }
-
-  // Edges: connect vertices that differ in exactly one coordinate
-  const edges = [];
-  for (let i = 0; i < 16; i++) {
-    for (let j = i + 1; j < 16; j++) {
-      let diff = 0;
-      for (let k = 0; k < 4; k++) if (verts4D[i][k] !== verts4D[j][k]) diff++;
-      if (diff === 1) edges.push([i, j]);
-    }
-  }
-
-  // Rotation angles (auto-rotate + mouse drag + hand control)
-  let angleXW = 0, angleYW = 0, angleXY = 0, angleZW = 0;
-  let dragX = 0, dragY = 0;
-  let isDragging = false;
-  let didDrag = false;
-  let lastMX = 0, lastMY = 0;
-
-  // Hand tracking state
-  let handX = 0, handY = 0, handZ = 0; // -1 to 1, controls position/scale
-  let handActive = false;
-  let handLandmarker = null;
-
-  // Try to init hand tracking (reuse existing webcam)
-  const videoEl = document.getElementById('webcam');
-  if (videoEl && videoEl.srcObject) {
-    import('https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.14/vision_bundle.mjs').then(async ({ HandLandmarker, FilesetResolver }) => {
-      try {
-        const vision = await FilesetResolver.forVisionTasks(
-          'https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.14/wasm',
-        );
-        handLandmarker = await HandLandmarker.createFromOptions(vision, {
-          baseOptions: {
-            modelAssetPath: 'https://storage.googleapis.com/mediapipe-models/hand_landmarker/hand_landmarker/float16/1/hand_landmarker.task',
-            delegate: 'GPU',
-          },
-          runningMode: 'VIDEO',
-          numHands: 1,
-        });
-      } catch (e) {
-        console.log('Hand tracking not available:', e);
-      }
-    });
-  }
-
-  let lastHandDetect = 0;
-  let smoothHandX = 0, smoothHandY = 0;
-
-  function detectHand() {
-    if (!handLandmarker || !videoEl || videoEl.readyState < 2) return;
-    // Throttle to ~15fps to avoid overwhelming MediaPipe
-    const now = performance.now();
-    if (now - lastHandDetect < 66) return;
-    lastHandDetect = now;
-
-    try {
-      const results = handLandmarker.detectForVideo(videoEl, now);
-      if (results.landmarks && results.landmarks.length > 0) {
-        const tip = results.landmarks[0][8]; // index fingertip
-        const rawX = (tip.x - 0.5) * -2;
-        const rawY = (tip.y - 0.5) * 2; // not inverted — up = negative screen Y
-        const rawZ = tip.z * -10; // z is negative when closer, scale up
-        // Heavy smoothing for stable movement
-        smoothHandX += (rawX - smoothHandX) * 0.15;
-        smoothHandY += (rawY - smoothHandY) * 0.15;
-        handX = smoothHandX;
-        handY = smoothHandY;
-        handZ = Math.max(-1, Math.min(1, rawZ)); // clamp
-        handActive = true;
-      } else {
-        handActive = false;
-      }
-    } catch (e) {
-      handActive = false;
-    }
-  }
-
-  canvas.addEventListener('pointerdown', (e) => {
-    isDragging = true;
-    didDrag = false;
-    lastMX = e.clientX;
-    lastMY = e.clientY;
-    e.stopPropagation();
-  });
-  canvas.addEventListener('pointermove', (e) => {
-    if (!isDragging) return;
-    const dx = e.clientX - lastMX;
-    const dy = e.clientY - lastMY;
-    if (Math.abs(dx) > 2 || Math.abs(dy) > 2) didDrag = true;
-    dragX += dx * 0.005;
-    dragY += dy * 0.005;
-    lastMX = e.clientX;
-    lastMY = e.clientY;
-  });
-  canvas.addEventListener('pointerup', () => isDragging = false);
-
-  function rotate4D(v, axw, ayw, axy, azw) {
-    let [x, y, z, w] = v;
-    // XW rotation
-    let c = Math.cos(axw), s = Math.sin(axw);
-    [x, w] = [x*c - w*s, x*s + w*c];
-    // YW rotation
-    c = Math.cos(ayw); s = Math.sin(ayw);
-    [y, w] = [y*c - w*s, y*s + w*c];
-    // XY rotation
-    c = Math.cos(axy); s = Math.sin(axy);
-    [x, y] = [x*c - y*s, x*s + y*c];
-    // ZW rotation
-    c = Math.cos(azw); s = Math.sin(azw);
-    [z, w] = [z*c - w*s, z*s + w*c];
-    return [x, y, z, w];
-  }
-
-  // Position offset + scale from hand tracking
-  let offsetX = 0, offsetY = 0, handScale = 1;
-
-  function project(v4) {
-    const w4 = 1 / (3 - v4[3]);
-    const x3 = v4[0] * w4;
-    const y3 = v4[1] * w4;
-    const z3 = v4[2] * w4;
-    const w3 = 1 / (3 - z3);
-    const scale = 280 * handScale;
-    return {
-      x: cx + x3 * w3 * scale + offsetX,
-      y: cy + y3 * w3 * scale + offsetY,
-      depth: z3 + v4[3],
-    };
-  }
-
-  let rafId;
-  const time0 = performance.now();
-
-  function draw() {
-    const t = (performance.now() - time0) * 0.001;
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-    // Hand tracking
-    detectHand();
-    if (handActive) {
-      // Hand controls position (clamped to boundaries)
-      const targetX = handX * canvas.width * 0.35;
-      const targetY = handY * canvas.height * 0.35;
-      const maxX = canvas.width * 0.4;
-      const maxY = canvas.height * 0.4;
-      offsetX += (Math.max(-maxX, Math.min(maxX, targetX)) - offsetX) * 0.08;
-      offsetY += (Math.max(-maxY, Math.min(maxY, targetY)) - offsetY) * 0.08;
-      // Z controls scale (hand closer = bigger)
-      const targetScale = 1 + handZ * 0.5; // 0.5 to 1.5
-      handScale += (Math.max(0.4, Math.min(2, targetScale)) - handScale) * 0.08;
-      // Gentle rotation from hand movement
-      dragX += handX * 0.008;
-      dragY += handY * 0.008;
-    }
-    // Don't snap back to center — keep last position
-
-    // Auto-rotate + drag offset
-    angleXW = t * 0.3 + dragX;
-    angleYW = t * 0.2 + dragY;
-    angleXY = t * 0.15;
-    angleZW = t * 0.25;
-
-    // Project all vertices
-    const projected = verts4D.map(v => {
-      const r = rotate4D(v, angleXW, angleYW, angleXY, angleZW);
-      return project(r);
-    });
-
-    // Draw edges
-    for (const [i, j] of edges) {
-      const a = projected[i], b = projected[j];
-      const avgDepth = (a.depth + b.depth) / 2;
-      const alpha = 0.15 + (avgDepth + 2) * 0.15;
-      ctx.strokeStyle = `rgba(100, 160, 255, ${Math.max(0.05, Math.min(0.8, alpha))})`;
-      ctx.lineWidth = 1.5;
-      ctx.beginPath();
-      ctx.moveTo(a.x, a.y);
-      ctx.lineTo(b.x, b.y);
-      ctx.stroke();
-    }
-
-    // Draw vertices
-    for (const p of projected) {
-      const alpha = 0.3 + (p.depth + 2) * 0.2;
-      const r = 2 + (p.depth + 2) * 0.8;
-      ctx.fillStyle = `rgba(140, 100, 255, ${Math.max(0.1, Math.min(1, alpha))})`;
-      ctx.beginPath();
-      ctx.arc(p.x, p.y, Math.max(1, r), 0, Math.PI * 2);
-      ctx.fill();
-    }
-
-    rafId = requestAnimationFrame(draw);
-  }
-  draw();
-
-  const close = () => {
-    cancelAnimationFrame(rafId);
-    canvas.remove();
-    msg.remove();
-    document.removeEventListener('click', onClickClose);
-    if (handLandmarker) { handLandmarker.close(); handLandmarker = null; }
-  };
-
-  // Click anywhere to close — but not if the user was dragging the tesseract
-  function onClickClose(e) {
-    if (e.target === canvas && didDrag) return; // drag on canvas = rotate, not close
-    close();
-  }
-  setTimeout(() => document.addEventListener('click', onClickClose), 500);
-}
+// showSecret is now showTesseract from tesseract.js

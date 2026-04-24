@@ -203,21 +203,21 @@ function updateClones(win) {
           if (e.target.closest('.window-btn')) return;
           e.stopPropagation();
           e.preventDefault();
+
+          // Clear clones first so the real window is fully visible,
+          // then start the drag from the real window's wall
+          clearClones(win);
           draggedWin = win;
           invalidateCache();
-          const fwd = getFwd(win.parentWall);
-          const local = screenToLocal(fwd, e.clientX, e.clientY);
-          if (local) {
-            dragGrabX = local.x - (parseFloat(el.style.left) || 0);
-            dragGrabY = local.y - (parseFloat(el.style.top) || 0);
-          } else {
-            dragGrabX = el.offsetWidth / 2;
-            dragGrabY = 19;
-          }
+
+          // Use center of titlebar as grab offset (can't unproject from clone's wall)
+          dragGrabX = el.offsetWidth / 2;
+          dragGrabY = win.titlebar.offsetHeight / 2;
+
           lastScreenX = e.clientX;
           lastScreenY = e.clientY;
           win.content.style.pointerEvents = 'none';
-          cloneTitlebar.setPointerCapture(e.pointerId);
+          // Capture on document since clone is now removed
           focusWindow(win);
         });
       }
@@ -229,16 +229,17 @@ function updateClones(win) {
           if (win.state !== 'normal') return;
           e.stopPropagation();
           e.preventDefault();
+
+          // Clear clones so resize operates on real window only
+          clearClones(win);
           resizingWin = win;
           resizeStartW = el.offsetWidth;
           resizeStartH = el.offsetHeight;
           resizeStartSX = e.clientX;
           resizeStartSY = e.clientY;
           invalidateCache();
-          const fwd = getFwd(win.parentWall);
-          resizeStartLocal = screenToLocal(fwd, e.clientX, e.clientY);
+          resizeStartLocal = null; // use screen-space fallback
           win.content.style.pointerEvents = 'none';
-          cloneResize.setPointerCapture(e.pointerId);
           focusWindow(win);
         });
       }

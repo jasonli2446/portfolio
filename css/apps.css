@@ -351,6 +351,81 @@
 }
 .settings-download:hover { background: rgba(100, 160, 255, 0.22); }
 
+/* ── Now Playing ─────────────────────────────── */
+.np {
+  display: flex;
+  gap: 14px;
+  align-items: center;
+  height: 100%;
+}
+.np-art {
+  font-size: 48px;
+  flex-shrink: 0;
+  width: 64px;
+  height: 64px;
+  background: rgba(100, 60, 200, 0.2);
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.np-info { flex: 1; min-width: 0; }
+.np-track {
+  font-size: 14px;
+  font-weight: 600;
+  color: #fff;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.np-artist {
+  font-size: 12px;
+  color: rgba(255,255,255,0.4);
+  margin: 2px 0 10px;
+}
+.np-bar {
+  height: 3px;
+  background: rgba(255,255,255,0.08);
+  border-radius: 2px;
+  overflow: hidden;
+}
+.np-bar-fill {
+  height: 100%;
+  width: 60%;
+  background: linear-gradient(90deg, rgba(100,160,255,0.8), rgba(160,80,255,0.8));
+  border-radius: 2px;
+  transition: width 1s linear;
+}
+.np-time {
+  display: flex;
+  justify-content: space-between;
+  font-size: 10px;
+  color: rgba(255,255,255,0.3);
+  margin-top: 4px;
+  font-family: 'SF Mono', 'Fira Code', monospace;
+}
+
+/* ── Stickies ────────────────────────────────── */
+.stickies-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  padding: 4px;
+}
+.sticky-note {
+  padding: 12px;
+  border-radius: 4px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+  min-height: 80px;
+}
+.sticky-text {
+  font-size: 12px;
+  color: rgba(255,255,255,0.7);
+  line-height: 1.5;
+  white-space: pre-line;
+  font-family: 'SF Mono', 'Fira Code', monospace;
+}
+
 /* ── Trash ────────────────────────────────────── */
 .trash-container { height: 100%; }
 .trash-empty {

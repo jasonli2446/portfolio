@@ -76,7 +76,7 @@ export function initDesktop() {
       handleIconClick(icon);
     });
 
-    // Single click to select
+    // Single click to select + start drag
     el.addEventListener('pointerdown', (e) => {
       e.stopPropagation();
 
@@ -85,22 +85,24 @@ export function initDesktop() {
       }
       selectIcon(el);
 
-      // Compute grab offsets for each selected icon using unprojection
+      // Start drag — pull icon to fixed overlay so it follows cursor smoothly
       draggingIcons = true;
-      invalidateCache();
-      iconGrabOffsets.clear();
-      for (const entry of iconElements) {
-        if (!selectedIcons.has(entry.el)) continue;
-        const wall = entry.el.parentElement.closest('.wall') || entry.el.parentElement;
-        const fwd = getFwd(wall);
-        const local = screenToLocal(fwd, e.clientX, e.clientY);
-        if (local) {
-          iconGrabOffsets.set(entry.el, {
-            grabX: local.x - (parseFloat(entry.el.style.left) || 0),
-            grabY: local.y - (parseFloat(entry.el.style.top) || 0),
-          });
-        }
-      }
+      const rect = el.getBoundingClientRect();
+      el._origParent = el.parentElement;
+      el._origLeft = el.style.left;
+      el._origTop = el.style.top;
+
+      // Switch to fixed positioning
+      el.style.position = 'fixed';
+      el.style.left = rect.left + 'px';
+      el.style.top = rect.top + 'px';
+      el.style.zIndex = '9999';
+      document.body.appendChild(el);
+
+      iconGrabOffsets.set(el, {
+        grabX: e.clientX - rect.left,
+        grabY: e.clientY - rect.top,
+      });
     });
 
     container.appendChild(el);
@@ -129,58 +131,13 @@ export function initDesktop() {
   // Pointermove: drag icons or draw selection
   document.addEventListener('pointermove', (e) => {
     if (draggingIcons && selectedIcons.size > 0) {
+      // Icons are position:fixed during drag — just follow cursor
       for (const entry of iconElements) {
         if (!selectedIcons.has(entry.el)) continue;
-
-        const el = entry.el;
-
-        // Find which wall the cursor is over
-        el.style.pointerEvents = 'none';
-        const hits = document.elementsFromPoint(e.clientX, e.clientY);
-        el.style.pointerEvents = '';
-        let hitWall = null;
-        for (const h of hits) {
-          if (h.classList.contains('wall')) { hitWall = h; break; }
-        }
-
-        const currentWall = el.parentElement.closest('.wall') || el.parentElement;
-
-        // Wall transition — use adjacency mapping (same as window drag)
-        if (hitWall && hitWall !== currentWall) {
-          const fromName = wallName(currentWall);
-          const edgeInfo = findEdgeToWall(fromName, hitWall);
-          if (edgeInfo) {
-            const oldLeft = parseFloat(el.style.left) || 0;
-            const oldTop  = parseFloat(el.style.top)  || 0;
-            const newPos = edgeInfo.pos(oldLeft, oldTop);
-
-            hitWall.appendChild(el);
-            el.style.left = newPos.left + 'px';
-            el.style.top  = newPos.top + 'px';
-            invalidateCache();
-
-            // Recompute grab offset on new wall
-            const fwd = getFwd(hitWall);
-            const local = screenToLocal(fwd, e.clientX, e.clientY);
-            if (local) {
-              iconGrabOffsets.set(el, {
-                grabX: local.x - newPos.left,
-                grabY: local.y - newPos.top,
-              });
-            }
-            continue;
-          }
-        }
-
-        // Normal movement on current wall using unprojection
-        const wall = el.parentElement.closest('.wall') || el.parentElement;
-        const fwd = getFwd(wall);
-        const local = screenToLocal(fwd, e.clientX, e.clientY);
-        const grab = iconGrabOffsets.get(el);
-
-        if (local && grab) {
-          el.style.left = (local.x - grab.grabX) + 'px';
-          el.style.top  = (local.y - grab.grabY) + 'px';
+        const grab = iconGrabOffsets.get(entry.el);
+        if (grab) {
+          entry.el.style.left = (e.clientX - grab.grabX) + 'px';
+          entry.el.style.top  = (e.clientY - grab.grabY) + 'px';
         }
       }
       return;
@@ -209,7 +166,43 @@ export function initDesktop() {
     }
   });
 
-  document.addEventListener('pointerup', () => {
+  document.addEventListener('pointerup', (e) => {
+    if (draggingIcons) {
+      // Drop icons onto whatever wall is under the cursor
+      for (const entry of iconElements) {
+        if (!selectedIcons.has(entry.el)) continue;
+        const el = entry.el;
+
+        // Find target wall
+        el.style.pointerEvents = 'none';
+        const hits = document.elementsFromPoint(e.clientX, e.clientY);
+        el.style.pointerEvents = '';
+        let targetWall = null;
+        for (const h of hits) {
+          if (h.classList.contains('wall')) { targetWall = h; break; }
+        }
+        if (!targetWall) targetWall = el._origParent || document.querySelector('.wall-back');
+
+        // Switch back to absolute positioning on the target wall
+        el.style.position = 'absolute';
+        el.style.zIndex = '';
+        targetWall.appendChild(el);
+
+        // Unproject cursor position to wall-local coords
+        invalidateCache();
+        const fwd = getFwd(targetWall);
+        const grab = iconGrabOffsets.get(el);
+        const local = screenToLocal(fwd, e.clientX, e.clientY);
+        if (local && grab) {
+          el.style.left = (local.x - grab.grabX) + 'px';
+          el.style.top  = (local.y - grab.grabY) + 'px';
+        } else {
+          // Fallback: center of wall
+          el.style.left = (targetWall.offsetWidth / 2 - 40) + 'px';
+          el.style.top  = (targetWall.offsetHeight / 2 - 38) + 'px';
+        }
+      }
+    }
     draggingIcons = false;
     if (selectionBox) {
       selectionBox.remove();

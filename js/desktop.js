@@ -213,29 +213,63 @@ github.com/jasonli2446/3d-os`;
 }
 
 function showSecret() {
-  if (dockClickHandler) {
-    dockClickHandler('notes');
-    setTimeout(() => {
-      const textarea = document.querySelector('.notes-textarea');
-      if (textarea) {
-        textarea.value =
-`You found the secret!
+  // Matrix rain easter egg
+  const overlay = document.createElement('div');
+  overlay.className = 'about-os-overlay';
+  overlay.style.background = 'rgba(0,0,0,0.9)';
 
-Thanks for exploring. Here are some hidden things:
+  const canvas = document.createElement('canvas');
+  canvas.style.cssText = 'position:absolute; inset:0; width:100%; height:100%;';
+  overlay.appendChild(canvas);
 
-1. Try moving your head side to side
-   (if you allowed camera access)
-2. Drag a window to the edge of a wall
-   — it splits across both surfaces
-3. The clock is real-time
-4. The terminal types itself out
-5. The music player generates lo-fi procedurally
+  const msg = document.createElement('div');
+  msg.style.cssText = 'position:absolute; top:50%; left:50%; transform:translate(-50%,-50%); text-align:center; z-index:1; opacity:0; transition:opacity 1s;';
+  msg.innerHTML = `
+    <div style="font-size:24px; color:#4ade80; font-family:monospace; margin-bottom:12px;">You found the secret.</div>
+    <div style="font-size:14px; color:rgba(255,255,255,0.5); line-height:1.8;">
+      This entire portfolio is a 3D room.<br>
+      Built with vanilla JS. No frameworks.<br>
+      The music is procedurally generated.<br>
+      The face tracking is real.<br><br>
+      <span style="color:rgba(255,255,255,0.3);">Thanks for exploring. — Jason</span>
+    </div>
+    <button class="about-os-close" style="margin-top:20px;">Close</button>
+  `;
+  overlay.appendChild(msg);
 
-Built with love and way too many
-hours debugging CSS 3D transforms.
+  document.body.appendChild(overlay);
 
-- Jason`;
-      }
-    }, 100);
+  // Matrix rain on canvas
+  const ctx = canvas.getContext('2d');
+  canvas.width = window.innerWidth;
+  canvas.height = window.innerHeight;
+  const cols = Math.floor(canvas.width / 14);
+  const drops = new Array(cols).fill(0);
+  const chars = 'アイウエオカキクケコサシスセソタチツテトナニヌネノハヒフヘホマミムメモヤユヨラリルレロワヲン0123456789';
+
+  let rafId;
+  function drawMatrix() {
+    ctx.fillStyle = 'rgba(0, 0, 0, 0.05)';
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+    ctx.fillStyle = '#4ade80';
+    ctx.font = '14px monospace';
+
+    for (let i = 0; i < drops.length; i++) {
+      const char = chars[Math.floor(Math.random() * chars.length)];
+      ctx.fillText(char, i * 14, drops[i] * 14);
+      if (drops[i] * 14 > canvas.height && Math.random() > 0.975) drops[i] = 0;
+      drops[i]++;
+    }
+    rafId = requestAnimationFrame(drawMatrix);
   }
+  drawMatrix();
+
+  // Show message after 2 seconds
+  setTimeout(() => { msg.style.opacity = '1'; }, 2000);
+
+  // Close
+  const closeBtn = msg.querySelector('.about-os-close');
+  const close = () => { cancelAnimationFrame(rafId); overlay.remove(); };
+  closeBtn.addEventListener('click', close);
+  overlay.addEventListener('click', (e) => { if (e.target === overlay) close(); });
 }

@@ -441,6 +441,8 @@
   border-radius: 4px;
   box-shadow: 0 2px 8px rgba(0,0,0,0.3);
   min-height: 70px;
+  max-height: 100px;
+  overflow: hidden;
   position: relative;
 }
 .sticky-text {

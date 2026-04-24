@@ -2,8 +2,8 @@ export default {
   id: 'calculator',
   title: 'Calculator',
   icon: '🧮',
-  width: 280,
-  height: 380,
+  width: 260,
+  height: 340,
   wall: 'right',
   openOnStart: false,
   content: () =>

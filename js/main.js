@@ -1,22 +1,41 @@
 import { DEPTH, BASE_PERSPECTIVE } from './config.js';
-import { initTracking, detectFace, updatePerspective } from './tracking.js';
-import { initApps } from './apps.js';
+import { createWindow, centerWindow } from './windows.js';
+import { apps } from './apps/index.js';
+import { registerApp, setAppWindow, updateIndicators } from './dock.js';
 
 // Set CSS custom property for wall depth
 const room = document.getElementById('room');
 room.style.setProperty('--depth', DEPTH + 'px');
 room.style.perspective = BASE_PERSPECTIVE + 'px';
 
-// Create app windows
-initApps();
+// Register all apps in dock, open those marked openOnStart
+for (const app of apps) {
+  registerApp(app);
 
-// Render loop — just face tracking, CSS handles the 3D
+  if (app.openOnStart) {
+    const win = createWindow(app);
+    centerWindow(win);
+    setAppWindow(app.id, win);
+  }
+}
+updateIndicators();
+
+// Lazy-load face tracking after initial paint
+let detectFace = () => {};
+let updatePerspective = () => {};
+
+requestAnimationFrame(() => {
+  import('./tracking.js').then((tracking) => {
+    detectFace = tracking.detectFace;
+    updatePerspective = tracking.updatePerspective;
+    tracking.initTracking();
+  });
+});
+
+// Render loop
 function animate() {
   requestAnimationFrame(animate);
   detectFace();
   updatePerspective();
 }
 animate();
-
-// Start face tracking
-initTracking();

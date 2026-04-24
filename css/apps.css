@@ -33,33 +33,99 @@
 }
 
 /* ── Projects ────────────────────────────────── */
-.projects-grid {
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 10px;
+.fm-toolbar {
+  padding: 10px 14px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  margin-bottom: 16px;
 }
-.project-card {
-  display: block;
-  padding: 12px;
-  background: rgba(255, 255, 255, 0.04);
-  border: 1px solid rgba(255, 255, 255, 0.06);
+.fm-breadcrumb {
+  font-family: 'SF Mono', 'Fira Code', 'Cascadia Code', monospace;
+  font-size: 12px;
+  color: rgba(255, 255, 255, 0.5);
+  letter-spacing: 0.3px;
+}
+.fm-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 20px;
+  padding: 0 14px;
+}
+.fm-folder {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 14px;
   border-radius: 10px;
+  cursor: pointer;
+  transition: background 0.15s;
+  border: 1px solid transparent;
+}
+.fm-folder:hover {
+  background: rgba(255, 255, 255, 0.06);
+}
+.fm-folder.selected {
+  background: rgba(100, 160, 255, 0.12);
+  border: 1px solid rgba(100, 160, 255, 0.25);
+}
+.fm-folder-icon {
+  font-size: 48px;
+  line-height: 1;
+}
+.fm-folder-name {
+  font-size: 12px;
+  color: rgba(255, 255, 255, 0.75);
+  text-align: center;
+  font-weight: 500;
+}
+.fm-detail {
+  margin: 16px 14px 0;
+  padding: 14px;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 10px;
+}
+.fm-detail-title {
+  font-size: 16px;
+  font-weight: 600;
+  color: #fff;
+  margin: 0 0 6px;
+}
+.fm-detail-desc {
+  font-size: 13px;
+  color: rgba(255, 255, 255, 0.5);
+  margin: 0 0 10px;
+  line-height: 1.5;
+}
+.fm-detail-tags {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+  margin-bottom: 12px;
+}
+.fm-detail-tag {
+  font-size: 11px;
+  padding: 4px 10px;
+  background: rgba(100, 160, 255, 0.15);
+  color: rgba(100, 180, 255, 0.85);
+  border-radius: 6px;
+  border: 1px solid rgba(100, 160, 255, 0.2);
+}
+.fm-detail-link {
+  display: inline-block;
+  font-size: 13px;
+  color: rgba(100, 180, 255, 0.9);
   text-decoration: none;
+  padding: 6px 14px;
+  background: rgba(100, 160, 255, 0.1);
+  border: 1px solid rgba(100, 160, 255, 0.2);
+  border-radius: 6px;
   transition: background 0.15s, border-color 0.15s;
 }
-.project-card:hover {
-  background: rgba(255, 255, 255, 0.08);
-  border-color: rgba(100, 160, 255, 0.3);
-}
-.project-card-title { font-size: 14px; font-weight: 600; color: #fff; margin: 0 0 4px; }
-.project-card-desc { font-size: 12px; color: rgba(255, 255, 255, 0.45); margin: 0 0 8px; line-height: 1.4; }
-.project-tags { display: flex; gap: 4px; flex-wrap: wrap; }
-.project-tag {
-  font-size: 10px;
-  padding: 2px 7px;
-  background: rgba(100, 160, 255, 0.15);
-  color: rgba(100, 180, 255, 0.8);
-  border-radius: 4px;
+.fm-detail-link:hover {
+  background: rgba(100, 160, 255, 0.2);
+  border-color: rgba(100, 160, 255, 0.35);
 }
 
 /* ── Experience (Terminal) ───────────────────── */

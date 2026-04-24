@@ -53,26 +53,26 @@ function wrapPosition(wall, r, c, dir) {
     if (wall === 'back')    return { wall: 'right',   r,     c: 0 };
     if (wall === 'left')    return { wall: 'back',    r,     c: 0 };
     if (wall === 'right')   return { wall: 'left',    r,     c: 0 };
-    // 90° transitions — r position maps to entry position along shared edge
-    if (wall === 'floor')   return { wall: 'right',   r: L,  c: L - r,  newDir: { dr: -1, dc: 0 } };
-    if (wall === 'ceiling') return { wall: 'right',   r: 0,  c: r,      newDir: { dr: 1, dc: 0 } };
+    // 90° transitions — inverted to match
+    if (wall === 'floor')   return { wall: 'right',   r: L,  c: r,      newDir: { dr: -1, dc: 0 } };
+    if (wall === 'ceiling') return { wall: 'right',   r: 0,  c: L - r,  newDir: { dr: 1, dc: 0 } };
   }
   // ── Left edge (c < 0) ──
   if (c < 0) {
     if (wall === 'back')    return { wall: 'left',    r,     c: L };
     if (wall === 'right')   return { wall: 'back',    r,     c: L };
     if (wall === 'left')    return { wall: 'right',   r,     c: L };
-    if (wall === 'floor')   return { wall: 'left',    r: L,  c: r,      newDir: { dr: -1, dc: 0 } };
-    if (wall === 'ceiling') return { wall: 'left',    r: 0,  c: L - r,  newDir: { dr: 1, dc: 0 } };
+    if (wall === 'floor')   return { wall: 'left',    r: L,  c: L - r,  newDir: { dr: -1, dc: 0 } };
+    if (wall === 'ceiling') return { wall: 'left',    r: 0,  c: r,      newDir: { dr: 1, dc: 0 } };
   }
   // ── Bottom edge (r >= N) ──
   if (r >= N) {
     if (wall === 'back')    return { wall: 'floor',   r: 0,  c };
     if (wall === 'floor')   return { wall: 'ceiling', r: 0,  c };
     if (wall === 'ceiling') return { wall: 'back',    r: 0,  c };
-    // 90° transitions — c position maps to entry position along the shared edge
-    if (wall === 'left')    return { wall: 'floor',   r: c,      c: 0,  newDir: { dr: 0, dc: 1 } };
-    if (wall === 'right')   return { wall: 'floor',   r: L - c,  c: L,  newDir: { dr: 0, dc: -1 } };
+    // 90° transitions — inverted: far end of side wall = far end of floor edge
+    if (wall === 'left')    return { wall: 'floor',   r: L - c,  c: 0,  newDir: { dr: 0, dc: 1 } };
+    if (wall === 'right')   return { wall: 'floor',   r: c,      c: L,  newDir: { dr: 0, dc: -1 } };
   }
   // ── Top edge (r < 0) ──
   if (r < 0) {
@@ -80,8 +80,8 @@ function wrapPosition(wall, r, c, dir) {
     if (wall === 'ceiling') return { wall: 'floor',   r: L,  c };
     if (wall === 'floor')   return { wall: 'back',    r: L,  c };
     // 90° transitions
-    if (wall === 'left')    return { wall: 'ceiling', r: L - c,  c: 0,  newDir: { dr: 0, dc: 1 } };
-    if (wall === 'right')   return { wall: 'ceiling', r: c,      c: L,  newDir: { dr: 0, dc: -1 } };
+    if (wall === 'left')    return { wall: 'ceiling', r: c,      c: 0,  newDir: { dr: 0, dc: 1 } };
+    if (wall === 'right')   return { wall: 'ceiling', r: L - c,  c: L,  newDir: { dr: 0, dc: -1 } };
   }
   return { wall, r, c };
 }

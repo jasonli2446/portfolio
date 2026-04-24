@@ -65,9 +65,22 @@ export function updateElementClones(el, wall, cloneMap, opts = {}) {
     if (!clone) {
       clone = el.cloneNode(true);
       clone.classList.add('element-clone');
-      clone.style.pointerEvents = 'none';
       clone.style.clipPath = '';
       clone.querySelectorAll('[id]').forEach(e => e.removeAttribute('id'));
+
+      // Clone redirects interactions to the real element
+      clone.addEventListener('dblclick', (ev) => {
+        ev.stopPropagation();
+        el.dispatchEvent(new MouseEvent('dblclick', { bubbles: true }));
+      });
+      clone.addEventListener('pointerdown', (ev) => {
+        ev.stopPropagation();
+        el.dispatchEvent(new PointerEvent('pointerdown', {
+          clientX: ev.clientX, clientY: ev.clientY,
+          pointerId: ev.pointerId, bubbles: true,
+        }));
+      });
+
       nbr.wall.appendChild(clone);
       cloneMap.set(nbrKey, clone);
     }

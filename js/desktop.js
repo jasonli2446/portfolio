@@ -44,6 +44,8 @@ let dockClickHandler = null;
 let iconElements = [];
 let selectedIcons = new Set();
 let draggingIcons = false;
+let dragPrimaryEl = null; // the icon that was clicked to start the drag
+let lastDragScreenX = 0, lastDragScreenY = 0;
 let iconGrabOffsets = new Map(); // el → { grabX, grabY }
 let selectionBox = null;
 let selStartX = 0, selStartY = 0;
@@ -86,22 +88,21 @@ export function initDesktop() {
       }
       selectIcon(el);
 
-      // Start drag on wall (same approach as windows.js)
+      // Start drag — track primary icon and compute grab offset for it only
       draggingIcons = true;
+      dragPrimaryEl = el;
+      lastDragScreenX = e.clientX;
+      lastDragScreenY = e.clientY;
       invalidateCache();
-      iconGrabOffsets.clear();
 
-      for (const entry of iconElements) {
-        if (!selectedIcons.has(entry.el)) continue;
-        const wall = entry.el.parentElement.closest('.wall') || entry.el.parentElement;
-        const fwd = getFwd(wall);
-        const local = screenToLocal(fwd, e.clientX, e.clientY);
-        if (local) {
-          iconGrabOffsets.set(entry.el, {
-            grabX: local.x - (parseFloat(entry.el.style.left) || 0),
-            grabY: local.y - (parseFloat(entry.el.style.top) || 0),
-          });
-        }
+      const wall = el.parentElement.closest('.wall') || el.parentElement;
+      const fwd = getFwd(wall);
+      const local = screenToLocal(fwd, e.clientX, e.clientY);
+      if (local) {
+        iconGrabOffsets.set(el, {
+          grabX: local.x - (parseFloat(el.style.left) || 0),
+          grabY: local.y - (parseFloat(el.style.top) || 0),
+        });
       }
     });
 
@@ -130,60 +131,76 @@ export function initDesktop() {
 
   // Pointermove: drag icons or draw selection
   document.addEventListener('pointermove', (e) => {
-    if (draggingIcons && selectedIcons.size > 0) {
-      for (const entry of iconElements) {
-        if (!selectedIcons.has(entry.el)) continue;
-        const el = entry.el;
+    if (draggingIcons && selectedIcons.size > 0 && dragPrimaryEl) {
+      // Compute movement from primary icon's unprojection
+      const primaryEntry = iconElements.find(en => en.el === dragPrimaryEl);
+      if (!primaryEntry) { draggingIcons = false; return; }
 
-        // Detect wall under cursor (same as window drag)
-        el.style.pointerEvents = 'none';
-        const hits = document.elementsFromPoint(e.clientX, e.clientY);
-        el.style.pointerEvents = '';
-        let hitWall = null;
-        for (const h of hits) {
-          if (h.classList.contains('wall')) { hitWall = h; break; }
-        }
+      const primaryEl = primaryEntry.el;
+      let wall = primaryEl.parentElement.closest('.wall') || primaryEl.parentElement;
 
-        let wall = el.parentElement.closest('.wall') || el.parentElement;
+      // Detect wall under cursor
+      primaryEl.style.pointerEvents = 'none';
+      const hits = document.elementsFromPoint(e.clientX, e.clientY);
+      primaryEl.style.pointerEvents = '';
+      let hitWall = null;
+      for (const h of hits) {
+        if (h.classList.contains('wall')) { hitWall = h; break; }
+      }
 
-        // Wall transition using adjacency mapping (same as windows)
-        if (hitWall && hitWall !== wall) {
-          const fromName = wallName(wall);
-          const edgeInfo = findEdgeToWall(fromName, hitWall);
-          if (edgeInfo) {
-            const oldLeft = parseFloat(el.style.left) || 0;
-            const oldTop  = parseFloat(el.style.top)  || 0;
+      // Wall transition for ALL selected icons at once
+      if (hitWall && hitWall !== wall) {
+        const fromName = wallName(wall);
+        const edgeInfo = findEdgeToWall(fromName, hitWall);
+        if (edgeInfo) {
+          for (const entry of iconElements) {
+            if (!selectedIcons.has(entry.el)) continue;
+            const oldLeft = parseFloat(entry.el.style.left) || 0;
+            const oldTop  = parseFloat(entry.el.style.top)  || 0;
             const newPos = edgeInfo.pos(oldLeft, oldTop);
+            clearElementClones(entry.el, entry._clones);
+            hitWall.appendChild(entry.el);
+            entry.el.style.left = newPos.left + 'px';
+            entry.el.style.top  = newPos.top + 'px';
+          }
+          wall = hitWall;
+          invalidateCache();
 
-            hitWall.appendChild(el);
-            el.style.left = newPos.left + 'px';
-            el.style.top  = newPos.top + 'px';
-            wall = hitWall;
-            invalidateCache();
-
-            // Recompute grab offset on new wall
-            const fwd = getFwd(wall);
-            const local = screenToLocal(fwd, e.clientX, e.clientY);
-            if (local) {
-              iconGrabOffsets.set(el, {
-                grabX: local.x - newPos.left,
-                grabY: local.y - newPos.top,
-              });
-            }
+          // Recompute grab offset for primary
+          const fwd = getFwd(wall);
+          const local = screenToLocal(fwd, e.clientX, e.clientY);
+          if (local) {
+            iconGrabOffsets.set(primaryEl, {
+              grabX: local.x - (parseFloat(primaryEl.style.left) || 0),
+              grabY: local.y - (parseFloat(primaryEl.style.top) || 0),
+            });
           }
         }
+      }
 
-        // Move on current wall using unprojection
-        const fwd = getFwd(wall);
-        const local = screenToLocal(fwd, e.clientX, e.clientY);
-        const grab = iconGrabOffsets.get(el);
-        if (local && grab) {
-          el.style.left = (local.x - grab.grabX) + 'px';
-          el.style.top  = (local.y - grab.grabY) + 'px';
+      // Move primary icon using unprojection
+      const fwd = getFwd(wall);
+      const local = screenToLocal(fwd, e.clientX, e.clientY);
+      const grab = iconGrabOffsets.get(primaryEl);
+
+      if (local && grab) {
+        const newLeft = local.x - grab.grabX;
+        const newTop  = local.y - grab.grabY;
+        const deltaLeft = newLeft - (parseFloat(primaryEl.style.left) || 0);
+        const deltaTop  = newTop  - (parseFloat(primaryEl.style.top)  || 0);
+
+        // Apply same delta to all selected icons
+        for (const entry of iconElements) {
+          if (!selectedIcons.has(entry.el)) continue;
+          const curLeft = parseFloat(entry.el.style.left) || 0;
+          const curTop  = parseFloat(entry.el.style.top)  || 0;
+          entry.el.style.left = (curLeft + deltaLeft) + 'px';
+          entry.el.style.top  = (curTop + deltaTop) + 'px';
+
+          // Update clones for each icon
+          const w = entry.el.parentElement.closest('.wall') || entry.el.parentElement;
+          updateElementClones(entry.el, w, entry._clones);
         }
-
-        // Update clones for wall-edge overflow
-        updateElementClones(el, wall, entry._clones);
       }
       return;
     }

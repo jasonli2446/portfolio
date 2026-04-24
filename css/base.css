@@ -164,15 +164,14 @@ body {
 /* ── Desktop icons ───────────────────────────────── */
 #desktop-icons {
   position: absolute;
-  top: 52px;
-  left: 24px;
-  display: grid;
-  grid-template-columns: repeat(2, 80px);
-  gap: 8px;
+  inset: 0;
   z-index: 1;
+  pointer-events: none;
 }
 
 .desktop-icon {
+  position: absolute;
+  width: 80px;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -183,12 +182,24 @@ body {
   user-select: none;
   -webkit-user-select: none;
   transition: background 0.15s;
+  pointer-events: auto;
 }
 .desktop-icon:hover {
   background: rgba(255, 255, 255, 0.06);
 }
-.desktop-icon:active {
-  background: rgba(100, 160, 255, 0.12);
+.desktop-icon-selected {
+  background: rgba(100, 160, 255, 0.15) !important;
+  border: 1px solid rgba(100, 160, 255, 0.3);
+  margin: -1px;
+}
+
+/* Selection rectangle */
+.selection-rect {
+  position: fixed;
+  border: 1px solid rgba(100, 160, 255, 0.5);
+  background: rgba(100, 160, 255, 0.08);
+  z-index: 50;
+  pointer-events: none;
 }
 
 .desktop-icon-img {

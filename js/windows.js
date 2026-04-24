@@ -503,13 +503,31 @@ export function createWindow(descriptor) {
 }
 
 export function centerWindow(win, offsetX = 0, offsetY = 0) {
+  const el = win.element;
   const wall = win.parentWall;
   const pw = wall.offsetWidth;
   const ph = wall.offsetHeight;
-  const ew = win.element.offsetWidth;
-  const eh = win.element.offsetHeight;
-  win.element.style.left = ((pw - ew) / 2 + offsetX) + 'px';
-  win.element.style.top  = ((ph - eh) / 2 + offsetY) + 'px';
+  const margin = 10;
+
+  // Cap window size to fit within wall
+  let ew = el.offsetWidth;
+  let eh = el.offsetHeight;
+  if (ew > pw - margin * 2) {
+    el.style.width = (pw - margin * 2) + 'px';
+    ew = pw - margin * 2;
+  }
+  if (eh > ph - margin * 2) {
+    el.style.height = (ph - margin * 2) + 'px';
+    eh = ph - margin * 2;
+  }
+
+  // Center with offset, then clamp to wall bounds
+  let left = (pw - ew) / 2 + offsetX;
+  let top  = (ph - eh) / 2 + offsetY;
+  left = Math.max(margin, Math.min(pw - ew - margin, left));
+  top  = Math.max(margin, Math.min(ph - eh - margin, top));
+  el.style.left = left + 'px';
+  el.style.top  = top + 'px';
 }
 
 // ── Drag move ────────────────────────────────────────────

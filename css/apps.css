@@ -126,8 +126,8 @@
 }
 .fm-grid {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 20px;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 12px;
   padding: 0 14px;
 }
 .fm-folder {
@@ -193,6 +193,30 @@
   width: 64px;
   height: 64px;
   stroke: rgba(255, 255, 255, 0.6);
+}
+
+.fm-terminal {
+  background: #000;
+  margin: 0;
+  padding: 16px;
+  flex: 1;
+  overflow-y: auto;
+  border-radius: 0 0 12px 12px;
+}
+.fm-terminal .term-output {
+  font-family: 'SF Mono', 'Fira Code', 'Cascadia Code', monospace;
+  font-size: 13px;
+  line-height: 1.6;
+  color: rgba(255,255,255,0.6);
+  white-space: pre-wrap;
+}
+.fm-terminal .term-prompt {
+  color: #4ade80;
+  font-weight: 600;
+}
+.fm-terminal .term-cursor {
+  color: #4ade80;
+  animation: blink 1.2s step-end infinite;
 }
 
 .fm-detail {

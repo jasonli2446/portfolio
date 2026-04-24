@@ -259,17 +259,23 @@ function showSecret() {
   let angleXW = 0, angleYW = 0, angleXY = 0, angleZW = 0;
   let dragX = 0, dragY = 0;
   let isDragging = false;
+  let didDrag = false;
   let lastMX = 0, lastMY = 0;
 
   canvas.addEventListener('pointerdown', (e) => {
     isDragging = true;
+    didDrag = false;
     lastMX = e.clientX;
     lastMY = e.clientY;
+    e.stopPropagation();
   });
   canvas.addEventListener('pointermove', (e) => {
     if (!isDragging) return;
-    dragX += (e.clientX - lastMX) * 0.005;
-    dragY += (e.clientY - lastMY) * 0.005;
+    const dx = e.clientX - lastMX;
+    const dy = e.clientY - lastMY;
+    if (Math.abs(dx) > 2 || Math.abs(dy) > 2) didDrag = true;
+    dragX += dx * 0.005;
+    dragY += dy * 0.005;
     lastMX = e.clientX;
     lastMY = e.clientY;
   });
@@ -353,12 +359,12 @@ function showSecret() {
   }
   draw();
 
-  const close = () => { cancelAnimationFrame(rafId); canvas.remove(); msg.remove(); document.removeEventListener('pointerdown', onClickClose); };
+  const close = () => { cancelAnimationFrame(rafId); canvas.remove(); msg.remove(); document.removeEventListener('click', onClickClose); };
 
-  // Click anywhere outside canvas to close (after a brief delay so the initial click doesn't dismiss)
+  // Click anywhere to close — but not if the user was dragging the tesseract
   function onClickClose(e) {
-    if (e.target === canvas) return; // clicking the canvas rotates, doesn't close
+    if (e.target === canvas && didDrag) return; // drag on canvas = rotate, not close
     close();
   }
-  setTimeout(() => document.addEventListener('pointerdown', onClickClose), 500);
+  setTimeout(() => document.addEventListener('click', onClickClose), 500);
 }

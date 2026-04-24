@@ -227,6 +227,23 @@ body {
 .menubar-item:hover {
   color: rgba(255, 255, 255, 0.8);
 }
+.menubar-toggle {
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 14px;
+  padding: 2px 6px;
+  border-radius: 4px;
+  transition: background 0.15s;
+  opacity: 0.8;
+}
+.menubar-toggle:hover {
+  background: rgba(255, 255, 255, 0.08);
+  opacity: 1;
+}
+.menubar-toggle-off {
+  opacity: 0.35;
+}
 
 /* ── Context menu ────────────────────────────────── */
 #context-menu {
@@ -297,38 +314,86 @@ body {
 }
 .about-os-close:hover { background: rgba(100, 160, 255, 0.3); }
 
-/* ── Boot screen ─────────────────────────────────── */
+/* ── Intro / boot screen ─────────────────────────── */
 #boot-screen {
   position: fixed;
   inset: 0;
   z-index: 1000;
   background: #050010;
   display: flex;
-  flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 24px;
   transition: opacity 0.5s ease;
 }
+.boot-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+}
 .boot-logo {
-  font-size: 48px;
+  width: 80px; height: 80px;
+  border-radius: 20px;
+  background: linear-gradient(135deg, rgba(100, 160, 255, 0.3), rgba(140, 0, 255, 0.3));
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 32px; font-weight: 700;
+  color: rgba(255, 255, 255, 0.85);
+  letter-spacing: 2px;
+  margin-bottom: 8px;
+}
+.boot-name {
+  font-size: 28px;
   font-weight: 700;
-  color: rgba(255, 255, 255, 0.8);
-  letter-spacing: 4px;
+  color: #fff;
+  letter-spacing: 0.5px;
 }
-.boot-bar {
-  width: 200px;
-  height: 4px;
-  background: rgba(255, 255, 255, 0.08);
-  border-radius: 2px;
-  overflow: hidden;
+.boot-subtitle {
+  font-size: 14px;
+  color: rgba(255, 255, 255, 0.4);
+  margin-bottom: 24px;
 }
-.boot-bar-fill {
-  height: 100%;
-  width: 0%;
-  background: linear-gradient(90deg, rgba(100, 160, 255, 0.8), rgba(140, 0, 255, 0.8));
-  border-radius: 2px;
-  transition: width 0.05s linear;
+.boot-camera-prompt {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+}
+.boot-camera-text {
+  font-size: 14px;
+  color: rgba(255, 255, 255, 0.6);
+  margin: 0;
+}
+.boot-camera-buttons {
+  display: flex;
+  gap: 10px;
+}
+.boot-btn {
+  padding: 8px 24px;
+  border: none;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.15s, transform 0.1s;
+}
+.boot-btn:active { transform: scale(0.97); }
+.boot-btn-primary {
+  background: rgba(100, 160, 255, 0.25);
+  color: rgba(100, 180, 255, 1);
+  border: 1px solid rgba(100, 160, 255, 0.3);
+}
+.boot-btn-primary:hover { background: rgba(100, 160, 255, 0.35); }
+.boot-btn-secondary {
+  background: rgba(255, 255, 255, 0.06);
+  color: rgba(255, 255, 255, 0.6);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+.boot-btn-secondary:hover { background: rgba(255, 255, 255, 0.1); }
+.boot-camera-hint {
+  font-size: 11px;
+  color: rgba(255, 255, 255, 0.25);
+  margin: 4px 0 0;
 }
 
 /* ── Particles canvas ────────────────────────────── */

@@ -3,7 +3,7 @@ import { createWindow, centerWindow, onWindowStateChange } from './windows.js';
 import { apps } from './apps/index.js';
 import { registerApp, setAppWindow, updateIndicators, handleDockClick } from './dock.js';
 import { initDesktop, setDockClickHandler } from './desktop.js';
-import { initMenubar, setFocusedApp } from './menubar.js';
+import { initMenubar, setTrackingModule, setCameraState } from './menubar.js';
 import { initContextMenu } from './contextmenu.js';
 import { initParticles } from './particles.js';
 import { initBoot } from './boot.js';
@@ -13,16 +13,37 @@ const room = document.getElementById('room');
 room.style.setProperty('--depth', DEPTH + 'px');
 room.style.perspective = BASE_PERSPECTIVE + 'px';
 
-// Hide room during boot
+// Hide room during intro
 room.style.opacity = '0';
 
-// Boot sequence → then reveal desktop
-initBoot(() => {
+// Tracking state
+let detectFace = () => {};
+let updatePerspective = () => {};
+
+// Boot → intro screen → camera choice → reveal desktop
+initBoot(async (enableCamera) => {
+  // Fade in the room
   room.style.transition = 'opacity 0.5s ease';
   room.style.opacity = '1';
+
+  // Load tracking if user chose to enable camera
+  if (enableCamera) {
+    try {
+      const tracking = await import('./tracking.js');
+      await tracking.initTracking();
+      if (tracking.isTracking()) {
+        detectFace = tracking.detectFace;
+        updatePerspective = tracking.updatePerspective;
+        setTrackingModule(tracking);
+        setCameraState(true);
+      }
+    } catch (e) {
+      console.error('Tracking failed:', e);
+    }
+  }
 });
 
-// Sync dock indicators + menu bar app name on window state change
+// Sync dock indicators on window state change
 onWindowStateChange(updateIndicators);
 
 // Register all apps in dock, open those marked openOnStart
@@ -43,18 +64,6 @@ initDesktop();
 initMenubar();
 initContextMenu();
 initParticles();
-
-// Lazy-load face tracking after initial paint
-let detectFace = () => {};
-let updatePerspective = () => {};
-
-requestAnimationFrame(() => {
-  import('./tracking.js').then((tracking) => {
-    detectFace = tracking.detectFace;
-    updatePerspective = tracking.updatePerspective;
-    tracking.initTracking();
-  });
-});
 
 // Render loop
 function animate() {

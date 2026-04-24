@@ -8,9 +8,8 @@ let sEyeX = 0, sEyeY = 0, sEyeZ = EYE_DIST;
 let faceLandmarker = null;
 let lastVideoTime  = -1;
 let tracking       = false;
+let enabled        = true;
 
-const statusEl = document.getElementById('status');
-const debugEl  = document.getElementById('debug');
 const videoEl  = document.getElementById('webcam');
 const roomEl   = document.getElementById('room');
 
@@ -31,27 +30,43 @@ export async function initTracking() {
       outputFacialTransformationMatrixes: false,
     });
 
-    statusEl.textContent = 'Starting webcam...';
     const stream = await navigator.mediaDevices.getUserMedia({
       video: { width: { ideal: 640 }, height: { ideal: 480 }, facingMode: 'user' },
     });
     videoEl.srcObject = stream;
     await videoEl.play();
-
-    statusEl.textContent = 'Move your head around!';
-    setTimeout(() => (statusEl.style.opacity = '0'), 3000);
     tracking = true;
   } catch (err) {
     console.error('Tracking init failed:', err);
-    statusEl.textContent = 'No face tracking — drag windows with your mouse!';
-    statusEl.style.background = 'rgba(60, 60, 120, 0.7)';
-    setTimeout(() => (statusEl.style.opacity = '0'), 4000);
-    document.getElementById('webcam-container').style.display = 'none';
+    tracking = false;
   }
 }
 
+export function stopTracking() {
+  tracking = false;
+  enabled = false;
+  if (videoEl.srcObject) {
+    videoEl.srcObject.getTracks().forEach(t => t.stop());
+    videoEl.srcObject = null;
+  }
+  // Reset perspective to center
+  sEyeX = 0; sEyeY = 0; sEyeZ = EYE_DIST;
+}
+
+export function setEnabled(val) {
+  enabled = val;
+  if (!val) {
+    // Smoothly return to center
+    sEyeX = 0; sEyeY = 0; sEyeZ = EYE_DIST;
+  }
+}
+
+export function isTracking() {
+  return tracking && enabled;
+}
+
 export function detectFace() {
-  if (!faceLandmarker || !tracking || videoEl.readyState < 2) return;
+  if (!faceLandmarker || !tracking || !enabled || videoEl.readyState < 2) return;
   if (videoEl.currentTime === lastVideoTime) return;
   lastVideoTime = videoEl.currentTime;
 
@@ -71,18 +86,11 @@ export function detectFace() {
   sEyeX += (rawX - sEyeX) * SMOOTH;
   sEyeY += (rawY - sEyeY) * SMOOTH;
   sEyeZ += (rawZ - sEyeZ) * SMOOTH_Z;
-
-  debugEl.textContent = `eye  x:${sEyeX.toFixed(2)}  y:${sEyeY.toFixed(2)}  z:${sEyeZ.toFixed(2)}`;
 }
 
 export function updatePerspective() {
-  // Map face position to perspective-origin (percentage)
-  // Move head left → see more of right side → origin shifts right
-  // Move head up → see more of ceiling → origin shifts up (lower %)
   const pctX = 50 + sEyeX * 50;
   const pctY = 50 - sEyeY * 50;
-
-  // Map distance to perspective value (closer = smaller perspective = more extreme)
   const perspective = (sEyeZ / EYE_DIST) * BASE_PERSPECTIVE;
 
   roomEl.style.perspective = perspective + 'px';

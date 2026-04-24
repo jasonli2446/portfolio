@@ -1,9 +1,9 @@
 import { DEPTH, BASE_PERSPECTIVE } from './config.js';
-import { createWindow, centerWindow, onWindowStateChange } from './windows.js';
+import { createWindow, centerWindow, onWindowStateChange, windows as winList, getFocusedWindow, hideWindow, fullscreenWindow, showWindow } from './windows.js';
 import { apps } from './apps/index.js';
 import { registerApp, setAppWindow, updateIndicators, handleDockClick } from './dock.js';
 import { initDesktop, setDockClickHandler } from './desktop.js';
-import { initMenubar, setTrackingModule, setCameraState, onTrackingLoaded } from './menubar.js';
+import { initMenubar, setTrackingModule, setCameraState, onTrackingLoaded, setMenuActions } from './menubar.js';
 import { initContextMenu } from './contextmenu.js';
 import { initParticles } from './particles.js';
 import { initBoot } from './boot.js';
@@ -60,6 +60,14 @@ setDockClickHandler(handleDockClick);
 initDesktop();
 initMenubar();
 onTrackingLoaded((mod) => { trackingMod = mod; });
+
+// Wire menu bar actions
+setMenuActions({
+  launchApp: handleDockClick,
+  closeActive: () => { const w = getFocusedWindow(); if (w) hideWindow(w); },
+  fullscreenActive: () => { const w = getFocusedWindow(); if (w) fullscreenWindow(w); },
+  showAll: () => { winList.forEach(w => { if (w.state === 'hidden' || w.state === 'minimized') showWindow(w); }); },
+});
 initContextMenu();
 initParticles();
 

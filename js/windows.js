@@ -17,6 +17,7 @@ export const windows = [];
 // Callback fired whenever a window's state changes (for dock sync)
 let _onStateChange = null;
 export function onWindowStateChange(fn) { _onStateChange = fn; }
+export function getFocusedWindow() { return focusedWin; }
 function notifyStateChange() { if (_onStateChange) _onStateChange(); }
 
 // ── Drag state ────────────────────────────────────────────

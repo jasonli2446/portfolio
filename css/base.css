@@ -235,6 +235,63 @@ body {
 .menubar-item:hover {
   color: rgba(255, 255, 255, 0.8);
 }
+.menubar-menu {
+  cursor: default;
+}
+.menubar-menu:hover {
+  background: rgba(255, 255, 255, 0.08);
+  border-radius: 4px;
+  padding: 2px 6px;
+  margin: -2px -6px;
+}
+
+/* Menu dropdowns */
+.menubar-dropdown {
+  position: fixed;
+  z-index: 100;
+  min-width: 200px;
+  background: rgba(15, 15, 40, 0.92);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 8px;
+  padding: 4px 0;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
+  font-size: 13px;
+}
+.menubar-dropdown .ctx-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 6px 16px;
+  color: rgba(255, 255, 255, 0.7);
+  cursor: default;
+  transition: background 0.1s;
+}
+.menubar-dropdown .ctx-item:hover:not(.ctx-disabled) {
+  background: rgba(100, 160, 255, 0.2);
+  color: #fff;
+}
+.menu-shortcut {
+  font-size: 11px;
+  color: rgba(255, 255, 255, 0.3);
+  margin-left: 24px;
+}
+
+/* Shortcut help rows */
+.shortcut-row {
+  display: flex;
+  justify-content: space-between;
+  padding: 5px 0;
+  font-size: 12px;
+  color: rgba(255, 255, 255, 0.5);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+}
+.shortcut-row:last-of-type { border-bottom: none; }
+.shortcut-key {
+  color: rgba(255, 255, 255, 0.3);
+  font-size: 11px;
+}
 .menubar-toggle {
   background: rgba(60, 180, 100, 0.25);
   border: 1px solid rgba(60, 180, 100, 0.4);

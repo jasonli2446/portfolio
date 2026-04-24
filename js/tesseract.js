@@ -159,9 +159,18 @@ export function showTesseract() {
 
     detectHand();
     if (handActive) {
-      const maxX = canvas.width * 0.48, maxY = canvas.height * 0.48;
-      offsetX += (Math.max(-maxX, Math.min(maxX, handX * canvas.width * 0.45)) - offsetX) * 0.08;
-      offsetY += (Math.max(-maxY, Math.min(maxY, handY * canvas.height * 0.45)) - offsetY) * 0.08;
+      // Use actual wall bounds for clamping
+      const backWall = document.querySelector('.wall-back');
+      const wallRect = backWall ? backWall.getBoundingClientRect() : { left: 0, right: canvas.width, top: 0, bottom: canvas.height };
+      const maxX = (wallRect.right - wallRect.left) / 2 - 40;
+      const maxY = (wallRect.bottom - wallRect.top) / 2 - 40;
+      const wallCX = (wallRect.left + wallRect.right) / 2 - cx;
+      const wallCY = (wallRect.top + wallRect.bottom) / 2 - cy;
+
+      const targetX = wallCX + handX * maxX;
+      const targetY = wallCY + handY * maxY;
+      offsetX += (Math.max(-maxX + wallCX, Math.min(maxX + wallCX, targetX)) - offsetX) * 0.08;
+      offsetY += (Math.max(-maxY + wallCY, Math.min(maxY + wallCY, targetY)) - offsetY) * 0.08;
       handScale += (Math.max(0.3, Math.min(2.5, 1 + handZ * 0.8)) - handScale) * 0.08;
       dragX += handX * 0.008;
       dragY += handY * 0.008;
@@ -174,31 +183,31 @@ export function showTesseract() {
 
     const projected = verts4D.map(v => project(rotate4D(v, angleXW, angleYW, angleXY, angleZW)));
 
-    // Edges — thicker, brighter cyan/purple gradient based on depth
+    // Edges — purple/blue neon matching site theme
     for (const [i, j] of edges) {
       const a = projected[i], b = projected[j];
       const avgDepth = (a.depth + b.depth) / 2;
       const alpha = 0.2 + (avgDepth + 2) * 0.2;
-      // Color shifts from cyan (near) to purple (far)
-      const near = avgDepth > 0;
-      const r = near ? 80 : 160;
-      const g = near ? 200 : 100;
-      const b_ = 255;
-      ctx.strokeStyle = `rgba(${r}, ${g}, ${b_}, ${Math.max(0.08, Math.min(0.9, alpha))})`;
-      ctx.lineWidth = 2.5;
+      // Deeper purple for far edges, brighter blue-purple for near
+      const t2 = (avgDepth + 2) / 4; // 0 to 1
+      const r = Math.round(80 + t2 * 80);    // 80-160
+      const g = Math.round(40 + t2 * 60);    // 40-100
+      const b_ = Math.round(200 + t2 * 55);  // 200-255
+      ctx.strokeStyle = `rgba(${r}, ${g}, ${b_}, ${Math.max(0.1, Math.min(0.85, alpha))})`;
+      ctx.lineWidth = 2;
       ctx.beginPath();
       ctx.moveTo(a.x, a.y);
       ctx.lineTo(b.x, b.y);
       ctx.stroke();
     }
 
-    // Vertices — glowing dots
+    // Vertices — glowing purple dots
     for (const p of projected) {
       const alpha = 0.4 + (p.depth + 2) * 0.25;
       const r = 3 + (p.depth + 2) * 1;
-      ctx.fillStyle = `rgba(180, 140, 255, ${Math.max(0.15, Math.min(1, alpha))})`;
-      ctx.shadowColor = 'rgba(140, 100, 255, 0.5)';
-      ctx.shadowBlur = 8;
+      ctx.fillStyle = `rgba(140, 80, 220, ${Math.max(0.15, Math.min(1, alpha))})`;
+      ctx.shadowColor = 'rgba(100, 40, 200, 0.6)';
+      ctx.shadowBlur = 10;
       ctx.beginPath();
       ctx.arc(p.x, p.y, Math.max(1.5, r), 0, Math.PI * 2);
       ctx.fill();

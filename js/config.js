@@ -10,4 +10,4 @@ export const SENS_Y      = 1.2;
 export const BASE_FACE_W = 0.15;
 
 // Default perspective (px) — mapped from sEyeZ
-export const BASE_PERSPECTIVE = 900;
+export const BASE_PERSPECTIVE = 2000;

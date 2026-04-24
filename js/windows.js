@@ -1,14 +1,27 @@
 // ── Public API ────────────────────────────────────────────
-// createWindow(title, widthPx, heightPx, contentHTML, wallEl) → win
-// centerWindow(win, offsetX?, offsetY?)
-// win = { element, titlebar, content, parentWall }
+// resolveWall(name)          — 'back' → DOM element
+// createWindow(descriptor)   — create + place on wall + return win
+// centerWindow(win, ox, oy)  — center on wall
+// focusWindow(win)           — z-index + glow
+// minimizeWindow(win)        — hide, clear clones
+// restoreWindow(win)         — show at last position
+// fullscreenWindow(win)      — fill wall
+// hideWindow(win)            — close = hide
+// showWindow(win)            — dock reopen
+//
+// win = { id, element, titlebar, content, parentWall, state, ... }
+// state: 'normal' | 'minimized' | 'fullscreen' | 'hidden'
 
 export const windows = [];
 
 // ── Drag state ────────────────────────────────────────────
 let draggedWin = null;
 let dragGrabX = 0, dragGrabY = 0;
-let lastScreenX = 0, lastScreenY = 0;  // fallback for degenerate unproject
+let lastScreenX = 0, lastScreenY = 0;
+
+// ── Focus z-ordering (per-wall) ───────────────────────────
+let focusedWin = null;
+const wallZCounters = new Map();
 
 // ── Forward matrix cache ──────────────────────────────────
 const fwdCache = new WeakMap();
@@ -66,14 +79,15 @@ function screenToLocal(fwd, sx, sy) {
   if (Math.abs(det) < 1e-6) return null;
   const x = (E * D - B * F) / det;
   const y = (A * F - E * C) / det;
-  // Reject wildly out-of-range results (teleport protection)
   if (Math.abs(x) > 10000 || Math.abs(y) > 10000) return null;
   return { x, y };
 }
 
 // ── Wall helpers ──────────────────────────────────────────
 
-function getWall(name) { return document.querySelector('.wall-' + name); }
+export function resolveWall(name) {
+  return document.querySelector('.wall-' + name);
+}
 
 function wallName(el) {
   if (!el) return null;
@@ -91,37 +105,19 @@ function wallUnderPoint(sx, sy, skipEl) {
 }
 
 // ── Wall adjacency ────────────────────────────────────────
-// When unfolding two walls flat, these functions map (left, top)
-// on wall A to the corresponding (left, top) on wall B such that
-// the shared edge lines up perfectly.
-//
-// Convention: the "right" edge of the back wall meets the "left"
-// edge of the right wall (when looking at the inside of the box).
 
 function getNeighbor(wName, edge) {
-  const L = getWall('left'),  R = getWall('right');
-  const B = getWall('back'),  F = getWall('floor'), C = getWall('ceiling');
+  const L = resolveWall('left'), R = resolveWall('right');
+  const B = resolveWall('back'), F = resolveWall('floor'), C = resolveWall('ceiling');
 
-  // Only allow transitions between walls that share the same vertical
-  // orientation (back↔left, back↔right, back↔floor, back↔ceiling).
-  // Side↔floor/ceiling would require reorientation and looks jarring.
   const map = {
-    // Back wall edges
     'back:left':      { wall: L, pos: (l, t) => ({ left: L.offsetWidth + l, top: t }) },
     'back:right':     { wall: R, pos: (l, t) => ({ left: l - B.offsetWidth, top: t }) },
     'back:top':       { wall: C, pos: (l, t) => ({ left: l, top: C.offsetHeight + t }) },
     'back:bottom':    { wall: F, pos: (l, t) => ({ left: l, top: t - B.offsetHeight }) },
-
-    // Left wall: right edge meets back wall left edge
     'left:right':     { wall: B, pos: (l, t) => ({ left: l - L.offsetWidth, top: t }) },
-
-    // Right wall: left edge meets back wall right edge
     'right:left':     { wall: B, pos: (l, t) => ({ left: B.offsetWidth + l, top: t }) },
-
-    // Floor: top edge meets back wall bottom edge
     'floor:top':      { wall: B, pos: (l, t) => ({ left: l, top: B.offsetHeight + t }) },
-
-    // Ceiling: bottom edge meets back wall top edge
     'ceiling:bottom': { wall: B, pos: (l, t) => ({ left: l, top: t - C.offsetHeight }) },
   };
 
@@ -138,9 +134,9 @@ function findEdgeToWall(fromName, toEl) {
 }
 
 // ── Per-window clone management ───────────────────────────
-// Each window tracks its own clones so multi-window drag works.
 
 function updateClones(win) {
+  if (win.state !== 'normal') return;
   const el = win.element;
   const wall = win.parentWall;
   const wn = wallName(wall);
@@ -155,7 +151,6 @@ function updateClones(win) {
   const pw = wall.offsetWidth;
   const ph = wall.offsetHeight;
 
-  // How much extends past each edge
   const over = {
     left:   Math.max(0, -wl),
     right:  Math.max(0, (wl + ww) - pw),
@@ -163,7 +158,6 @@ function updateClones(win) {
     bottom: Math.max(0, (wt + wh) - ph),
   };
 
-  // Clip the main window to the wall bounds
   const hasOverflow = over.left || over.right || over.top || over.bottom;
   el.style.clipPath = hasOverflow
     ? `inset(${over.top}px ${over.right}px ${over.bottom}px ${over.left}px)`
@@ -188,26 +182,20 @@ function updateClones(win) {
       clone.querySelectorAll('[id]').forEach(e => e.removeAttribute('id'));
       nbr.wall.appendChild(clone);
       win._clones.set(nbrKey, clone);
-    } else {
-      // Update clone content to match current window state
-      // (just update size — content is static during drag)
     }
 
-    // Position clone on neighbor wall
     const cpos = nbr.pos(wl, wt);
     clone.style.left   = cpos.left + 'px';
     clone.style.top    = cpos.top + 'px';
     clone.style.width  = ww + 'px';
     clone.style.height = wh + 'px';
 
-    // Clip clone: show only the overflow strip for this edge
     let ct = 0, cr = 0, cb = 0, cl = 0;
     if (edge === 'left')   cr = ww - amount;
     if (edge === 'right')  cl = ww - amount;
     if (edge === 'top')    cb = wh - amount;
     if (edge === 'bottom') ct = wh - amount;
 
-    // Additionally clip to neighbor wall bounds
     const nw = nbr.wall.offsetWidth, nh = nbr.wall.offsetHeight;
     if (cpos.left < 0)            cl = Math.max(cl, -cpos.left);
     if (cpos.top < 0)             ct = Math.max(ct, -cpos.top);
@@ -217,7 +205,6 @@ function updateClones(win) {
     clone.style.clipPath = `inset(${ct}px ${cr}px ${cb}px ${cl}px)`;
   }
 
-  // Remove clones no longer needed
   for (const [key, clone] of win._clones) {
     if (!needed.has(key)) {
       clone.remove();
@@ -233,9 +220,148 @@ function clearClones(win) {
   win.element.style.clipPath = '';
 }
 
+// ── Window state management ──────────────────────────────
+
+export function focusWindow(win) {
+  if (!win || win.state === 'hidden') return;
+
+  // Remove glow from previous
+  if (focusedWin && focusedWin !== win) {
+    focusedWin.element.classList.remove('window-focused');
+  }
+
+  // Per-wall z-counter
+  const wn = wallName(win.parentWall) || 'default';
+  const z = (wallZCounters.get(wn) || 0) + 1;
+  wallZCounters.set(wn, z);
+  win.element.style.zIndex = z;
+  win.element.classList.add('window-focused');
+  focusedWin = win;
+}
+
+export function minimizeWindow(win) {
+  if (!win || win.state === 'minimized' || win.state === 'hidden') return;
+
+  // If fullscreen, save fullscreen state so restore goes back to normal
+  if (win.state === 'fullscreen') {
+    _exitFullscreen(win);
+  }
+
+  clearClones(win);
+  win.element.style.display = 'none';
+  win.state = 'minimized';
+}
+
+export function restoreWindow(win) {
+  if (!win) return;
+
+  win.element.style.display = '';
+  win.state = 'normal';
+  focusWindow(win);
+}
+
+export function fullscreenWindow(win) {
+  if (!win || win.state === 'hidden') return;
+
+  if (win.state === 'fullscreen') {
+    // Toggle off
+    _exitFullscreen(win);
+    return;
+  }
+
+  // Save geometry before going fullscreen
+  const el = win.element;
+  win._saved = {
+    left: el.style.left,
+    top: el.style.top,
+    width: el.style.width,
+    height: el.style.height,
+  };
+
+  clearClones(win);
+
+  // Add transition class, then expand
+  el.classList.add('fullscreen');
+  // Force layout so the transition animates from current position
+  el.offsetHeight;
+  el.style.left = '0px';
+  el.style.top = '0px';
+  el.style.width = win.parentWall.offsetWidth + 'px';
+  el.style.height = win.parentWall.offsetHeight + 'px';
+
+  win.state = 'fullscreen';
+  focusWindow(win);
+}
+
+function _exitFullscreen(win) {
+  const el = win.element;
+  if (win._saved) {
+    el.style.left   = win._saved.left;
+    el.style.top    = win._saved.top;
+    el.style.width  = win._saved.width;
+    el.style.height = win._saved.height;
+  }
+
+  // Remove transition class after animation completes
+  const onEnd = () => {
+    el.classList.remove('fullscreen');
+    el.removeEventListener('transitionend', onEnd);
+    // Re-enable clones at restored position
+    updateClones(win);
+  };
+  el.addEventListener('transitionend', onEnd);
+
+  win.state = 'normal';
+}
+
+export function hideWindow(win) {
+  if (!win) return;
+
+  if (win.state === 'fullscreen') _exitFullscreen(win);
+  clearClones(win);
+  win.element.style.display = 'none';
+  win.state = 'hidden';
+
+  if (focusedWin === win) {
+    win.element.classList.remove('window-focused');
+    focusedWin = null;
+  }
+}
+
+export function showWindow(win) {
+  if (!win || win.state !== 'hidden') return;
+
+  win.element.style.display = '';
+  win.state = 'normal';
+  focusWindow(win);
+  updateClones(win);
+}
+
 // ── Window creation ──────────────────────────────────────
 
-export function createWindow(title, widthPx, heightPx, contentHTML, parentWall) {
+export function createWindow(descriptor) {
+  // Accept either new descriptor format or legacy positional args
+  let title, widthPx, heightPx, contentHTML, parentWall, appId, initFn, destroyFn;
+
+  if (typeof descriptor === 'object' && descriptor.id) {
+    // New app descriptor format
+    appId = descriptor.id;
+    title = descriptor.title;
+    widthPx = descriptor.width;
+    heightPx = descriptor.height;
+    contentHTML = typeof descriptor.content === 'function' ? descriptor.content() : descriptor.content;
+    parentWall = typeof descriptor.wall === 'string' ? resolveWall(descriptor.wall) : descriptor.wall;
+    initFn = descriptor.init;
+    destroyFn = descriptor.destroy;
+  } else {
+    // Legacy: createWindow(title, width, height, html, wallEl)
+    title = arguments[0];
+    widthPx = arguments[1];
+    heightPx = arguments[2];
+    contentHTML = arguments[3];
+    parentWall = arguments[4];
+  }
+
   const el = document.createElement('div');
   el.className = 'window';
   el.style.width  = widthPx + 'px';
@@ -251,10 +377,15 @@ export function createWindow(title, widthPx, heightPx, contentHTML, parentWall) 
   const controls = document.createElement('div');
   controls.className = 'window-controls';
 
+  const minimizeBtn = document.createElement('button');
+  minimizeBtn.className = 'window-btn window-btn-minimize';
+  minimizeBtn.innerHTML = '&#x2500;';
+
   const closeBtn = document.createElement('button');
   closeBtn.className = 'window-btn window-btn-close';
   closeBtn.innerHTML = '&#x2715;';
 
+  controls.appendChild(minimizeBtn);
   controls.appendChild(closeBtn);
   titlebar.appendChild(titleEl);
   titlebar.appendChild(controls);
@@ -267,18 +398,48 @@ export function createWindow(title, widthPx, heightPx, contentHTML, parentWall) 
   el.appendChild(content);
   parentWall.appendChild(el);
 
-  const win = { element: el, titlebar, content, parentWall, _clones: new Map() };
+  const win = {
+    id: appId || null,
+    element: el,
+    titlebar,
+    content,
+    parentWall,
+    state: 'normal',
+    _clones: new Map(),
+    _saved: null,
+    _destroy: destroyFn || null,
+  };
   windows.push(win);
 
+  // ── Close = hide ──
   closeBtn.addEventListener('click', (e) => {
     e.stopPropagation();
-    clearClones(win);
-    el.remove();
-    const idx = windows.indexOf(win);
-    if (idx !== -1) windows.splice(idx, 1);
+    hideWindow(win);
   });
 
+  // ── Minimize ──
+  minimizeBtn.addEventListener('click', (e) => {
+    e.stopPropagation();
+    minimizeWindow(win);
+  });
+
+  // ── Focus on click anywhere ──
+  el.addEventListener('pointerdown', () => {
+    focusWindow(win);
+  });
+
+  // ── Fullscreen on double-click titlebar ──
+  titlebar.addEventListener('dblclick', (e) => {
+    e.stopPropagation();
+    e.preventDefault();
+    fullscreenWindow(win);
+  });
+
+  // ── Drag ──
   titlebar.addEventListener('pointerdown', (e) => {
+    // Don't start drag if fullscreen or minimized
+    if (win.state !== 'normal') return;
+
     e.stopPropagation();
     e.preventDefault();
     draggedWin = win;
@@ -292,7 +453,7 @@ export function createWindow(title, widthPx, heightPx, contentHTML, parentWall) 
       dragGrabY = local.y - (parseFloat(el.style.top)  || 0);
     } else {
       dragGrabX = el.offsetWidth / 2;
-      dragGrabY = el.querySelector('.window-titlebar').offsetHeight / 2;
+      dragGrabY = titlebar.offsetHeight / 2;
     }
 
     lastScreenX = e.clientX;
@@ -300,7 +461,12 @@ export function createWindow(title, widthPx, heightPx, contentHTML, parentWall) 
 
     content.style.pointerEvents = 'none';
     titlebar.setPointerCapture(e.pointerId);
+
+    focusWindow(win);
   });
+
+  // Run app init
+  if (initFn) initFn(win);
 
   return win;
 }
@@ -323,7 +489,6 @@ document.addEventListener('pointermove', (e) => {
   const el = draggedWin.element;
   let wall = draggedWin.parentWall;
 
-  // Detect wall under cursor (skip the window element itself)
   const hitWall = wallUnderPoint(e.clientX, e.clientY, el);
 
   if (hitWall && hitWall !== wall) {
@@ -334,7 +499,6 @@ document.addEventListener('pointermove', (e) => {
       const oldTop  = parseFloat(el.style.top)  || 0;
       const newPos = edgeInfo.pos(oldLeft, oldTop);
 
-      // Reparent to new wall
       clearClones(draggedWin);
       hitWall.appendChild(el);
       el.style.left = newPos.left + 'px';
@@ -342,19 +506,15 @@ document.addEventListener('pointermove', (e) => {
       draggedWin.parentWall = hitWall;
       wall = hitWall;
 
-      // Recompute grab offset on new wall
       const fwd = getFwd(wall);
       const local = screenToLocal(fwd, e.clientX, e.clientY);
       if (local) {
         dragGrabX = local.x - newPos.left;
         dragGrabY = local.y - newPos.top;
       }
-      // If screenToLocal fails here, keep the old grab offset —
-      // it's close enough and better than a wild guess
     }
   }
 
-  // Unproject screen position to wall-local coords
   const fwd = getFwd(wall);
   const local = screenToLocal(fwd, e.clientX, e.clientY);
 
@@ -369,9 +529,6 @@ document.addEventListener('pointermove', (e) => {
     newTop  = (parseFloat(el.style.top)  || 0) + dy;
   }
 
-  // On side walls, clamp top/bottom (no overflow to floor/ceiling).
-  // On floor/ceiling, clamp left/right (no overflow to side walls).
-  // Only back wall allows free overflow in all directions.
   const wn = wallName(wall);
   const ph = wall.offsetHeight, pw = wall.offsetWidth;
   const ew = el.offsetWidth, eh = el.offsetHeight;
@@ -388,7 +545,6 @@ document.addEventListener('pointermove', (e) => {
   lastScreenX = e.clientX;
   lastScreenY = e.clientY;
 
-  // Update clip-path and clones for overflow
   updateClones(draggedWin);
 });
 
@@ -396,9 +552,6 @@ document.addEventListener('pointermove', (e) => {
 
 document.addEventListener('pointerup', () => {
   if (!draggedWin) return;
-
-  // Leave the window exactly where it is — if it's split across
-  // walls, the clip-path + clones stay in place.
   draggedWin.content.style.pointerEvents = '';
   draggedWin = null;
 });

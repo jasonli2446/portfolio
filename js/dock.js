@@ -31,8 +31,8 @@ export function handleDockClick(appId) {
   let win = entry.win;
 
   if (!win || !windows.includes(win)) {
-    // App not open — launch it
-    win = createWindow(entry.app);
+    // App not open — launch it on back wall
+    win = createWindow({ ...entry.app, wall: 'back' });
     centerWindow(win);
     entry.win = win;
     focusWindow(win);

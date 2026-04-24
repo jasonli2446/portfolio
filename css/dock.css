@@ -1,9 +1,20 @@
 /* ── Dock (auto-hide) ────────────────────────── */
+
+/* Invisible hover trigger zone at bottom of back wall */
+.dock-trigger {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 50px;
+  z-index: 4;
+}
+
 #dock {
   position: absolute;
   bottom: 8px;
   left: 50%;
-  transform: translateX(-50%) translateY(100%);
+  transform: translateX(-50%) translateY(calc(100% + 20px));
   z-index: 5;
   display: flex;
   gap: 14px;
@@ -17,7 +28,8 @@
   transition: transform 0.3s ease;
 }
 
-/* Show dock on hover */
+/* Show dock when hovering trigger zone or dock itself */
+.dock-trigger:hover ~ #dock,
 #dock:hover {
   transform: translateX(-50%) translateY(0);
 }
@@ -35,6 +47,9 @@
   z-index: 4;
   pointer-events: none;
   transition: opacity 0.3s;
+}
+.dock-trigger:hover ~ .dock-indicator {
+  opacity: 0;
 }
 
 .dock-item {

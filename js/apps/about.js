@@ -11,7 +11,7 @@ export default {
   content: () =>
     `<div class="about">
        <div class="info-icon">
-         <div class="about-avatar">JL</div>
+         <img class="about-avatar" src="public/headshot.jpg" alt="Jason Li">
          <h1 class="about-name">Jason Li</h1>
        </div>
        <div class="info-separator"></div>

@@ -259,7 +259,15 @@ export function minimizeWindow(win) {
   }
 
   clearClones(win);
-  win.element.style.display = 'none';
+
+  // Minimize animation
+  const el = win.element;
+  el.classList.add('window-closing');
+  el.addEventListener('animationend', () => {
+    el.classList.remove('window-closing');
+    el.style.display = 'none';
+  }, { once: true });
+
   win.state = 'minimized';
   notifyStateChange();
 }
@@ -268,6 +276,8 @@ export function restoreWindow(win) {
   if (!win) return;
 
   win.element.style.display = '';
+  win.element.classList.add('window-opening');
+  win.element.addEventListener('animationend', () => win.element.classList.remove('window-opening'), { once: true });
   win.state = 'normal';
   focusWindow(win);
   notifyStateChange();

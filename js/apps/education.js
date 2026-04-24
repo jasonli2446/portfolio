@@ -10,7 +10,7 @@ export default {
   content: () => `
     <div class="transcript">
       <div class="transcript-header">
-        <img class="transcript-logo-img" src="public/CWRU_Acronym-logo-brand.avif" alt="CWRU" style="width:48px; height:48px; border-radius:8px; object-fit:contain;">
+        <img class="transcript-logo-img" src="public/cwrulogo.png" alt="CWRU" style="width:48px; height:48px; border-radius:8px; object-fit:contain;">
         <div class="transcript-school">
           <div class="transcript-uni">Case Western Reserve University</div>
           <div class="transcript-sub">Office of the University Registrar · Cleveland, OH</div>

@@ -109,16 +109,13 @@ export function showTesseract() {
       const results = handLandmarker.detectForVideo(videoEl, now);
       if (results.landmarks && results.landmarks.length > 0) {
         const tip = results.landmarks[0][8];
-        // Higher multiplier (3x) so hand doesn't need to reach frame edges
-        smoothHandX += ((tip.x - 0.5) * -3 - smoothHandX) * 0.15;
-        smoothHandY += ((tip.y - 0.5) * 3 - smoothHandY) * 0.15;
-        handX = smoothHandX;
-        handY = smoothHandY;
-        // tip.z: negative = finger closer to camera, ~0 = far from camera
-        // We want: hand back (far, z~0) = big tesseract, hand forward (close, z negative) = small
-        // So: negate tip.z → positive when close, negative when far. Then negate again for scale.
-        // Simpler: just use tip.z directly with positive multiplier
-        handZ = Math.max(-1, Math.min(1.5, tip.z * 20 + 1));
+        // 5x multiplier — small hand movements near center of frame cover full range
+        smoothHandX += ((tip.x - 0.5) * -5 - smoothHandX) * 0.15;
+        smoothHandY += ((tip.y - 0.5) * 5 - smoothHandY) * 0.15;
+        handX = Math.max(-1.5, Math.min(1.5, smoothHandX));
+        handY = Math.max(-1.5, Math.min(1.5, smoothHandY));
+        // Z: hand back = bigger, hand forward = smaller
+        handZ = Math.max(-1, Math.min(1.5, tip.z * 30 + 1.5));
         handActive = true;
       } else {
         handActive = false;

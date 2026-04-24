@@ -53,6 +53,8 @@ body {
   transform-origin: left center;
   transform: rotateY(90deg);
   background:
+    repeating-linear-gradient(90deg, transparent, transparent 79px, rgba(60,80,200,0.05) 79px, rgba(60,80,200,0.05) 80px),
+    repeating-linear-gradient(0deg, transparent, transparent 79px, rgba(60,80,200,0.05) 79px, rgba(60,80,200,0.05) 80px),
     radial-gradient(ellipse at 70% 40%, rgba(0, 40, 160, 0.35) 0%, transparent 60%),
     linear-gradient(135deg, #080030 0%, #060040 50%, #040028 100%);
 }
@@ -64,6 +66,8 @@ body {
   transform-origin: right center;
   transform: rotateY(-90deg);
   background:
+    repeating-linear-gradient(90deg, transparent, transparent 79px, rgba(80,60,200,0.05) 79px, rgba(80,60,200,0.05) 80px),
+    repeating-linear-gradient(0deg, transparent, transparent 79px, rgba(80,60,200,0.05) 79px, rgba(80,60,200,0.05) 80px),
     radial-gradient(ellipse at 30% 60%, rgba(80, 0, 160, 0.3) 0%, transparent 60%),
     linear-gradient(225deg, #0a0030 0%, #080040 50%, #040028 100%);
 }
@@ -75,6 +79,8 @@ body {
   transform-origin: center bottom;
   transform: rotateX(90deg);
   background:
+    repeating-linear-gradient(90deg, transparent, transparent 79px, rgba(40,80,200,0.06) 79px, rgba(40,80,200,0.06) 80px),
+    repeating-linear-gradient(0deg, transparent, transparent 79px, rgba(40,80,200,0.06) 79px, rgba(40,80,200,0.06) 80px),
     radial-gradient(ellipse at 50% 20%, rgba(0, 40, 120, 0.25) 0%, transparent 60%),
     linear-gradient(180deg, #030018 0%, #050030 50%, #060040 100%);
 }
@@ -86,6 +92,8 @@ body {
   transform-origin: center top;
   transform: rotateX(-90deg);
   background:
+    repeating-linear-gradient(90deg, transparent, transparent 79px, rgba(50,40,160,0.04) 79px, rgba(50,40,160,0.04) 80px),
+    repeating-linear-gradient(0deg, transparent, transparent 79px, rgba(50,40,160,0.04) 79px, rgba(50,40,160,0.04) 80px),
     radial-gradient(ellipse at 50% 80%, rgba(40, 0, 100, 0.2) 0%, transparent 60%),
     linear-gradient(0deg, #060020 0%, #040018 100%);
 }

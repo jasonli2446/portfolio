@@ -1,5 +1,5 @@
 import { showTesseract } from './tesseract.js';
-import { screenToLocal, getFwd, invalidateCache, wallName, findEdgeToWall } from './windows.js';
+import { screenToLocal, getFwd, invalidateCache } from './windows.js';
 
 // Desktop icons on the back wall — draggable, selectable
 

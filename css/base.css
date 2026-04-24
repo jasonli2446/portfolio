@@ -236,21 +236,26 @@ body {
   color: rgba(255, 255, 255, 0.8);
 }
 .menubar-toggle {
-  background: none;
-  border: none;
+  background: rgba(60, 180, 100, 0.25);
+  border: 1px solid rgba(60, 180, 100, 0.4);
   cursor: pointer;
-  font-size: 14px;
-  padding: 2px 6px;
-  border-radius: 4px;
-  transition: background 0.15s;
-  opacity: 0.8;
+  font-size: 12px;
+  padding: 2px 8px;
+  border-radius: 10px;
+  transition: background 0.2s, border-color 0.2s;
+  color: rgba(60, 200, 100, 0.9);
+  font-family: system-ui, -apple-system, sans-serif;
 }
 .menubar-toggle:hover {
-  background: rgba(255, 255, 255, 0.08);
-  opacity: 1;
+  background: rgba(60, 180, 100, 0.35);
 }
 .menubar-toggle-off {
-  opacity: 0.35;
+  background: rgba(200, 60, 60, 0.2);
+  border-color: rgba(200, 60, 60, 0.35);
+  color: rgba(220, 80, 80, 0.8);
+}
+.menubar-toggle-off:hover {
+  background: rgba(200, 60, 60, 0.3);
 }
 
 /* ── Context menu ────────────────────────────────── */

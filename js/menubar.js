@@ -56,7 +56,7 @@ function updateCameraIcon() {
   const icon = document.getElementById('camera-icon');
   const btn = document.getElementById('menubar-camera');
   if (!icon || !btn) return;
-  icon.textContent = cameraOn ? '📷' : '📷';
+  icon.textContent = cameraOn ? '📷 ON' : '📷 OFF';
   btn.classList.toggle('menubar-toggle-off', !cameraOn);
   btn.title = cameraOn ? 'Head tracking ON — click to disable' : 'Head tracking OFF — click to enable';
 }

@@ -5,6 +5,7 @@ import skills from './skills.js';
 import notes from './notes.js';
 import clock from './clock.js';
 import calculator from './calculator.js';
+import trash from './trash.js';
 
 // Apps listed in dock order (left to right)
 export const apps = [
@@ -15,4 +16,5 @@ export const apps = [
   notes,
   clock,
   calculator,
+  trash,
 ];

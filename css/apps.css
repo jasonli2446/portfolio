@@ -344,6 +344,45 @@
 }
 .settings-download:hover { background: rgba(100, 160, 255, 0.22); }
 
+/* ── Trash ────────────────────────────────────── */
+.trash-container { height: 100%; }
+.trash-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  gap: 8px;
+}
+.trash-empty-icon { font-size: 48px; opacity: 0.4; }
+.trash-empty-text { font-size: 14px; color: rgba(255,255,255,0.5); font-weight: 600; }
+.trash-empty-sub { font-size: 12px; color: rgba(255,255,255,0.3); }
+
+.trash-list { display: flex; flex-direction: column; gap: 2px; }
+.trash-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 12px;
+  border-bottom: 1px solid rgba(255,255,255,0.04);
+}
+.trash-item:last-child { border-bottom: none; }
+.trash-item-name {
+  font-size: 13px;
+  color: rgba(255,255,255,0.6);
+}
+.trash-item-restore {
+  padding: 4px 12px;
+  background: rgba(100, 160, 255, 0.12);
+  border: 1px solid rgba(100, 160, 255, 0.2);
+  border-radius: 6px;
+  color: rgba(100, 180, 255, 0.9);
+  font-size: 12px;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+.trash-item-restore:hover { background: rgba(100, 160, 255, 0.22); }
+
 /* ── Notes window ────────────────────────────── */
 .notes-textarea {
   width: 100%;

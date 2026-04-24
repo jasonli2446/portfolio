@@ -1,5 +1,5 @@
 import { showTesseract } from './tesseract.js';
-import { screenToLocal, getFwd, invalidateCache } from './windows.js';
+import { screenToLocal, getFwd, invalidateCache, wallName, findEdgeToWall } from './windows.js';
 
 // Desktop icons on the back wall — draggable, selectable
 
@@ -121,41 +121,55 @@ export function initDesktop() {
       for (const entry of iconElements) {
         if (!selectedIcons.has(entry.el)) continue;
 
-        // Detect wall under cursor
-        entry.el.style.pointerEvents = 'none';
-        const els = document.elementsFromPoint(e.clientX, e.clientY);
-        entry.el.style.pointerEvents = '';
-        let targetWall = null;
-        for (const hit of els) {
-          if (hit.classList.contains('wall')) { targetWall = hit; break; }
+        const el = entry.el;
+
+        // Find which wall the cursor is over
+        el.style.pointerEvents = 'none';
+        const hits = document.elementsFromPoint(e.clientX, e.clientY);
+        el.style.pointerEvents = '';
+        let hitWall = null;
+        for (const h of hits) {
+          if (h.classList.contains('wall')) { hitWall = h; break; }
         }
 
-        const currentParent = entry.el.parentElement.closest('.wall') || entry.el.parentElement;
+        const currentWall = el.parentElement.closest('.wall') || el.parentElement;
 
-        // If cursor is over a different wall, reparent the icon
-        if (targetWall && targetWall !== currentParent) {
-          targetWall.appendChild(entry.el);
-          invalidateCache();
-          // Recompute grab offset for new wall
-          const fwd = getFwd(targetWall);
-          const local = screenToLocal(fwd, e.clientX, e.clientY);
-          if (local) {
-            iconGrabOffsets.set(entry.el, {
-              grabX: local.x - (parseFloat(entry.el.style.left) || 0),
-              grabY: local.y - (parseFloat(entry.el.style.top) || 0),
-            });
+        // Wall transition — use adjacency mapping (same as window drag)
+        if (hitWall && hitWall !== currentWall) {
+          const fromName = wallName(currentWall);
+          const edgeInfo = findEdgeToWall(fromName, hitWall);
+          if (edgeInfo) {
+            const oldLeft = parseFloat(el.style.left) || 0;
+            const oldTop  = parseFloat(el.style.top)  || 0;
+            const newPos = edgeInfo.pos(oldLeft, oldTop);
+
+            hitWall.appendChild(el);
+            el.style.left = newPos.left + 'px';
+            el.style.top  = newPos.top + 'px';
+            invalidateCache();
+
+            // Recompute grab offset on new wall
+            const fwd = getFwd(hitWall);
+            const local = screenToLocal(fwd, e.clientX, e.clientY);
+            if (local) {
+              iconGrabOffsets.set(el, {
+                grabX: local.x - newPos.left,
+                grabY: local.y - newPos.top,
+              });
+            }
+            continue;
           }
         }
 
-        // Unproject screen position to wall-local coords (same as window drag)
-        const wall = entry.el.parentElement.closest('.wall') || entry.el.parentElement;
+        // Normal movement on current wall using unprojection
+        const wall = el.parentElement.closest('.wall') || el.parentElement;
         const fwd = getFwd(wall);
         const local = screenToLocal(fwd, e.clientX, e.clientY);
-        const grab = iconGrabOffsets.get(entry.el);
+        const grab = iconGrabOffsets.get(el);
 
         if (local && grab) {
-          entry.el.style.left = (local.x - grab.grabX) + 'px';
-          entry.el.style.top  = (local.y - grab.grabY) + 'px';
+          el.style.left = (local.x - grab.grabX) + 'px';
+          el.style.top  = (local.y - grab.grabY) + 'px';
         }
       }
       return;

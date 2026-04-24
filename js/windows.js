@@ -101,7 +101,7 @@ export function resolveWall(name) {
   return document.querySelector('.wall-' + name);
 }
 
-function wallName(el) {
+export function wallName(el) {
   if (!el) return null;
   for (const n of ['back', 'left', 'right', 'floor', 'ceiling'])
     if (el.classList.contains('wall-' + n)) return n;
@@ -136,7 +136,7 @@ function getNeighbor(wName, edge) {
   return map[wName + ':' + edge] || null;
 }
 
-function findEdgeToWall(fromName, toEl) {
+export function findEdgeToWall(fromName, toEl) {
   if (!fromName || !toEl) return null;
   for (const edge of ['left', 'right', 'top', 'bottom']) {
     const nbr = getNeighbor(fromName, edge);

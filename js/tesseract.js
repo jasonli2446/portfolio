@@ -109,8 +109,9 @@ export function showTesseract() {
       const results = handLandmarker.detectForVideo(videoEl, now);
       if (results.landmarks && results.landmarks.length > 0) {
         const tip = results.landmarks[0][8];
-        smoothHandX += ((tip.x - 0.5) * -2 - smoothHandX) * 0.15;
-        smoothHandY += ((tip.y - 0.5) * 2 - smoothHandY) * 0.15;
+        // Higher multiplier (3x) so hand doesn't need to reach frame edges
+        smoothHandX += ((tip.x - 0.5) * -3 - smoothHandX) * 0.15;
+        smoothHandY += ((tip.y - 0.5) * 3 - smoothHandY) * 0.15;
         handX = smoothHandX;
         handY = smoothHandY;
         handZ = Math.max(-1, Math.min(1, tip.z * 10)); // positive = hand further = bigger

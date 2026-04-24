@@ -225,7 +225,7 @@ function showSecret() {
   msg.className = 'tesseract-msg';
   msg.style.cssText = 'position:fixed; bottom:40px; left:50%; transform:translateX(-50%); text-align:center; z-index:16; pointer-events:none;';
   msg.innerHTML = `
-    <div style="font-size:13px; color:rgba(255,255,255,0.3); font-family:monospace; margin-bottom:4px;">4D Hypercube · drag to rotate · click walls to dismiss</div>
+    <div style="font-size:13px; color:rgba(255,255,255,0.3); font-family:monospace; margin-bottom:4px;">4D Hypercube · drag to rotate · move hand to control · click to dismiss</div>
   `;
   document.body.appendChild(msg);
 
@@ -255,12 +255,57 @@ function showSecret() {
     }
   }
 
-  // Rotation angles (auto-rotate + mouse drag)
+  // Rotation angles (auto-rotate + mouse drag + hand control)
   let angleXW = 0, angleYW = 0, angleXY = 0, angleZW = 0;
   let dragX = 0, dragY = 0;
   let isDragging = false;
   let didDrag = false;
   let lastMX = 0, lastMY = 0;
+
+  // Hand tracking state
+  let handX = 0, handY = 0; // -1 to 1, controls position offset
+  let handActive = false;
+  let handLandmarker = null;
+
+  // Try to init hand tracking (reuse existing webcam)
+  const videoEl = document.getElementById('webcam');
+  if (videoEl && videoEl.srcObject) {
+    import('https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.14/vision_bundle.mjs').then(async ({ HandLandmarker, FilesetResolver }) => {
+      try {
+        const vision = await FilesetResolver.forVisionTasks(
+          'https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.14/wasm',
+        );
+        handLandmarker = await HandLandmarker.createFromOptions(vision, {
+          baseOptions: {
+            modelAssetPath: 'https://storage.googleapis.com/mediapipe-models/hand_landmarker/hand_landmarker/float16/1/hand_landmarker.task',
+            delegate: 'GPU',
+          },
+          runningMode: 'VIDEO',
+          numHands: 1,
+        });
+      } catch (e) {
+        console.log('Hand tracking not available:', e);
+      }
+    });
+  }
+
+  function detectHand() {
+    if (!handLandmarker || !videoEl || videoEl.readyState < 2) return;
+    try {
+      const results = handLandmarker.detectForVideo(videoEl, performance.now());
+      if (results.landmarks && results.landmarks.length > 0) {
+        const tip = results.landmarks[0][8]; // index fingertip
+        // Map 0-1 range to -1 to 1, invert X (mirror)
+        handX = (tip.x - 0.5) * -2;
+        handY = (tip.y - 0.5) * -2;
+        handActive = true;
+      } else {
+        handActive = false;
+      }
+    } catch (e) {
+      handActive = false;
+    }
+  }
 
   canvas.addEventListener('pointerdown', (e) => {
     isDragging = true;
@@ -298,18 +343,20 @@ function showSecret() {
     return [x, y, z, w];
   }
 
+  // Position offset from hand tracking
+  let offsetX = 0, offsetY = 0;
+
   function project(v4) {
-    // Perspective project 4D → 3D → 2D
-    const w4 = 1 / (3 - v4[3]); // 4D→3D perspective
+    const w4 = 1 / (3 - v4[3]);
     const x3 = v4[0] * w4;
     const y3 = v4[1] * w4;
     const z3 = v4[2] * w4;
-    const w3 = 1 / (3 - z3); // 3D→2D perspective
+    const w3 = 1 / (3 - z3);
     const scale = 280;
     return {
-      x: cx + x3 * w3 * scale,
-      y: cy + y3 * w3 * scale,
-      depth: z3 + v4[3], // for color intensity
+      x: cx + x3 * w3 * scale + offsetX,
+      y: cy + y3 * w3 * scale + offsetY,
+      depth: z3 + v4[3],
     };
   }
 
@@ -319,6 +366,21 @@ function showSecret() {
   function draw() {
     const t = (performance.now() - time0) * 0.001;
     ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+    // Hand tracking
+    detectHand();
+    if (handActive) {
+      // Hand controls position + adds to rotation
+      const targetX = handX * canvas.width * 0.3;
+      const targetY = handY * canvas.height * 0.3;
+      offsetX += (targetX - offsetX) * 0.1; // smooth lerp
+      offsetY += (targetY - offsetY) * 0.1;
+      dragX += handX * 0.01; // gentle rotation from hand movement
+      dragY += handY * 0.01;
+    } else {
+      offsetX += (0 - offsetX) * 0.05; // drift back to center
+      offsetY += (0 - offsetY) * 0.05;
+    }
 
     // Auto-rotate + drag offset
     angleXW = t * 0.3 + dragX;
@@ -359,7 +421,13 @@ function showSecret() {
   }
   draw();
 
-  const close = () => { cancelAnimationFrame(rafId); canvas.remove(); msg.remove(); document.removeEventListener('click', onClickClose); };
+  const close = () => {
+    cancelAnimationFrame(rafId);
+    canvas.remove();
+    msg.remove();
+    document.removeEventListener('click', onClickClose);
+    if (handLandmarker) { handLandmarker.close(); handLandmarker = null; }
+  };
 
   // Click anywhere to close — but not if the user was dragging the tesseract
   function onClickClose(e) {

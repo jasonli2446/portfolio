@@ -110,17 +110,20 @@ function renderTerminalView(p) {
     ? `\n<span class="term-prompt">$ open github</span>\n<a href="${p.link}" target="_blank" style="color:rgba(100,180,255,0.8); text-decoration:none;">  Opening ${p.link}</a>`
     : '';
 
-  return `<div class="fm-toolbar">
-    <button class="fm-back" id="fm-back"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"></polyline></svg> ~/projects/</button>
+  return `<div class="fm-toolbar fm-toolbar-detail">
+    <button class="fm-back" id="fm-back"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"></polyline></svg> Back to ~/projects/</button>
   </div>
   <div class="fm-terminal">
-    <div class="term-output">
+    <div class="term-output" id="fm-term-output">
 <span class="term-prompt">~/projects/${p.title} $ ls</span>
 <div style="margin:6px 0 12px; display:flex; flex-wrap:wrap;">${fileList}</div>
 <span class="term-prompt">~/projects/${p.title} $ cat README.md</span>
 <div style="margin:8px 0; color:rgba(255,255,255,0.7); line-height:1.6;">${p.desc}</div>
 <div style="margin:8px 0;">${tags}</div>${linkLine}
-<div style="margin-top:8px;"><span class="term-prompt">~/projects/${p.title} $ </span><span class="term-cursor">_</span></div>
+    </div>
+    <div class="fm-term-input-row">
+      <span class="term-prompt">~/projects/${p.title} $ </span>
+      <input type="text" class="fm-term-input" id="fm-term-input" placeholder="try: cd .." autocomplete="off" spellcheck="false">
     </div>
   </div>`;
 }
@@ -156,6 +159,61 @@ export default {
         e.stopPropagation();
         showGrid();
       });
+
+      // Interactive terminal input
+      const input = container.querySelector('#fm-term-input');
+      const output = container.querySelector('#fm-term-output');
+      if (input) {
+        input.focus();
+        input.addEventListener('keydown', (e) => {
+          if (e.key !== 'Enter') return;
+          e.stopPropagation();
+          const cmd = input.value.trim().toLowerCase();
+          input.value = '';
+
+          // Echo the command
+          const echo = document.createElement('div');
+          echo.style.marginTop = '8px';
+          echo.innerHTML = `<span class="term-prompt">~/projects/${project.title} $ ${cmd}</span>`;
+          output.appendChild(echo);
+
+          // Handle commands
+          const response = document.createElement('div');
+          response.style.cssText = 'color:rgba(255,255,255,0.6); margin:4px 0;';
+
+          if (cmd === 'cd ..' || cmd === 'cd ~' || cmd === 'back' || cmd === 'exit') {
+            response.textContent = 'Returning to ~/projects/...';
+            output.appendChild(response);
+            setTimeout(() => showGrid(), 300);
+            return;
+          } else if (cmd === 'ls') {
+            response.innerHTML = project.files.map(f => {
+              const isDir = f.endsWith('/');
+              return `<span style="color:${isDir ? 'rgba(100,180,255,0.8)' : 'rgba(255,255,255,0.6)'}; margin-right:12px;">${f}</span>`;
+            }).join('');
+          } else if (cmd.startsWith('open') || cmd.startsWith('git')) {
+            if (project.link !== '#') {
+              response.innerHTML = `Opening <a href="${project.link}" target="_blank" style="color:rgba(100,180,255,0.8);">${project.link}</a>`;
+              window.open(project.link, '_blank');
+            } else {
+              response.textContent = 'No public repository available.';
+            }
+          } else if (cmd === 'help') {
+            response.innerHTML = 'Available commands: <span style="color:#4ade80;">ls, cd .., open, help, clear</span>';
+          } else if (cmd === 'clear') {
+            output.innerHTML = '';
+            return;
+          } else if (cmd) {
+            response.textContent = `command not found: ${cmd}`;
+          }
+
+          if (cmd) output.appendChild(response);
+
+          // Scroll to bottom
+          const terminal = container.querySelector('.fm-terminal');
+          if (terminal) terminal.scrollTop = terminal.scrollHeight;
+        });
+      }
     }
 
     // Wire initial grid

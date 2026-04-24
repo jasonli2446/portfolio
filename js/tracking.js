@@ -96,7 +96,8 @@ export function detectFace() {
 export function updatePerspective() {
   const pctX = 50 + sEyeX * 50;
   const pctY = 50 - sEyeY * 50;
-  const perspective = (sEyeZ / EYE_DIST) * TRACKING_PERSPECTIVE;
+  // Use fixed perspective — only X/Y parallax, no zoom from Z distance
+  const perspective = TRACKING_PERSPECTIVE;
 
   roomEl.style.perspective = perspective + 'px';
   roomEl.style.perspectiveOrigin = `${pctX}% ${pctY}%`;

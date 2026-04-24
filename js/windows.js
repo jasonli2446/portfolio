@@ -125,8 +125,6 @@ function startTransition(win, oldWall, newWall) {
   transitioning = true;
   transitionStart = performance.now();
   transitionToWall = newWall;
-  transitionWinLeft = winLeft;
-  transitionWinTop = winTop;
 
   win.parentWall = newWall;
 }

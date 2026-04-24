@@ -189,9 +189,66 @@ function updateClones(win) {
     if (!clone) {
       clone = el.cloneNode(true);
       clone.classList.add('window-clone');
-      clone.style.pointerEvents = 'none';
       clone.style.clipPath = '';
       clone.querySelectorAll('[id]').forEach(e => e.removeAttribute('id'));
+
+      // Clone content is non-interactive, but titlebar and resize handle redirect to real window
+      clone.querySelector('.window-content').style.pointerEvents = 'none';
+
+      // Titlebar on clone triggers drag on real window
+      const cloneTitlebar = clone.querySelector('.window-titlebar');
+      if (cloneTitlebar) {
+        cloneTitlebar.addEventListener('pointerdown', (e) => {
+          if (win.state !== 'normal') return;
+          if (e.target.closest('.window-btn')) return;
+          e.stopPropagation();
+          e.preventDefault();
+          draggedWin = win;
+          invalidateCache();
+          const fwd = getFwd(win.parentWall);
+          const local = screenToLocal(fwd, e.clientX, e.clientY);
+          if (local) {
+            dragGrabX = local.x - (parseFloat(el.style.left) || 0);
+            dragGrabY = local.y - (parseFloat(el.style.top) || 0);
+          } else {
+            dragGrabX = el.offsetWidth / 2;
+            dragGrabY = 19;
+          }
+          lastScreenX = e.clientX;
+          lastScreenY = e.clientY;
+          win.content.style.pointerEvents = 'none';
+          cloneTitlebar.setPointerCapture(e.pointerId);
+          focusWindow(win);
+        });
+      }
+
+      // Resize handle on clone triggers resize on real window
+      const cloneResize = clone.querySelector('.window-resize-handle');
+      if (cloneResize) {
+        cloneResize.addEventListener('pointerdown', (e) => {
+          if (win.state !== 'normal') return;
+          e.stopPropagation();
+          e.preventDefault();
+          resizingWin = win;
+          resizeStartW = el.offsetWidth;
+          resizeStartH = el.offsetHeight;
+          resizeStartSX = e.clientX;
+          resizeStartSY = e.clientY;
+          invalidateCache();
+          const fwd = getFwd(win.parentWall);
+          resizeStartLocal = screenToLocal(fwd, e.clientX, e.clientY);
+          win.content.style.pointerEvents = 'none';
+          cloneResize.setPointerCapture(e.pointerId);
+          focusWindow(win);
+        });
+      }
+
+      // Close/minimize buttons on clone work on real window
+      const cloneClose = clone.querySelector('.window-btn-close');
+      if (cloneClose) cloneClose.addEventListener('click', (e) => { e.stopPropagation(); hideWindow(win); });
+      const cloneMin = clone.querySelector('.window-btn-minimize');
+      if (cloneMin) cloneMin.addEventListener('click', (e) => { e.stopPropagation(); minimizeWindow(win); });
+
       nbr.wall.appendChild(clone);
       win._clones.set(nbrKey, clone);
     }

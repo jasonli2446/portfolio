@@ -289,15 +289,27 @@ function showSecret() {
     });
   }
 
+  let lastHandDetect = 0;
+  let smoothHandX = 0, smoothHandY = 0;
+
   function detectHand() {
     if (!handLandmarker || !videoEl || videoEl.readyState < 2) return;
+    // Throttle to ~15fps to avoid overwhelming MediaPipe
+    const now = performance.now();
+    if (now - lastHandDetect < 66) return;
+    lastHandDetect = now;
+
     try {
-      const results = handLandmarker.detectForVideo(videoEl, performance.now());
+      const results = handLandmarker.detectForVideo(videoEl, now);
       if (results.landmarks && results.landmarks.length > 0) {
         const tip = results.landmarks[0][8]; // index fingertip
-        // Map 0-1 range to -1 to 1, invert X (mirror)
-        handX = (tip.x - 0.5) * -2;
-        handY = (tip.y - 0.5) * -2;
+        const rawX = (tip.x - 0.5) * -2;
+        const rawY = (tip.y - 0.5) * -2;
+        // Heavy smoothing for stable movement
+        smoothHandX += (rawX - smoothHandX) * 0.15;
+        smoothHandY += (rawY - smoothHandY) * 0.15;
+        handX = smoothHandX;
+        handY = smoothHandY;
         handActive = true;
       } else {
         handActive = false;

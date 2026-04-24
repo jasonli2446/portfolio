@@ -554,6 +554,7 @@ export function createWindow(descriptor) {
     e.stopPropagation();
     e.preventDefault();
     draggedWin = win;
+    el.classList.add('window-dragging');
 
     invalidateCache();
 
@@ -739,6 +740,7 @@ document.addEventListener('pointerup', () => {
     return;
   }
   if (!draggedWin) return;
+  draggedWin.element.classList.remove('window-dragging');
   draggedWin.content.style.pointerEvents = '';
   draggedWin = null;
 });

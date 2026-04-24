@@ -35,12 +35,29 @@ export function initSpotlight(dockClick) {
   dockClickFn = dockClick;
 
   document.addEventListener('keydown', (e) => {
-    if ((e.metaKey || e.ctrlKey) && e.code === 'Space') {
+    // Ctrl+K or Cmd+K (works on all platforms, doesn't conflict with OS)
+    if ((e.metaKey || e.ctrlKey) && e.key === 'k') {
+      e.preventDefault();
+      toggle();
+    }
+    // Also / key when not typing in an input
+    if (e.key === '/' && !e.target.closest('input, textarea, [contenteditable]')) {
       e.preventDefault();
       toggle();
     }
     if (e.key === 'Escape' && isOpen) close();
   });
+
+  // Search icon in menu bar (added dynamically)
+  const menuRight = document.querySelector('.menubar-right');
+  if (menuRight) {
+    const searchBtn = document.createElement('button');
+    searchBtn.className = 'menubar-search';
+    searchBtn.title = 'Search (Ctrl+K or /)';
+    searchBtn.innerHTML = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>';
+    searchBtn.addEventListener('click', (e) => { e.stopPropagation(); toggle(); });
+    menuRight.insertBefore(searchBtn, menuRight.firstChild);
+  }
 }
 
 function toggle() {

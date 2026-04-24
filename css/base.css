@@ -318,6 +318,23 @@ body {
   color: rgba(255, 255, 255, 0.3);
   font-size: 11px;
 }
+.menubar-search {
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 3px 6px;
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  transition: background 0.15s;
+  color: rgba(255,255,255,0.5);
+}
+.menubar-search:hover {
+  background: rgba(255,255,255,0.08);
+  color: rgba(255,255,255,0.8);
+}
+.menubar-search svg { stroke: currentColor; }
+
 .menubar-toggle {
   background: rgba(60, 180, 100, 0.25);
   border: 1px solid rgba(60, 180, 100, 0.4);

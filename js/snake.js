@@ -43,40 +43,45 @@ function spawnApple(snake, preferBack = false) {
   return a;
 }
 
-function wrapPosition(wall, r, c) {
+// Returns { wall, r, c, newDir } — newDir is set only when direction must rotate
+function wrapPosition(wall, r, c, dir) {
   const N = GRID, L = N - 1;
 
   // ── Right edge (c >= N) ──
   if (c >= N) {
+    // Same-orientation transitions (no direction change needed)
     if (wall === 'back')    return { wall: 'right',   r,     c: 0 };
     if (wall === 'left')    return { wall: 'back',    r,     c: 0 };
-    if (wall === 'right')   return { wall: 'left',    r,     c: 0 };     // wrap around
-    if (wall === 'floor')   return { wall: 'right',   r: L,  c: L - r }; // floor right → right wall bottom
-    if (wall === 'ceiling') return { wall: 'right',   r: 0,  c: r };     // ceiling right → right wall top
+    if (wall === 'right')   return { wall: 'left',    r,     c: 0 };
+    // 90° transitions — direction must rotate
+    if (wall === 'floor')   return { wall: 'right',   r: L,  c: L - r, newDir: { dr: -1, dc: 0 } };
+    if (wall === 'ceiling') return { wall: 'right',   r: 0,  c: r,     newDir: { dr: 1, dc: 0 } };
   }
   // ── Left edge (c < 0) ──
   if (c < 0) {
     if (wall === 'back')    return { wall: 'left',    r,     c: L };
     if (wall === 'right')   return { wall: 'back',    r,     c: L };
-    if (wall === 'left')    return { wall: 'right',   r,     c: L };     // wrap around
-    if (wall === 'floor')   return { wall: 'left',    r: L,  c: r };     // floor left → left wall bottom
-    if (wall === 'ceiling') return { wall: 'left',    r: 0,  c: L - r }; // ceiling left → left wall top
+    if (wall === 'left')    return { wall: 'right',   r,     c: L };
+    if (wall === 'floor')   return { wall: 'left',    r: L,  c: r,     newDir: { dr: -1, dc: 0 } };
+    if (wall === 'ceiling') return { wall: 'left',    r: 0,  c: L - r, newDir: { dr: 1, dc: 0 } };
   }
   // ── Bottom edge (r >= N) ──
   if (r >= N) {
     if (wall === 'back')    return { wall: 'floor',   r: 0,  c };
-    if (wall === 'left')    return { wall: 'floor',   r: c,  c: 0 };     // left bottom → floor left edge, going right
-    if (wall === 'right')   return { wall: 'floor',   r: L - c, c: L };  // right bottom → floor right edge, going left
-    if (wall === 'floor')   return { wall: 'ceiling', r: 0,  c };        // wrap around
+    if (wall === 'floor')   return { wall: 'ceiling', r: 0,  c };
     if (wall === 'ceiling') return { wall: 'back',    r: 0,  c };
+    // 90° transitions
+    if (wall === 'left')    return { wall: 'floor',   r: 0,  c: 0,     newDir: { dr: 0, dc: 1 } };  // was going down, now go right on floor
+    if (wall === 'right')   return { wall: 'floor',   r: 0,  c: L,     newDir: { dr: 0, dc: -1 } }; // was going down, now go left on floor
   }
   // ── Top edge (r < 0) ──
   if (r < 0) {
     if (wall === 'back')    return { wall: 'ceiling', r: L,  c };
-    if (wall === 'left')    return { wall: 'ceiling', r: L - c, c: 0 };  // left top → ceiling left edge
-    if (wall === 'right')   return { wall: 'ceiling', r: c,  c: L };     // right top → ceiling right edge
-    if (wall === 'ceiling') return { wall: 'floor',   r: L,  c };        // wrap around
+    if (wall === 'ceiling') return { wall: 'floor',   r: L,  c };
     if (wall === 'floor')   return { wall: 'back',    r: L,  c };
+    // 90° transitions
+    if (wall === 'left')    return { wall: 'ceiling', r: L,  c: 0,     newDir: { dr: 0, dc: 1 } };  // was going up, now go right on ceiling
+    if (wall === 'right')   return { wall: 'ceiling', r: L,  c: L,     newDir: { dr: 0, dc: -1 } }; // was going up, now go left on ceiling
   }
   return { wall, r, c };
 }
@@ -88,7 +93,10 @@ function tick() {
     state.dir = state.inputQueue.shift();
   }
   const head = state.snake[0];
-  const newHead = wrapPosition(head.wall, head.r + state.dir.dr, head.c + state.dir.dc);
+  const result = wrapPosition(head.wall, head.r + state.dir.dr, head.c + state.dir.dc, state.dir);
+  const newHead = { wall: result.wall, r: result.r, c: result.c };
+  // Apply direction rotation from 90° wall transitions
+  if (result.newDir) state.dir = result.newDir;
 
   if (state.snake.some(s => s.wall === newHead.wall && s.r === newHead.r && s.c === newHead.c)) {
     state.alive = false;
@@ -205,23 +213,18 @@ function render() {
       }
     }
 
-    // Game over on back wall — text only, no dark overlay
-    if (!state.alive && wn === 'back') {
-      ctx.fillStyle = 'rgba(255, 80, 80, 0.9)';
-      ctx.font = 'bold 32px system-ui';
-      ctx.textAlign = 'center';
-      ctx.shadowColor = 'rgba(0,0,0,0.8)';
-      ctx.shadowBlur = 12;
-      ctx.fillText('Game Over', w / 2, h / 2 - 20);
-      ctx.fillStyle = 'rgba(100, 220, 150, 0.9)';
-      ctx.font = '18px system-ui';
-      ctx.fillText(`Score: ${state.score}`, w / 2, h / 2 + 10);
-      ctx.fillStyle = 'rgba(255,255,255,0.5)';
-      ctx.font = '13px system-ui';
-      ctx.fillText('Enter to restart · Escape to exit', w / 2, h / 2 + 40);
-      ctx.textAlign = 'left';
-      ctx.shadowBlur = 0;
-    }
+  }
+
+  // Game over — floating HTML overlay in center of viewport
+  if (!state.alive && !document.querySelector('.snake-gameover')) {
+    const go = document.createElement('div');
+    go.className = 'snake-gameover';
+    go.innerHTML = `
+      <div style="font-size:36px; font-weight:800; color:rgba(255,80,80,0.9);">Game Over</div>
+      <div style="font-size:20px; color:rgba(100,220,150,0.9); margin:8px 0;">Score: ${state.score}</div>
+      <div style="font-size:13px; color:rgba(255,255,255,0.4);">Enter to restart · Escape to exit</div>
+    `;
+    document.body.appendChild(go);
   }
 
   if (overlay) {
@@ -295,7 +298,11 @@ function onKey(e) {
     e.preventDefault();
   }
   if (e.key === 'Escape') { stopSnake(); e.preventDefault(); }
-  if (e.key === 'Enter' && !state.alive) { state = newGame(); render(); e.preventDefault(); }
+  if (e.key === 'Enter' && !state.alive) {
+    const go = document.querySelector('.snake-gameover');
+    if (go) go.remove();
+    state = newGame(); render(); e.preventDefault();
+  }
 }
 
 export function stopSnake() {
@@ -310,6 +317,8 @@ export function stopSnake() {
     if (backdrops[wn]) { backdrops[wn].remove(); delete backdrops[wn]; }
   }
   if (overlay) { overlay.remove(); overlay = null; }
+  const go = document.querySelector('.snake-gameover');
+  if (go) go.remove();
   state = null;
   if (exitCallback) exitCallback();
 }

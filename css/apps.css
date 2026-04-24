@@ -28,6 +28,16 @@
   font-size: 11px;
   color: rgba(255,255,255,0.3);
 }
+.snake-gameover {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 200;
+  text-align: center;
+  pointer-events: none;
+  text-shadow: 0 2px 20px rgba(0,0,0,0.8);
+}
 
 /* ── Transcript/Education ────────────────────── */
 .transcript { font-size: 13px; }

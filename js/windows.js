@@ -14,6 +14,11 @@
 
 export const windows = [];
 
+// Callback fired whenever a window's state changes (for dock sync)
+let _onStateChange = null;
+export function onWindowStateChange(fn) { _onStateChange = fn; }
+function notifyStateChange() { if (_onStateChange) _onStateChange(); }
+
 // ── Drag state ────────────────────────────────────────────
 let draggedWin = null;
 let dragGrabX = 0, dragGrabY = 0;
@@ -256,6 +261,7 @@ export function minimizeWindow(win) {
   clearClones(win);
   win.element.style.display = 'none';
   win.state = 'minimized';
+  notifyStateChange();
 }
 
 export function restoreWindow(win) {
@@ -264,6 +270,7 @@ export function restoreWindow(win) {
   win.element.style.display = '';
   win.state = 'normal';
   focusWindow(win);
+  notifyStateChange();
 }
 
 export function fullscreenWindow(win) {
@@ -332,6 +339,7 @@ export function hideWindow(win) {
     win.element.classList.remove('window-focused');
     focusedWin = null;
   }
+  notifyStateChange();
 }
 
 export function showWindow(win) {
@@ -341,6 +349,7 @@ export function showWindow(win) {
   win.state = 'normal';
   focusWindow(win);
   updateClones(win);
+  notifyStateChange();
 }
 
 // ── Window creation ──────────────────────────────────────
@@ -440,6 +449,7 @@ export function createWindow(descriptor) {
 
   // ── Fullscreen on double-click titlebar ──
   titlebar.addEventListener('dblclick', (e) => {
+    if (e.target.closest('.window-btn')) return;
     e.stopPropagation();
     e.preventDefault();
     fullscreenWindow(win);
@@ -449,6 +459,8 @@ export function createWindow(descriptor) {
   titlebar.addEventListener('pointerdown', (e) => {
     // Don't start drag if fullscreen or minimized
     if (win.state !== 'normal') return;
+    // Don't start drag if clicking a button (minimize/close)
+    if (e.target.closest('.window-btn')) return;
 
     e.stopPropagation();
     e.preventDefault();

@@ -1,7 +1,10 @@
 import { DEPTH, BASE_PERSPECTIVE } from './config.js';
-import { createWindow, centerWindow } from './windows.js';
+import { createWindow, centerWindow, onWindowStateChange } from './windows.js';
 import { apps } from './apps/index.js';
 import { registerApp, setAppWindow, updateIndicators } from './dock.js';
+
+// Sync dock indicators whenever any window state changes
+onWindowStateChange(updateIndicators);
 
 // Set CSS custom property for wall depth
 const room = document.getElementById('room');

@@ -607,6 +607,9 @@ body {
 /* ── System monitor ──────────────────────────────── */
 .sysmon { font-size: 12px; }
 .sysmon-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
   font-size: 13px;
   font-weight: 600;
   color: rgba(255,255,255,0.6);
@@ -614,25 +617,52 @@ body {
   padding-bottom: 6px;
   border-bottom: 1px solid rgba(255,255,255,0.06);
 }
-.sysmon-row {
-  display: grid;
-  grid-template-columns: 70px 1fr 60px;
-  gap: 8px;
-  align-items: center;
-  padding: 5px 0;
+.sysmon-uptime {
+  font-family: 'SF Mono', monospace;
+  font-size: 11px;
+  color: rgba(255,255,255,0.3);
 }
-.sysmon-label { color: rgba(255,255,255,0.4); font-size: 11px; }
-.sysmon-val { color: rgba(255,255,255,0.65); font-family: 'SF Mono', monospace; font-size: 11px; }
-.sysmon-bar {
-  height: 4px;
-  background: rgba(255,255,255,0.06);
-  border-radius: 2px;
-  overflow: hidden;
+.sysmon-metric {
+  margin-bottom: 10px;
 }
-.sysmon-bar-fill {
-  height: 100%;
-  border-radius: 2px;
-  transition: width 1s ease;
+.sysmon-metric-header {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 4px;
+}
+.sysmon-metric-label {
+  font-size: 11px;
+  color: rgba(255,255,255,0.4);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+.sysmon-metric-val {
+  font-family: 'SF Mono', monospace;
+  font-size: 12px;
+  font-weight: 600;
+}
+.sysmon-stats {
+  display: flex;
+  justify-content: space-between;
+  padding-top: 10px;
+  border-top: 1px solid rgba(255,255,255,0.06);
+  margin-top: 6px;
+}
+.sysmon-stat {
+  text-align: center;
+}
+.sysmon-stat-num {
+  display: block;
+  font-family: 'SF Mono', monospace;
+  font-size: 16px;
+  font-weight: 700;
+  color: rgba(255,255,255,0.75);
+}
+.sysmon-stat-label {
+  font-size: 9px;
+  color: rgba(255,255,255,0.3);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
 }
 
 /* ── Notification center ─────────────────────────── */

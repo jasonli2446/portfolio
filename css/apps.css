@@ -57,13 +57,31 @@
 .transcript-course span:first-child { color: rgba(255,255,255,0.35); width: 80px; }
 .transcript-course span:nth-child(2) { flex: 1; font-family: system-ui; }
 .transcript-grade { color: rgba(100, 200, 150, 0.8); font-weight: 600; }
+.transcript-logo-img {
+  flex-shrink: 0;
+  padding: 6px;
+  background: rgba(100, 160, 255, 0.08);
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
 .transcript-footer {
   margin-top: 12px;
-  font-size: 10px;
-  color: rgba(255,255,255,0.2);
   text-align: center;
-  font-style: italic;
 }
+.transcript-link {
+  display: inline-block;
+  padding: 8px 20px;
+  background: rgba(100, 160, 255, 0.12);
+  border: 1px solid rgba(100, 160, 255, 0.2);
+  border-radius: 8px;
+  color: rgba(100, 180, 255, 0.9);
+  text-decoration: none;
+  font-size: 13px;
+  transition: background 0.15s;
+}
+.transcript-link:hover { background: rgba(100, 160, 255, 0.22); }
 
 /* ── About Me ────────────────────────────────── */
 .about { display: flex; flex-direction: column; gap: 0; }

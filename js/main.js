@@ -8,7 +8,7 @@ import { initContextMenu } from './contextmenu.js';
 import { initParticles } from './particles.js';
 import { initBoot } from './boot.js';
 import { initCursor } from './cursor.js';
-import { initTicker } from './ticker.js';
+// ticker removed
 import { initSpotlight } from './spotlight.js';
 import { initNotifications } from './notifications.js';
 
@@ -75,7 +75,6 @@ setMenuActions({
 initContextMenu();
 initParticles();
 initCursor();
-initTicker();
 initSpotlight(handleDockClick);
 initNotifications();
 

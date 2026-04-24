@@ -6,8 +6,8 @@
   transform: translateX(-50%);
   z-index: 5;
   display: flex;
-  gap: 8px;
-  padding: 8px 16px;
+  gap: 12px;
+  padding: 10px 20px;
   background: rgba(15, 15, 40, 0.75);
   backdrop-filter: blur(20px);
   -webkit-backdrop-filter: blur(20px);
@@ -17,8 +17,8 @@
 }
 
 .dock-item {
-  width: 44px;
-  height: 44px;
+  width: 56px;
+  height: 56px;
   border: none;
   border-radius: 12px;
   background: rgba(255, 255, 255, 0.06);
@@ -40,7 +40,7 @@
 }
 
 .dock-icon {
-  font-size: 22px;
+  font-size: 28px;
   line-height: 1;
 }
 

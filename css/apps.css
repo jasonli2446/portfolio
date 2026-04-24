@@ -221,7 +221,7 @@
 
 .term-output {
   font-family: 'SF Mono', 'Fira Code', 'Cascadia Code', 'Consolas', monospace;
-  font-size: 12px;
+  font-size: 14px;
   line-height: 1.6;
   color: #4ade80;
   white-space: pre-wrap;
@@ -230,7 +230,7 @@
 
 .term-cursor {
   font-family: 'SF Mono', 'Fira Code', 'Cascadia Code', 'Consolas', monospace;
-  font-size: 12px;
+  font-size: 14px;
   color: #4ade80;
   animation: blink 1.2s step-end infinite;
   margin-left: 2px;

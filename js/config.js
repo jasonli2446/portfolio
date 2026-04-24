@@ -1,5 +1,5 @@
 // Room depth in CSS pixels
-export const DEPTH = 600;
+export const DEPTH = 400;
 
 // Face tracking
 export const EYE_DIST    = 5;
@@ -10,4 +10,4 @@ export const SENS_Y      = 1.2;
 export const BASE_FACE_W = 0.15;
 
 // Default perspective (px) — mapped from sEyeZ
-export const BASE_PERSPECTIVE = 800;
+export const BASE_PERSPECTIVE = 900;

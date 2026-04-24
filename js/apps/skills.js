@@ -50,8 +50,8 @@ export default {
   id: 'skills',
   title: 'Settings',
   icon: '⚙️',
-  width: 400,
-  height: 440,
+  width: 440,
+  height: 480,
   wall: 'right',
   openOnStart: true,
   content: () =>

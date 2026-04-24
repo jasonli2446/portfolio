@@ -1,8 +1,8 @@
 const defaultNotes = [
-  { color: '#2a1f4e', text: 'TODO: sleep more', rotate: -2 },
-  { color: '#1f2a4e', text: 'push to main, not prod\n— famous last words', rotate: 1.5 },
-  { color: '#2a1f3e', text: 'idea: what if the\nportfolio was a 3D room?', rotate: -1 },
-  { color: '#1f3a2e', text: '"it works on my machine"\n    — me, every time', rotate: 2.5 },
+  { color: '#2a1f4e', text: 'SVD compression\npaper draft due\nFriday', rotate: -2 },
+  { color: '#1f2a4e', text: 'KKR prep:\n- system design\n- behavioral\n- market sizing', rotate: 1.5 },
+  { color: '#2a1f3e', text: 'ship portfolio\nbefore end of\nApril', rotate: -1 },
+  { color: '#1f3a2e', text: 'look into\nWebGPU for\nnext project', rotate: 2.5 },
 ];
 
 const colors = ['#2a1f4e', '#1f2a4e', '#2a1f3e', '#1f3a2e', '#3a1f2a', '#1f2a3a'];

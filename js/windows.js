@@ -549,11 +549,12 @@ export function createWindow(descriptor) {
     if (win.state === 'minimized' || win.state === 'hidden') return;
     if (e.target.closest('.window-btn')) return;
 
-    // If fullscreen, exit fullscreen with animation then start drag
+    // If fullscreen, just animate the exit — don't start drag
     if (win.state === 'fullscreen') {
+      e.stopPropagation();
+      e.preventDefault();
       _exitFullscreen(win);
-      // Keep .fullscreen class for transition, remove after animation
-      el.addEventListener('transitionend', () => el.classList.remove('fullscreen'), { once: true });
+      return;
     }
 
     e.stopPropagation();

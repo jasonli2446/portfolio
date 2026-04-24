@@ -1,5 +1,6 @@
 import { showTesseract } from './tesseract.js';
 
+// Use screen-space deltas for icon dragging (simpler than window unprojection)
 // Desktop icons on the back wall — draggable, selectable
 
 const icons = [

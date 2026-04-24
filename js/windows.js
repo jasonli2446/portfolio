@@ -358,17 +358,32 @@ document.addEventListener('pointermove', (e) => {
   const fwd = getFwd(wall);
   const local = screenToLocal(fwd, e.clientX, e.clientY);
 
+  let newLeft, newTop;
   if (local) {
-    el.style.left = (local.x - dragGrabX) + 'px';
-    el.style.top  = (local.y - dragGrabY) + 'px';
+    newLeft = local.x - dragGrabX;
+    newTop  = local.y - dragGrabY;
   } else {
-    // Fallback: use screen-space delta (imperfect on side walls
-    // but prevents freezing and teleporting)
     const dx = e.clientX - lastScreenX;
     const dy = e.clientY - lastScreenY;
-    el.style.left = ((parseFloat(el.style.left) || 0) + dx) + 'px';
-    el.style.top  = ((parseFloat(el.style.top)  || 0) + dy) + 'px';
+    newLeft = (parseFloat(el.style.left) || 0) + dx;
+    newTop  = (parseFloat(el.style.top)  || 0) + dy;
   }
+
+  // On side walls, clamp top/bottom (no overflow to floor/ceiling).
+  // On floor/ceiling, clamp left/right (no overflow to side walls).
+  // Only back wall allows free overflow in all directions.
+  const wn = wallName(wall);
+  const ph = wall.offsetHeight, pw = wall.offsetWidth;
+  const ew = el.offsetWidth, eh = el.offsetHeight;
+  const margin = 10;
+  if (wn === 'left' || wn === 'right') {
+    newTop = Math.max(margin, Math.min(ph - eh - margin, newTop));
+  } else if (wn === 'floor' || wn === 'ceiling') {
+    newLeft = Math.max(margin, Math.min(pw - ew - margin, newLeft));
+  }
+
+  el.style.left = newLeft + 'px';
+  el.style.top  = newTop + 'px';
 
   lastScreenX = e.clientX;
   lastScreenY = e.clientY;

@@ -213,24 +213,21 @@ github.com/jasonli2446/3d-os`;
 }
 
 function showSecret() {
-  // 4D Tesseract (hypercube) wireframe easter egg
-  const overlay = document.createElement('div');
-  overlay.className = 'about-os-overlay';
-  overlay.style.background = 'rgba(0,0,0,0.92)';
+  // 4D Tesseract (hypercube) wireframe — transparent overlay
+  if (document.querySelector('.tesseract-canvas')) return;
 
   const canvas = document.createElement('canvas');
-  canvas.style.cssText = 'position:absolute; inset:0; width:100%; height:100%;';
-  overlay.appendChild(canvas);
+  canvas.className = 'tesseract-canvas';
+  canvas.style.cssText = 'position:fixed; inset:0; width:100%; height:100%; z-index:15;';
+  document.body.appendChild(canvas);
 
   const msg = document.createElement('div');
-  msg.style.cssText = 'position:absolute; bottom:60px; left:50%; transform:translateX(-50%); text-align:center; z-index:1;';
+  msg.className = 'tesseract-msg';
+  msg.style.cssText = 'position:fixed; bottom:40px; left:50%; transform:translateX(-50%); text-align:center; z-index:16; pointer-events:none;';
   msg.innerHTML = `
-    <div style="font-size:13px; color:rgba(255,255,255,0.3); font-family:monospace; margin-bottom:8px;">4D Hypercube · drag to rotate</div>
-    <div style="font-size:11px; color:rgba(255,255,255,0.15);">You're inside a 3D box, looking at a 4D one. — Jason</div>
-    <button class="about-os-close" style="margin-top:12px;">Close</button>
+    <div style="font-size:13px; color:rgba(255,255,255,0.3); font-family:monospace; margin-bottom:4px;">4D Hypercube · drag to rotate · click walls to dismiss</div>
   `;
-  overlay.appendChild(msg);
-  document.body.appendChild(overlay);
+  document.body.appendChild(msg);
 
   const ctx = canvas.getContext('2d');
   canvas.width = window.innerWidth;
@@ -302,7 +299,7 @@ function showSecret() {
     const y3 = v4[1] * w4;
     const z3 = v4[2] * w4;
     const w3 = 1 / (3 - z3); // 3D→2D perspective
-    const scale = 180;
+    const scale = 280;
     return {
       x: cx + x3 * w3 * scale,
       y: cy + y3 * w3 * scale,
@@ -315,8 +312,7 @@ function showSecret() {
 
   function draw() {
     const t = (performance.now() - time0) * 0.001;
-    ctx.fillStyle = 'rgba(0, 0, 0, 0.15)';
-    ctx.fillRect(0, 0, canvas.width, canvas.height);
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
 
     // Auto-rotate + drag offset
     angleXW = t * 0.3 + dragX;
@@ -357,8 +353,12 @@ function showSecret() {
   }
   draw();
 
-  const closeBtn = msg.querySelector('.about-os-close');
-  const close = () => { cancelAnimationFrame(rafId); overlay.remove(); };
-  closeBtn.addEventListener('click', close);
-  overlay.addEventListener('click', (e) => { if (e.target === overlay || e.target === canvas) return; });
+  const close = () => { cancelAnimationFrame(rafId); canvas.remove(); msg.remove(); document.removeEventListener('pointerdown', onClickClose); };
+
+  // Click anywhere outside canvas to close (after a brief delay so the initial click doesn't dismiss)
+  function onClickClose(e) {
+    if (e.target === canvas) return; // clicking the canvas rotates, doesn't close
+    close();
+  }
+  setTimeout(() => document.addEventListener('pointerdown', onClickClose), 500);
 }

@@ -114,7 +114,7 @@ export function initMenubar() {
     </div>
     <div class="menubar-right">
       <button class="menubar-toggle" id="menubar-camera" title="Toggle head tracking">
-        <span id="camera-icon">📷</span>
+        <span id="camera-icon"></span>
       </button>
       <span class="menubar-item" id="menubar-time"></span>
     </div>

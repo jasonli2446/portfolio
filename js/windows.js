@@ -597,6 +597,7 @@ document.addEventListener('pointermove', (e) => {
       el.style.width  = Math.max(200, resizeStartW + dx) + 'px';
       el.style.height = Math.max(120, resizeStartH + dy) + 'px';
     }
+    updateClones(resizingWin);
     return;
   }
 

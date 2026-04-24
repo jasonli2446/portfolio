@@ -49,65 +49,34 @@ const projectData = [
   },
 ];
 
-function renderFolder(p, index) {
-  return `<div class="fm-folder" data-index="${index}">
-    <div class="fm-folder-icon">📁</div>
-    <div class="fm-folder-name">${p.title}</div>
-  </div>`;
+const folderSvg = '<svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"></path></svg>';
+
+function renderGrid() {
+  const folders = projectData.map((p, i) =>
+    `<div class="fm-folder" data-index="${i}">
+      <div class="fm-folder-icon">${folderSvg}</div>
+      <div class="fm-folder-name">${p.title}</div>
+    </div>`
+  ).join('');
+
+  return `<div class="fm-toolbar">
+    <div class="fm-breadcrumb">~/projects/</div>
+  </div>
+  <div class="fm-grid">${folders}</div>`;
 }
 
-function renderDetail(p) {
+function renderDetailView(p) {
   const tags = p.tags.map(t => `<span class="fm-detail-tag">${t}</span>`).join('');
-  return `<div class="fm-detail">
-    <h3 class="fm-detail-title">${p.title}</h3>
+  return `<div class="fm-toolbar">
+    <button class="fm-back" id="fm-back"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"></polyline></svg> ~/projects/</button>
+  </div>
+  <div class="fm-detail-view">
+    <div class="fm-detail-icon">${folderSvg}</div>
+    <h2 class="fm-detail-title">${p.title}</h2>
     <p class="fm-detail-desc">${p.desc}</p>
     <div class="fm-detail-tags">${tags}</div>
-    <a href="${p.link}" target="_blank" class="fm-detail-link">Open →</a>
+    ${p.link !== '#' ? `<a href="${p.link}" target="_blank" class="fm-detail-link">View on GitHub</a>` : ''}
   </div>`;
-}
-
-function init(win) {
-  const folders = win.element.querySelectorAll('.fm-folder');
-  let currentlyExpanded = null;
-  let currentDetail = null;
-
-  folders.forEach((folder) => {
-    folder.addEventListener('click', () => {
-      const index = parseInt(folder.dataset.index);
-      const project = projectData[index];
-
-      // If clicking the same folder, close it
-      if (currentlyExpanded === folder) {
-        folder.classList.remove('selected');
-        if (currentDetail) {
-          currentDetail.remove();
-          currentDetail = null;
-        }
-        currentlyExpanded = null;
-        return;
-      }
-
-      // Remove previous selection
-      if (currentlyExpanded) {
-        currentlyExpanded.classList.remove('selected');
-      }
-      if (currentDetail) {
-        currentDetail.remove();
-      }
-
-      // Add new selection
-      folder.classList.add('selected');
-      currentlyExpanded = folder;
-
-      // Create and insert detail card
-      const detail = document.createElement('div');
-      detail.innerHTML = renderDetail(project);
-      currentDetail = detail.firstElementChild;
-
-      const grid = win.element.querySelector('.fm-grid');
-      grid.parentNode.insertBefore(currentDetail, grid.nextSibling);
-    });
-  });
 }
 
 export default {
@@ -120,10 +89,36 @@ export default {
   openOnStart: false,
   offsetX: 200,
   offsetY: -20,
-  content: () =>
-    `<div class="fm-toolbar">
-      <div class="fm-breadcrumb">~/projects/</div>
-    </div>
-    <div class="fm-grid">${projectData.map(renderFolder).join('')}</div>`,
-  init,
+  content: () => `<div class="fm-container" id="fm-container">${renderGrid()}</div>`,
+  init: (win) => {
+    const container = win.element.querySelector('#fm-container');
+
+    function showGrid() {
+      container.innerHTML = renderGrid();
+      container.querySelectorAll('.fm-folder').forEach(folder => {
+        folder.addEventListener('dblclick', (e) => {
+          e.stopPropagation();
+          const idx = parseInt(folder.dataset.index);
+          showDetail(projectData[idx]);
+        });
+      });
+    }
+
+    function showDetail(project) {
+      container.innerHTML = renderDetailView(project);
+      container.querySelector('#fm-back').addEventListener('click', (e) => {
+        e.stopPropagation();
+        showGrid();
+      });
+    }
+
+    // Wire initial grid
+    container.querySelectorAll('.fm-folder').forEach(folder => {
+      folder.addEventListener('dblclick', (e) => {
+        e.stopPropagation();
+        const idx = parseInt(folder.dataset.index);
+        showDetail(projectData[idx]);
+      });
+    });
+  },
 };

@@ -150,8 +150,13 @@
   border: 1px solid rgba(100, 160, 255, 0.25);
 }
 .fm-folder-icon {
-  font-size: 48px;
   line-height: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.fm-folder-icon svg {
+  stroke: rgba(255, 255, 255, 0.7);
 }
 .fm-folder-name {
   font-size: 12px;
@@ -159,6 +164,37 @@
   text-align: center;
   font-weight: 500;
 }
+.fm-back {
+  background: none;
+  border: none;
+  color: rgba(100, 180, 255, 0.8);
+  font-size: 12px;
+  font-family: 'SF Mono', 'Fira Code', monospace;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  transition: color 0.15s;
+}
+.fm-back:hover { color: rgba(100, 180, 255, 1); }
+.fm-back svg { stroke: rgba(100, 180, 255, 0.8); }
+
+.fm-detail-view {
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+}
+.fm-detail-icon {
+  margin-bottom: 16px;
+}
+.fm-detail-icon svg {
+  width: 64px;
+  height: 64px;
+  stroke: rgba(255, 255, 255, 0.6);
+}
+
 .fm-detail {
   margin: 16px 14px 0;
   padding: 14px;

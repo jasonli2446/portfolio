@@ -30,50 +30,53 @@ function newGame() {
     score: 0,
     alive: true,
   };
-  s.apple = spawnApple(s.snake);
+  s.apple = spawnApple(s.snake, true);
   return s;
 }
 
-function spawnApple(snake) {
+function spawnApple(snake, preferBack = false) {
   let a;
   do {
-    a = { wall: WALLS[Math.floor(Math.random() * 5)], r: Math.floor(Math.random() * GRID), c: Math.floor(Math.random() * GRID) };
+    const w = preferBack ? 'back' : WALLS[Math.floor(Math.random() * 5)];
+    a = { wall: w, r: Math.floor(Math.random() * GRID), c: Math.floor(Math.random() * GRID) };
   } while (snake.some(s => s.wall === a.wall && s.r === a.r && s.c === a.c));
   return a;
 }
 
 function wrapPosition(wall, r, c) {
-  // Right edge
-  if (c >= GRID) {
-    if (wall === 'back')    return { wall: 'right',   r, c: 0 };
-    if (wall === 'left')    return { wall: 'back',    r, c: 0 };
-    if (wall === 'floor')   return { wall: 'right',   r: GRID - 1, c: GRID - 1 - r };
-    if (wall === 'ceiling') return { wall: 'right',   r: 0, c: r };
-    return { wall, r, c: 0 }; // right wall wraps to itself
+  const N = GRID, L = N - 1;
+
+  // ── Right edge (c >= N) ──
+  if (c >= N) {
+    if (wall === 'back')    return { wall: 'right',   r,     c: 0 };
+    if (wall === 'left')    return { wall: 'back',    r,     c: 0 };
+    if (wall === 'right')   return { wall: 'left',    r,     c: 0 };     // wrap around
+    if (wall === 'floor')   return { wall: 'right',   r: L,  c: L - r }; // floor right → right wall bottom
+    if (wall === 'ceiling') return { wall: 'right',   r: 0,  c: r };     // ceiling right → right wall top
   }
-  // Left edge
+  // ── Left edge (c < 0) ──
   if (c < 0) {
-    if (wall === 'back')    return { wall: 'left',    r, c: GRID - 1 };
-    if (wall === 'right')   return { wall: 'back',    r, c: GRID - 1 };
-    if (wall === 'floor')   return { wall: 'left',    r: GRID - 1, c: r };
-    if (wall === 'ceiling') return { wall: 'left',    r: 0, c: GRID - 1 - r };
-    return { wall, r, c: GRID - 1 }; // left wall wraps to itself
+    if (wall === 'back')    return { wall: 'left',    r,     c: L };
+    if (wall === 'right')   return { wall: 'back',    r,     c: L };
+    if (wall === 'left')    return { wall: 'right',   r,     c: L };     // wrap around
+    if (wall === 'floor')   return { wall: 'left',    r: L,  c: r };     // floor left → left wall bottom
+    if (wall === 'ceiling') return { wall: 'left',    r: 0,  c: L - r }; // ceiling left → left wall top
   }
-  // Bottom edge
-  if (r >= GRID) {
-    if (wall === 'back')    return { wall: 'floor',   r: 0, c };
-    if (wall === 'left')    return { wall: 'floor',   r: c, c: 0 };
-    if (wall === 'right')   return { wall: 'floor',   r: GRID - 1 - c, c: GRID - 1 };
-    if (wall === 'ceiling') return { wall: 'back',    r: 0, c };
-    return { wall, r: 0, c }; // floor wraps to itself
+  // ── Bottom edge (r >= N) ──
+  if (r >= N) {
+    if (wall === 'back')    return { wall: 'floor',   r: 0,  c };
+    if (wall === 'left')    return { wall: 'floor',   r: c,  c: 0 };     // left bottom → floor left edge, going right
+    if (wall === 'right')   return { wall: 'floor',   r: L - c, c: L };  // right bottom → floor right edge, going left
+    if (wall === 'floor')   return { wall: 'ceiling', r: 0,  c };        // wrap around
+    if (wall === 'ceiling') return { wall: 'back',    r: 0,  c };
   }
-  // Top edge
+  // ── Top edge (r < 0) ──
   if (r < 0) {
-    if (wall === 'back')    return { wall: 'ceiling', r: GRID - 1, c };
-    if (wall === 'left')    return { wall: 'ceiling', r: GRID - 1 - c, c: 0 };
-    if (wall === 'right')   return { wall: 'ceiling', r: c, c: GRID - 1 };
-    if (wall === 'floor')   return { wall: 'back',    r: GRID - 1, c };
-    return { wall, r: GRID - 1, c }; // ceiling wraps to itself
+    if (wall === 'back')    return { wall: 'ceiling', r: L,  c };
+    if (wall === 'left')    return { wall: 'ceiling', r: L - c, c: 0 };  // left top → ceiling left edge
+    if (wall === 'right')   return { wall: 'ceiling', r: c,  c: L };     // right top → ceiling right edge
+    if (wall === 'ceiling') return { wall: 'floor',   r: L,  c };        // wrap around
+    if (wall === 'floor')   return { wall: 'back',    r: L,  c };
   }
   return { wall, r, c };
 }
@@ -189,10 +192,13 @@ function render() {
       if (appleImg && appleImg.complete) {
         ctx.drawImage(appleImg, ax + 2, ay + 2, cw - 4, ch - 4);
       } else {
-        ctx.fillStyle = 'rgba(255, 70, 70, 0.9)';
+        ctx.fillStyle = 'rgba(255, 60, 60, 0.95)';
+        ctx.shadowColor = 'rgba(255, 60, 60, 0.5)';
+        ctx.shadowBlur = 8;
         ctx.beginPath();
-        ctx.roundRect(ax + 3, ay + 3, cw - 6, ch - 6, 4);
+        ctx.arc(ax + cw / 2, ay + ch / 2, cw * 0.35, 0, Math.PI * 2);
         ctx.fill();
+        ctx.shadowBlur = 0;
       }
     }
 
@@ -268,7 +274,8 @@ export function startSnake(onExit) {
 
 function onKey(e) {
   if (!active) return;
-  const d = state.nextDir;
+  // Validate against committed dir (not nextDir) to prevent fast-tap deaths
+  const d = state.dir;
   if ((e.key === 'ArrowUp'    || e.key === 'w') && d.dr !== 1)  { state.nextDir = { dr: -1, dc: 0 }; e.preventDefault(); }
   if ((e.key === 'ArrowDown'  || e.key === 's') && d.dr !== -1) { state.nextDir = { dr: 1, dc: 0 }; e.preventDefault(); }
   if ((e.key === 'ArrowLeft'  || e.key === 'a') && d.dc !== 1)  { state.nextDir = { dr: 0, dc: -1 }; e.preventDefault(); }

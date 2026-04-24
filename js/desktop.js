@@ -113,23 +113,24 @@ export function initDesktop() {
     iconElements.push({ el, icon, _clones: new Map() });
   });
 
-  // Selection rectangle on back wall (pointerdown on empty space)
-  const backWall = document.querySelector('.wall-back');
-  backWall.addEventListener('pointerdown', (e) => {
-    if (e.target.closest('.desktop-icon') || e.target.closest('.window') ||
-        e.target.closest('#dock') || e.target.closest('#menubar')) return;
+  // Selection rectangle on ANY wall (pointerdown on empty space)
+  document.querySelectorAll('.wall').forEach(wall => {
+    wall.addEventListener('pointerdown', (e) => {
+      if (e.target.closest('.desktop-icon') || e.target.closest('.window') ||
+          e.target.closest('#dock') || e.target.closest('#menubar')) return;
 
-    clearSelection();
+      clearSelection();
 
-    // Start selection rectangle
-    selStartX = e.clientX;
-    selStartY = e.clientY;
+      // Start selection rectangle
+      selStartX = e.clientX;
+      selStartY = e.clientY;
 
-    selectionBox = document.createElement('div');
-    selectionBox.className = 'selection-rect';
-    selectionBox.style.left = e.clientX + 'px';
+      selectionBox = document.createElement('div');
+      selectionBox.className = 'selection-rect';
+      selectionBox.style.left = e.clientX + 'px';
     selectionBox.style.top = e.clientY + 'px';
     document.body.appendChild(selectionBox);
+    });
   });
 
   // Pointermove: drag icons or draw selection

@@ -1,91 +1,86 @@
 export const windows = [];
 
 let draggedWin = null;
+let dragGrabX = 0, dragGrabY = 0;
 
-// Cached inverse matrices — rebuilt on drag start and wall switch
-const invMatrixCache = new WeakMap();
+// ── Forward matrix cache (wall-local → screen) ──────────
+const fwdCache = new WeakMap();
 
-/**
- * Build the full screen→wall-local inverse matrix for a given wall.
- * Replicates the CSS 3D pipeline analytically then inverts.
- */
-function buildInverseMatrix(wallEl) {
+function buildForwardMatrix(wallEl) {
   const room = document.getElementById('room');
   const roomStyle = getComputedStyle(room);
   const perspective = parseFloat(roomStyle.perspective);
+  const [poXStr, poYStr] = roomStyle.perspectiveOrigin.split(' ');
+  const poX = parseFloat(poXStr);
+  const poY = parseFloat(poYStr);
 
-  const poStyle = roomStyle.perspectiveOrigin;
-  const poParts = poStyle.split(' ');
-  const poX = parseFloat(poParts[0]);
-  const poY = parseFloat(poParts[1]);
+  // CSS perspective relative to perspective-origin
+  const perspM = new DOMMatrix();
+  perspM.m34 = -1 / perspective;
+  const fullPersp = new DOMMatrix().translateSelf(poX, poY, 0)
+    .multiplySelf(perspM)
+    .translateSelf(-poX, -poY, 0);
 
-  // perspective(p) relative to perspective-origin
-  const perspMatrix = new DOMMatrix();
-  perspMatrix.m34 = -1 / perspective;
-  const toPO = new DOMMatrix().translateSelf(poX, poY, 0);
-  const fromPO = new DOMMatrix().translateSelf(-poX, -poY, 0);
-  const fullPersp = toPO.multiply(perspMatrix).multiply(fromPO);
-
-  // Element offset in parent
-  const elOffset = new DOMMatrix().translateSelf(wallEl.offsetLeft, wallEl.offsetTop, 0);
+  // Element's position in parent
+  const offset = new DOMMatrix().translateSelf(wallEl.offsetLeft, wallEl.offsetTop, 0);
 
   // Transform-origin
-  const toStyle = getComputedStyle(wallEl).transformOrigin;
-  const toParts = toStyle.split(' ');
+  const toParts = getComputedStyle(wallEl).transformOrigin.split(' ');
   const toX = parseFloat(toParts[0]);
   const toY = parseFloat(toParts[1]);
-  const toZ = toParts[2] ? parseFloat(toParts[2]) : 0;
+  const toZ = toParts.length > 2 ? parseFloat(toParts[2]) : 0;
 
-  // Element's CSS transform
-  const rawTransform = getComputedStyle(wallEl).transform;
-  const elTransform = rawTransform && rawTransform !== 'none'
-    ? new DOMMatrix(rawTransform)
-    : new DOMMatrix();
+  // Element's own CSS transform
+  const raw = getComputedStyle(wallEl).transform;
+  const elT = (raw && raw !== 'none') ? new DOMMatrix(raw) : new DOMMatrix();
 
-  const toOrigin = new DOMMatrix().translateSelf(toX, toY, toZ);
-  const fromOrigin = new DOMMatrix().translateSelf(-toX, -toY, -toZ);
-
-  const wallToScreen = fullPersp
-    .multiply(elOffset)
-    .multiply(toOrigin)
-    .multiply(elTransform)
-    .multiply(fromOrigin);
-
-  return wallToScreen.inverse();
+  // Full chain: persp * offset * toOrigin * transform * fromOrigin
+  return fullPersp
+    .multiplySelf(offset)
+    .translateSelf(toX, toY, toZ)
+    .multiplySelf(elT)
+    .translateSelf(-toX, -toY, -toZ);
 }
 
-function getInverseMatrix(wallEl) {
-  let cached = invMatrixCache.get(wallEl);
-  if (!cached) {
-    cached = buildInverseMatrix(wallEl);
-    invMatrixCache.set(wallEl, cached);
+function getFwd(wallEl) {
+  let m = fwdCache.get(wallEl);
+  if (!m) {
+    m = buildForwardMatrix(wallEl);
+    fwdCache.set(wallEl, m);
   }
-  return cached;
+  return m;
 }
 
-function invalidateMatrixCache() {
-  // Clear all cached matrices (call on drag start, wall switch, resize)
-  invMatrixCache.delete(document.querySelector('.wall-back'));
-  invMatrixCache.delete(document.querySelector('.wall-left'));
-  invMatrixCache.delete(document.querySelector('.wall-right'));
-  invMatrixCache.delete(document.querySelector('.wall-floor'));
-  invMatrixCache.delete(document.querySelector('.wall-ceiling'));
+function invalidateCache() {
+  document.querySelectorAll('.wall').forEach(w => fwdCache.delete(w));
 }
 
 /**
- * Unproject screen point to wall-local coordinates.
+ * Unproject screen point (sx, sy) to wall-local (x, y).
+ *
+ * The forward matrix M maps wall-local (x, y, 0, 1) to homogeneous screen:
+ *   hx = m11·x + m21·y + m41
+ *   hy = m12·x + m22·y + m42
+ *   hw = m14·x + m24·y + m44
+ *   screen_x = hx/hw,  screen_y = hy/hw
+ *
+ * Rearranging gives a 2×2 system solved by Cramer's rule.
+ * This correctly handles perspective — no matrix inversion needed.
  */
-function screenToWallLocal(invMatrix, sx, sy) {
-  const p = invMatrix.transformPoint(new DOMPoint(sx, sy, 0, 1));
-  if (Math.abs(p.w) < 1e-10) return null;
-  return { x: p.x / p.w, y: p.y / p.w };
+function screenToLocal(fwd, sx, sy) {
+  const A = fwd.m11 - sx * fwd.m14;
+  const B = fwd.m21 - sx * fwd.m24;
+  const C = fwd.m12 - sy * fwd.m14;
+  const D = fwd.m22 - sy * fwd.m24;
+  const E = sx * fwd.m44 - fwd.m41;
+  const F = sy * fwd.m44 - fwd.m42;
+
+  const det = A * D - B * C;
+  if (Math.abs(det) < 1e-10) return null;
+
+  return { x: (E * D - B * F) / det, y: (A * F - E * C) / det };
 }
 
-/**
- * Find which wall the screen point is over.
- * Uses elementsFromPoint but with pointer-events toggling
- * only on the dragged window (not visibility, avoiding reflow).
- */
 function wallUnderPoint(sx, sy, skipEl) {
   if (skipEl) skipEl.style.pointerEvents = 'none';
   const els = document.elementsFromPoint(sx, sy);
@@ -95,6 +90,8 @@ function wallUnderPoint(sx, sy, skipEl) {
   }
   return null;
 }
+
+// ── Window creation ──────────────────────────────────────
 
 export function createWindow(title, widthPx, heightPx, contentHTML, parentWall) {
   const el = document.createElement('div');
@@ -126,7 +123,6 @@ export function createWindow(title, widthPx, heightPx, contentHTML, parentWall) 
 
   el.appendChild(titlebar);
   el.appendChild(content);
-
   parentWall.appendChild(el);
 
   const win = { element: el, titlebar, content, parentWall };
@@ -144,23 +140,17 @@ export function createWindow(title, widthPx, heightPx, contentHTML, parentWall) 
     e.preventDefault();
     draggedWin = win;
 
-    // Rebuild matrix cache at drag start
-    invalidateMatrixCache();
+    invalidateCache();
 
-    // Compute grab offset in wall-local coords
-    const invMatrix = getInverseMatrix(parentWall);
-    const localPos = screenToWallLocal(invMatrix, e.clientX, e.clientY);
-    if (localPos) {
-      draggedWin._grabOffsetX = localPos.x - (parseFloat(el.style.left) || 0);
-      draggedWin._grabOffsetY = localPos.y - (parseFloat(el.style.top) || 0);
+    const fwd = getFwd(parentWall);
+    const local = screenToLocal(fwd, e.clientX, e.clientY);
+    if (local) {
+      dragGrabX = local.x - (parseFloat(el.style.left) || 0);
+      dragGrabY = local.y - (parseFloat(el.style.top)  || 0);
     } else {
-      draggedWin._grabOffsetX = 0;
-      draggedWin._grabOffsetY = 0;
+      dragGrabX = el.offsetWidth / 2;
+      dragGrabY = 19; // half titlebar height
     }
-
-    // Store current position for smoothing
-    draggedWin._currentLeft = parseFloat(el.style.left) || 0;
-    draggedWin._currentTop  = parseFloat(el.style.top) || 0;
 
     content.style.pointerEvents = 'none';
     titlebar.setPointerCapture(e.pointerId);
@@ -179,38 +169,31 @@ export function centerWindow(win, offsetX = 0, offsetY = 0) {
   win.element.style.top  = ((ph - eh) / 2 + offsetY) + 'px';
 }
 
-const DRAG_LERP = 0.45;  // 0 = no movement, 1 = instant (no smoothing)
+// ── Drag move ────────────────────────────────────────────
 
-// Drag move
 document.addEventListener('pointermove', (e) => {
   if (!draggedWin) return;
 
   const el = draggedWin.element;
   let wall = draggedWin.parentWall;
 
-  // Detect wall under pointer (toggle pointerEvents on window, not visibility)
+  // Detect wall under cursor
   const hitWall = wallUnderPoint(e.clientX, e.clientY, el);
 
   if (hitWall && hitWall !== wall) {
-    // Reparent the window to the new wall
+    // Reparent window to new wall
     hitWall.appendChild(el);
     draggedWin.parentWall = hitWall;
     wall = hitWall;
 
-    // Recompute grab offset for new wall
-    invalidateMatrixCache();
-    const invMatrix = getInverseMatrix(wall);
-    const localPos = screenToWallLocal(invMatrix, e.clientX, e.clientY);
-    if (localPos) {
-      draggedWin._grabOffsetX = localPos.x - draggedWin._currentLeft;
-      draggedWin._grabOffsetY = localPos.y - draggedWin._currentTop;
-    }
+    // Recompute grab offset: center window under cursor on new wall
+    dragGrabX = el.offsetWidth / 2;
+    dragGrabY = 19;
   }
 
-  // Unproject screen position to wall-local coords
-  const invMatrix = getInverseMatrix(wall);
-  const localPos = screenToWallLocal(invMatrix, e.clientX, e.clientY);
-  if (!localPos) return;
+  const fwd = getFwd(wall);
+  const local = screenToLocal(fwd, e.clientX, e.clientY);
+  if (!local) return;
 
   const pw = wall.offsetWidth;
   const ph = wall.offsetHeight;
@@ -218,26 +201,19 @@ document.addEventListener('pointermove', (e) => {
   const eh = el.offsetHeight;
   const margin = 10;
 
-  const targetLeft = Math.max(margin, Math.min(pw - ew - margin,
-    localPos.x - draggedWin._grabOffsetX));
-  const targetTop = Math.max(margin, Math.min(ph - eh - margin,
-    localPos.y - draggedWin._grabOffsetY));
+  const rawLeft = local.x - dragGrabX;
+  const rawTop  = local.y - dragGrabY;
 
-  // Lerp toward target for smooth movement
-  draggedWin._currentLeft += (targetLeft - draggedWin._currentLeft) * DRAG_LERP;
-  draggedWin._currentTop  += (targetTop  - draggedWin._currentTop)  * DRAG_LERP;
-
-  el.style.left = draggedWin._currentLeft + 'px';
-  el.style.top  = draggedWin._currentTop  + 'px';
+  el.style.left = Math.max(margin, Math.min(pw - ew - margin, rawLeft)) + 'px';
+  el.style.top  = Math.max(margin, Math.min(ph - eh - margin, rawTop))  + 'px';
 });
 
-// Drag end
+// ── Drag end ─────────────────────────────────────────────
+
 document.addEventListener('pointerup', () => {
   if (!draggedWin) return;
-  // Snap to final target position
   draggedWin.content.style.pointerEvents = '';
   draggedWin = null;
 });
 
-// Invalidate cache on resize (perspective-origin changes)
-window.addEventListener('resize', invalidateMatrixCache);
+window.addEventListener('resize', invalidateCache);

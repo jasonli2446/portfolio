@@ -183,6 +183,7 @@ body {
   background: rgba(100, 160, 255, 0.15) !important;
   border: 1px solid rgba(100, 160, 255, 0.3);
   margin: -1px;
+  z-index: 10;
 }
 
 /* Selection rectangle */

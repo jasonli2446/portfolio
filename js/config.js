@@ -9,5 +9,7 @@ export const SENS_X      = 1.5;
 export const SENS_Y      = 1.2;
 export const BASE_FACE_W = 0.15;
 
-// Default perspective (px) — mapped from sEyeZ
-export const BASE_PERSPECTIVE = 2000;
+// Default perspective (px) — used when camera is off
+export const BASE_PERSPECTIVE = 1000;
+// Tracking perspective (px) — used when camera is on (lower = more zoomed in)
+export const TRACKING_PERSPECTIVE = 600;

@@ -2,7 +2,7 @@ import {
   FaceLandmarker,
   FilesetResolver,
 } from 'https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.14/vision_bundle.mjs';
-import { EYE_DIST, SMOOTH, SMOOTH_Z, SENS_X, SENS_Y, BASE_FACE_W, BASE_PERSPECTIVE } from './config.js';
+import { EYE_DIST, SMOOTH, SMOOTH_Z, SENS_X, SENS_Y, BASE_FACE_W, TRACKING_PERSPECTIVE } from './config.js';
 
 let sEyeX = 0, sEyeY = 0, sEyeZ = EYE_DIST;
 let faceLandmarker = null;
@@ -96,7 +96,7 @@ export function detectFace() {
 export function updatePerspective() {
   const pctX = 50 + sEyeX * 50;
   const pctY = 50 - sEyeY * 50;
-  const perspective = (sEyeZ / EYE_DIST) * BASE_PERSPECTIVE;
+  const perspective = (sEyeZ / EYE_DIST) * TRACKING_PERSPECTIVE;
 
   roomEl.style.perspective = perspective + 'px';
   roomEl.style.perspectiveOrigin = `${pctX}% ${pctY}%`;

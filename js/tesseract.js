@@ -114,7 +114,11 @@ export function showTesseract() {
         smoothHandY += ((tip.y - 0.5) * 3 - smoothHandY) * 0.15;
         handX = smoothHandX;
         handY = smoothHandY;
-        handZ = Math.max(-1, Math.min(1, tip.z * -10)); // hand back (further) = positive = bigger
+        // tip.z: negative = finger closer to camera, ~0 = far from camera
+        // We want: hand back (far, z~0) = big tesseract, hand forward (close, z negative) = small
+        // So: negate tip.z → positive when close, negative when far. Then negate again for scale.
+        // Simpler: just use tip.z directly with positive multiplier
+        handZ = Math.max(-1, Math.min(1.5, tip.z * 20 + 1));
         handActive = true;
       } else {
         handActive = false;

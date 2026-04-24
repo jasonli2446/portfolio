@@ -113,7 +113,7 @@ export default {
         frameCount = 0;
         lastFpsTime = now;
       }
-      if (now - lastUpdate > 500) {
+      if (now - lastUpdate > 2000) {
         lastUpdate = now;
         update();
       }

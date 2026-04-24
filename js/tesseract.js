@@ -70,7 +70,17 @@ export function showTesseract() {
   let smoothHandX = 0, smoothHandY = 0;
 
   const videoEl = document.getElementById('webcam');
-  if (videoEl && videoEl.srcObject) {
+  const hasCamera = videoEl && videoEl.srcObject;
+
+  // Update hint based on camera availability
+  if (!hasCamera) {
+    msg.innerHTML = `
+      <div style="font-size:13px; color:rgba(255,255,255,0.3); font-family:monospace; margin-bottom:4px;">4D Hypercube · drag to rotate · click to dismiss</div>
+      <div style="font-size:11px; color:rgba(255,180,80,0.5); margin-top:4px;">Enable camera from the menu bar to control with your hand</div>
+    `;
+  }
+
+  if (hasCamera) {
     import('https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.14/vision_bundle.mjs').then(async ({ HandLandmarker, FilesetResolver }) => {
       try {
         const vision = await FilesetResolver.forVisionTasks(
@@ -103,7 +113,7 @@ export function showTesseract() {
         smoothHandY += ((tip.y - 0.5) * 2 - smoothHandY) * 0.15;
         handX = smoothHandX;
         handY = smoothHandY;
-        handZ = Math.max(-1, Math.min(1, tip.z * -10));
+        handZ = Math.max(-1, Math.min(1, tip.z * 10)); // positive = hand further = bigger
         handActive = true;
       } else {
         handActive = false;
@@ -149,10 +159,10 @@ export function showTesseract() {
 
     detectHand();
     if (handActive) {
-      const maxX = canvas.width * 0.4, maxY = canvas.height * 0.4;
-      offsetX += (Math.max(-maxX, Math.min(maxX, handX * canvas.width * 0.35)) - offsetX) * 0.08;
-      offsetY += (Math.max(-maxY, Math.min(maxY, handY * canvas.height * 0.35)) - offsetY) * 0.08;
-      handScale += (Math.max(0.4, Math.min(2, 1 + handZ * 0.5)) - handScale) * 0.08;
+      const maxX = canvas.width * 0.48, maxY = canvas.height * 0.48;
+      offsetX += (Math.max(-maxX, Math.min(maxX, handX * canvas.width * 0.45)) - offsetX) * 0.08;
+      offsetY += (Math.max(-maxY, Math.min(maxY, handY * canvas.height * 0.45)) - offsetY) * 0.08;
+      handScale += (Math.max(0.3, Math.min(2.5, 1 + handZ * 0.8)) - handScale) * 0.08;
       dragX += handX * 0.008;
       dragY += handY * 0.008;
     }
@@ -164,26 +174,35 @@ export function showTesseract() {
 
     const projected = verts4D.map(v => project(rotate4D(v, angleXW, angleYW, angleXY, angleZW)));
 
-    // Edges
+    // Edges — thicker, brighter cyan/purple gradient based on depth
     for (const [i, j] of edges) {
       const a = projected[i], b = projected[j];
-      const alpha = 0.15 + ((a.depth + b.depth) / 2 + 2) * 0.15;
-      ctx.strokeStyle = `rgba(100, 160, 255, ${Math.max(0.05, Math.min(0.8, alpha))})`;
-      ctx.lineWidth = 1.5;
+      const avgDepth = (a.depth + b.depth) / 2;
+      const alpha = 0.2 + (avgDepth + 2) * 0.2;
+      // Color shifts from cyan (near) to purple (far)
+      const near = avgDepth > 0;
+      const r = near ? 80 : 160;
+      const g = near ? 200 : 100;
+      const b_ = 255;
+      ctx.strokeStyle = `rgba(${r}, ${g}, ${b_}, ${Math.max(0.08, Math.min(0.9, alpha))})`;
+      ctx.lineWidth = 2.5;
       ctx.beginPath();
       ctx.moveTo(a.x, a.y);
       ctx.lineTo(b.x, b.y);
       ctx.stroke();
     }
 
-    // Vertices
+    // Vertices — glowing dots
     for (const p of projected) {
-      const alpha = 0.3 + (p.depth + 2) * 0.2;
-      const r = 2 + (p.depth + 2) * 0.8;
-      ctx.fillStyle = `rgba(140, 100, 255, ${Math.max(0.1, Math.min(1, alpha))})`;
+      const alpha = 0.4 + (p.depth + 2) * 0.25;
+      const r = 3 + (p.depth + 2) * 1;
+      ctx.fillStyle = `rgba(180, 140, 255, ${Math.max(0.15, Math.min(1, alpha))})`;
+      ctx.shadowColor = 'rgba(140, 100, 255, 0.5)';
+      ctx.shadowBlur = 8;
       ctx.beginPath();
-      ctx.arc(p.x, p.y, Math.max(1, r), 0, Math.PI * 2);
+      ctx.arc(p.x, p.y, Math.max(1.5, r), 0, Math.PI * 2);
       ctx.fill();
+      ctx.shadowBlur = 0;
     }
 
     rafId = requestAnimationFrame(draw);

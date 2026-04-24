@@ -102,6 +102,9 @@ function getNeighbor(wName, edge) {
   const L = getWall('left'),  R = getWall('right');
   const B = getWall('back'),  F = getWall('floor'), C = getWall('ceiling');
 
+  // Only allow transitions between walls that share the same vertical
+  // orientation (back↔left, back↔right, back↔floor, back↔ceiling).
+  // Side↔floor/ceiling would require reorientation and looks jarring.
   const map = {
     // Back wall edges
     'back:left':      { wall: L, pos: (l, t) => ({ left: L.offsetWidth + l, top: t }) },
@@ -111,23 +114,15 @@ function getNeighbor(wName, edge) {
 
     // Left wall: right edge meets back wall left edge
     'left:right':     { wall: B, pos: (l, t) => ({ left: l - L.offsetWidth, top: t }) },
-    'left:top':       { wall: C, pos: (l, t) => ({ left: -t, top: C.offsetHeight - l }) },
-    'left:bottom':    { wall: F, pos: (l, t) => ({ left: -t, top: l }) },
 
     // Right wall: left edge meets back wall right edge
     'right:left':     { wall: B, pos: (l, t) => ({ left: B.offsetWidth + l, top: t }) },
-    'right:top':      { wall: C, pos: (l, t) => ({ left: B.offsetWidth + t, top: l }) },
-    'right:bottom':   { wall: F, pos: (l, t) => ({ left: B.offsetWidth + t, top: F.offsetHeight - l }) },
 
     // Floor: top edge meets back wall bottom edge
     'floor:top':      { wall: B, pos: (l, t) => ({ left: l, top: B.offsetHeight + t }) },
-    'floor:left':     { wall: L, pos: (l, t) => ({ left: -t, top: l }) },
-    'floor:right':    { wall: R, pos: (l, t) => ({ left: t, top: l }) },
 
     // Ceiling: bottom edge meets back wall top edge
     'ceiling:bottom': { wall: B, pos: (l, t) => ({ left: l, top: t - C.offsetHeight }) },
-    'ceiling:left':   { wall: L, pos: (l, t) => ({ left: t, top: l }) },
-    'ceiling:right':  { wall: R, pos: (l, t) => ({ left: -t, top: l }) },
   };
 
   return map[wName + ':' + edge] || null;
@@ -387,20 +382,8 @@ document.addEventListener('pointermove', (e) => {
 document.addEventListener('pointerup', () => {
   if (!draggedWin) return;
 
-  const el = draggedWin.element;
-  const wall = draggedWin.parentWall;
-  const pw = wall.offsetWidth, ph = wall.offsetHeight;
-  const ew = el.offsetWidth, eh = el.offsetHeight;
-  const left = parseFloat(el.style.left) || 0;
-  const top  = parseFloat(el.style.top)  || 0;
-
-  // Clamp to wall with dynamic margin (handles windows larger than wall)
-  const mx = Math.max(0, Math.min(10, (pw - ew) / 2));
-  const my = Math.max(0, Math.min(10, (ph - eh) / 2));
-  el.style.left = Math.max(mx, Math.min(pw - ew - mx, left)) + 'px';
-  el.style.top  = Math.max(my, Math.min(ph - eh - my, top))  + 'px';
-
-  clearClones(draggedWin);
+  // Leave the window exactly where it is — if it's split across
+  // walls, the clip-path + clones stay in place.
   draggedWin.content.style.pointerEvents = '';
   draggedWin = null;
 });

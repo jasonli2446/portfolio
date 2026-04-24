@@ -286,6 +286,17 @@
 .settings-icon-emoji {
   font-size: 24px;
   line-height: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.settings-icon-emoji svg {
+  stroke: rgba(255, 255, 255, 0.85);
+}
+.settings-content-header svg {
+  stroke: rgba(255, 255, 255, 0.6);
+  vertical-align: middle;
+  margin-right: 4px;
 }
 .settings-icon-label {
   font-size: 10px;
@@ -416,17 +427,21 @@
 }
 
 /* ── Stickies ────────────────────────────────── */
+.stickies-container { display: flex; flex-direction: column; height: 100%; }
 .stickies-grid {
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 10px;
   padding: 4px;
+  flex: 1;
+  overflow-y: auto;
 }
 .sticky-note {
   padding: 12px;
   border-radius: 4px;
   box-shadow: 0 2px 8px rgba(0,0,0,0.3);
-  min-height: 80px;
+  min-height: 70px;
+  position: relative;
 }
 .sticky-text {
   font-size: 12px;
@@ -434,6 +449,38 @@
   line-height: 1.5;
   white-space: pre-line;
   font-family: 'SF Mono', 'Fira Code', monospace;
+  outline: none;
+}
+.sticky-text:focus {
+  color: rgba(255,255,255,0.9);
+}
+.sticky-delete {
+  position: absolute;
+  top: 4px; right: 6px;
+  background: none;
+  border: none;
+  color: rgba(255,255,255,0.2);
+  font-size: 14px;
+  cursor: pointer;
+  opacity: 0;
+  transition: opacity 0.15s;
+}
+.sticky-note:hover .sticky-delete { opacity: 1; }
+.sticky-delete:hover { color: rgba(255,100,100,0.8); }
+.stickies-add {
+  margin: 8px 4px 4px;
+  padding: 8px;
+  background: rgba(255,255,255,0.04);
+  border: 1px dashed rgba(255,255,255,0.1);
+  border-radius: 6px;
+  color: rgba(255,255,255,0.4);
+  font-size: 12px;
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s;
+}
+.stickies-add:hover {
+  background: rgba(255,255,255,0.08);
+  color: rgba(255,255,255,0.7);
 }
 
 /* ── Trash ────────────────────────────────────── */

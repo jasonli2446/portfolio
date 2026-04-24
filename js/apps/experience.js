@@ -69,6 +69,10 @@ function typeWriter(element, text, index = 0) {
       delay = 400; // Pause after command prompts or double newlines
     }
 
+    // Auto-scroll the terminal container
+    const term = element.closest('.term');
+    if (term) term.scrollTop = term.scrollHeight;
+
     typewriterTimeout = setTimeout(() => typeWriter(element, text, index + 1), delay);
   }
 }

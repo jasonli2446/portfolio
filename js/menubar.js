@@ -151,7 +151,9 @@ function showDropdown(anchor, menuName) {
 
   for (const item of items) {
     if (item.separator) {
-      dropdown.innerHTML += '<div class="ctx-separator"></div>';
+      const sep = document.createElement('div');
+      sep.className = 'ctx-separator';
+      dropdown.appendChild(sep);
       continue;
     }
     const disabled = item.disabled ? ' ctx-disabled' : '';

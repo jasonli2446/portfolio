@@ -546,10 +546,14 @@ export function createWindow(descriptor) {
 
   // ── Drag ──
   titlebar.addEventListener('pointerdown', (e) => {
-    // Don't start drag if fullscreen or minimized
-    if (win.state !== 'normal') return;
-    // Don't start drag if clicking a button (minimize/close)
+    if (win.state === 'minimized' || win.state === 'hidden') return;
     if (e.target.closest('.window-btn')) return;
+
+    // If fullscreen, exit fullscreen first then start drag
+    if (win.state === 'fullscreen') {
+      _exitFullscreen(win);
+      el.classList.remove('fullscreen');
+    }
 
     e.stopPropagation();
     e.preventDefault();

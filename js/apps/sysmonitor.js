@@ -53,10 +53,10 @@ export default {
       const mins = Math.floor(uptime / 60);
       const secs = String(uptime % 60).padStart(2, '0');
 
-      // Simulated metrics with gentle drift
-      const cpu = 15 + openWindows * 8 + totalClones * 3 + Math.sin(now * 0.001) * 3;
-      const mem = openWindows * 2.4 + totalClones * 0.8 + 4 + Math.sin(now * 0.0005) * 0.5;
-      const net = totalClones * 12 + 10 + Math.sin(now * 0.0008) * 8;
+      // Simulated metrics with visible variation
+      const cpu = 25 + openWindows * 10 + Math.sin(now * 0.0003) * 20 + Math.sin(now * 0.0007) * 10;
+      const mem = 8 + openWindows * 3 + Math.sin(now * 0.0002) * 4 + Math.cos(now * 0.0005) * 2;
+      const net = 15 + Math.sin(now * 0.0004) * 30 + Math.abs(Math.sin(now * 0.001)) * 20;
 
       cpuHistory.push(cpu); cpuHistory.shift();
       memHistory.push(mem); memHistory.shift();
@@ -114,7 +114,7 @@ export default {
         frameCount = 0;
         lastFpsTime = now;
       }
-      if (now - lastUpdate > 5000) {
+      if (now - lastUpdate > 8000) {
         lastUpdate = now;
         update();
       }

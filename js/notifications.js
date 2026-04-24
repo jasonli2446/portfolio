@@ -62,7 +62,7 @@ function open() {
     `).join('')}
   `;
   panel.addEventListener('click', (e) => e.stopPropagation());
-  document.body.appendChild(panel);
+  document.querySelector('.wall-back').appendChild(panel);
 
   // Animate in
   requestAnimationFrame(() => panel.classList.add('notif-panel-open'));

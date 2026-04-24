@@ -689,8 +689,8 @@ body {
 
 /* ── Notification center ─────────────────────────── */
 .notif-panel {
-  position: fixed;
-  top: 40px;
+  position: absolute;
+  top: 36px;
   right: -320px;
   width: 300px;
   max-height: 80vh;
@@ -700,11 +700,11 @@ body {
   border: 1px solid rgba(255, 255, 255, 0.08);
   border-radius: 12px;
   box-shadow: 0 16px 48px rgba(0, 0, 0, 0.5);
-  z-index: 100;
+  z-index: 50;
   overflow-y: auto;
   transition: right 0.2s ease;
 }
-.notif-panel-open { right: 16px; }
+.notif-panel-open { right: 8px; }
 .notif-header {
   padding: 12px 16px;
   font-size: 13px;

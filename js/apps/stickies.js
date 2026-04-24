@@ -8,7 +8,7 @@ const notes = [
 export default {
   id: 'stickies',
   title: 'Stickies',
-  icon: '🗒️',
+  icon: '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M16 3H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V8z"></path><polyline points="16 3 16 8 21 8"></polyline></svg>',
   width: 260,
   height: 320,
   wall: 'right',

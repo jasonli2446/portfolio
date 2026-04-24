@@ -49,7 +49,7 @@ function renderCategoryContent(cat) {
 export default {
   id: 'skills',
   title: 'Settings',
-  icon: '⚙️',
+  icon: '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"></circle><path d="M12 1v6m0 6v6m8.66-15.66l-4.24 4.24m-4.24 4.24l-4.24 4.24m15.66-4.24l-4.24-4.24m-4.24-4.24l-4.24-4.24"></path></svg>',
   width: 440,
   height: 480,
   wall: 'right',

@@ -181,9 +181,15 @@ body {
 }
 
 .desktop-icon-img {
-  font-size: 36px;
   line-height: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   filter: drop-shadow(0 2px 4px rgba(0,0,0,0.3));
+}
+
+.desktop-icon-img svg {
+  stroke: rgba(255, 255, 255, 0.9);
 }
 
 .desktop-icon-label {
@@ -220,8 +226,13 @@ body {
   gap: 16px;
 }
 .menubar-logo {
-  font-size: 15px;
   opacity: 0.7;
+  display: flex;
+  align-items: center;
+}
+
+.menubar-logo svg {
+  stroke: rgba(255, 255, 255, 0.9);
 }
 .menubar-app {
   font-weight: 600;
@@ -302,6 +313,13 @@ body {
   transition: background 0.2s, border-color 0.2s;
   color: rgba(60, 200, 100, 0.9);
   font-family: system-ui, -apple-system, sans-serif;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.menubar-toggle svg {
+  stroke: currentColor;
 }
 .menubar-toggle:hover {
   background: rgba(60, 180, 100, 0.35);
@@ -368,7 +386,16 @@ body {
   text-align: center;
   box-shadow: 0 16px 48px rgba(0, 0, 0, 0.5);
 }
-.about-os-icon { font-size: 48px; margin-bottom: 12px; }
+.about-os-icon {
+  margin-bottom: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.about-os-icon svg {
+  stroke: rgba(255, 255, 255, 0.9);
+}
 .about-os-title { font-size: 20px; font-weight: 700; color: #fff; }
 .about-os-version { font-size: 12px; color: rgba(255,255,255,0.4); margin: 4px 0 12px; }
 .about-os-desc { font-size: 14px; color: rgba(255,255,255,0.6); }

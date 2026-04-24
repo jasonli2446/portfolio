@@ -63,7 +63,7 @@ function showAboutOS() {
   overlay.className = 'about-os-overlay';
   overlay.innerHTML = `
     <div class="about-os-box">
-      <div class="about-os-icon">🖥️</div>
+      <div class="about-os-icon"><svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="20" height="14" rx="2" ry="2"></rect><line x1="8" y1="21" x2="16" y2="21"></line><line x1="12" y1="17" x2="12" y2="21"></line></svg></div>
       <div class="about-os-title">3D OS</div>
       <div class="about-os-version">Version 1.0</div>
       <div class="about-os-desc">A spatial portfolio by Jason Li</div>
@@ -108,7 +108,7 @@ export function initMenubar() {
 
   bar.innerHTML = `
     <div class="menubar-left">
-      <span class="menubar-logo">🍎</span>
+      <span class="menubar-logo"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="4 17 10 11 4 5"></polyline><line x1="12" y1="19" x2="20" y2="19"></line></svg></span>
       <span class="menubar-app" id="menubar-app">Finder</span>
       ${menuItems}
     </div>
@@ -202,7 +202,7 @@ function updateCameraIcon() {
   const icon = document.getElementById('camera-icon');
   const btn = document.getElementById('menubar-camera');
   if (!icon || !btn) return;
-  icon.textContent = cameraOn ? '📷 ON' : '📷 OFF';
+  icon.innerHTML = cameraOn ? '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"></path><circle cx="12" cy="13" r="4"></circle></svg> ' + (cameraOn ? 'ON' : 'OFF') : '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="1" y1="1" x2="23" y2="23"></line><path d="M21 21H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h3m3-3h6l2 3h4a2 2 0 0 1 2 2v9.34m-7.72-2.06a4 4 0 1 1-5.56-5.56"></path></svg> OFF';
   btn.classList.toggle('menubar-toggle-off', !cameraOn);
 }
 

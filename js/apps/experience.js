@@ -76,7 +76,7 @@ function typeWriter(element, text, index = 0) {
 export default {
   id: 'experience',
   title: 'Experience',
-  icon: '💼',
+  icon: '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="7" width="20" height="14" rx="2" ry="2"></rect><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"></path></svg>',
   width: 520,
   height: 440,
   wall: 'left',

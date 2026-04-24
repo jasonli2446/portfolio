@@ -76,8 +76,16 @@
 }
 
 .dock-icon {
-  font-size: 34px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   line-height: 1;
+}
+
+.dock-icon svg {
+  width: 34px;
+  height: 34px;
+  stroke: rgba(255, 255, 255, 0.9);
 }
 
 /* Active indicator dot */

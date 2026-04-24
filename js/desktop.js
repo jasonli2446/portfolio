@@ -34,7 +34,7 @@ const icons = [
 
 const ICON_W = 80;
 const ICON_H = 76;
-const COLS = 2;
+const COLS = 3;
 const START_X = 24;
 const START_Y = 52;
 const GAP = 8;

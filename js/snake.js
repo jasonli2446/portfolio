@@ -1,26 +1,28 @@
 // 3D Snake — takes over the entire room
-// The box IS the game arena. Snake moves across all 5 walls.
+// Dark backdrop covers all walls, clean grid, snake with head/eyes
 
 const GRID = 16;
-const TICK_MS = 140;
+const TICK_MS = 130;
 const WALLS = ['back', 'left', 'right', 'floor', 'ceiling'];
 
 let active = false;
 let state = null;
 let tickId = null;
-let canvases = {};    // wallName → canvas
-let wallEls = {};     // wallName → wall element
-let overlay = null;   // HUD overlay
+let canvases = {};
+let backdrops = {};
+let overlay = null;
 let exitCallback = null;
+let appleImg = null;
 
 // ── Game state ────────────────────────────────────
 
 function newGame() {
-  return {
+  const s = {
     snake: [
       { wall: 'back', r: 8, c: 8 },
       { wall: 'back', r: 8, c: 7 },
       { wall: 'back', r: 8, c: 6 },
+      { wall: 'back', r: 8, c: 5 },
     ],
     dir: { dr: 0, dc: 1 },
     nextDir: { dr: 0, dc: 1 },
@@ -28,6 +30,8 @@ function newGame() {
     score: 0,
     alive: true,
   };
+  s.apple = spawnApple(s.snake);
+  return s;
 }
 
 function spawnApple(snake) {
@@ -38,40 +42,48 @@ function spawnApple(snake) {
   return a;
 }
 
-// Wall adjacency for snake wrapping
 function wrapPosition(wall, r, c) {
+  // Right edge
   if (c >= GRID) {
-    if (wall === 'back')  return { wall: 'right', r, c: 0 };
-    if (wall === 'left')  return { wall: 'back',  r, c: 0 };
-    if (wall === 'right') return { wall: 'back',  r, c: GRID - 1 }; // wraps back
-    return { wall, r, c: GRID - 1 };
+    if (wall === 'back')    return { wall: 'right',   r, c: 0 };
+    if (wall === 'left')    return { wall: 'back',    r, c: 0 };
+    if (wall === 'floor')   return { wall: 'right',   r: GRID - 1, c: GRID - 1 - r };
+    if (wall === 'ceiling') return { wall: 'right',   r: 0, c: r };
+    return { wall, r, c: 0 }; // right wall wraps to itself
   }
+  // Left edge
   if (c < 0) {
-    if (wall === 'back')  return { wall: 'left',  r, c: GRID - 1 };
-    if (wall === 'right') return { wall: 'back',  r, c: GRID - 1 };
-    if (wall === 'left')  return { wall: 'back',  r, c: 0 };
-    return { wall, r, c: 0 };
+    if (wall === 'back')    return { wall: 'left',    r, c: GRID - 1 };
+    if (wall === 'right')   return { wall: 'back',    r, c: GRID - 1 };
+    if (wall === 'floor')   return { wall: 'left',    r: GRID - 1, c: r };
+    if (wall === 'ceiling') return { wall: 'left',    r: 0, c: GRID - 1 - r };
+    return { wall, r, c: GRID - 1 }; // left wall wraps to itself
   }
+  // Bottom edge
   if (r >= GRID) {
-    if (wall === 'back')  return { wall: 'floor',   r: 0, c };
-    return { wall, r: GRID - 1, c };
+    if (wall === 'back')    return { wall: 'floor',   r: 0, c };
+    if (wall === 'left')    return { wall: 'floor',   r: c, c: 0 };
+    if (wall === 'right')   return { wall: 'floor',   r: GRID - 1 - c, c: GRID - 1 };
+    if (wall === 'ceiling') return { wall: 'back',    r: 0, c };
+    return { wall, r: 0, c }; // floor wraps to itself
   }
+  // Top edge
   if (r < 0) {
-    if (wall === 'back')  return { wall: 'ceiling', r: GRID - 1, c };
-    return { wall, r: 0, c };
+    if (wall === 'back')    return { wall: 'ceiling', r: GRID - 1, c };
+    if (wall === 'left')    return { wall: 'ceiling', r: GRID - 1 - c, c: 0 };
+    if (wall === 'right')   return { wall: 'ceiling', r: c, c: GRID - 1 };
+    if (wall === 'floor')   return { wall: 'back',    r: GRID - 1, c };
+    return { wall, r: GRID - 1, c }; // ceiling wraps to itself
   }
   return { wall, r, c };
 }
 
 function tick() {
   if (!state || !state.alive) return;
-
   state.dir = state.nextDir;
   const head = state.snake[0];
-  const raw = { wall: head.wall, r: head.r + state.dir.dr, c: head.c + state.dir.dc };
-  const newHead = wrapPosition(raw.wall, raw.r, raw.c);
+  const newHead = wrapPosition(head.wall, head.r + state.dir.dr, head.c + state.dir.dc);
 
-  // Self collision
   if (state.snake.some(s => s.wall === newHead.wall && s.r === newHead.r && s.c === newHead.c)) {
     state.alive = false;
     render();
@@ -79,15 +91,12 @@ function tick() {
   }
 
   state.snake.unshift(newHead);
-
-  // Apple
   if (newHead.wall === state.apple.wall && newHead.r === state.apple.r && newHead.c === state.apple.c) {
     state.score++;
     state.apple = spawnApple(state.snake);
   } else {
     state.snake.pop();
   }
-
   render();
 }
 
@@ -99,78 +108,103 @@ function render() {
     if (!canvas) continue;
     const ctx = canvas.getContext('2d');
     const w = canvas.width, h = canvas.height;
-    const cellW = w / GRID, cellH = h / GRID;
+    const cw = w / GRID, ch = h / GRID;
 
-    // Clear
-    ctx.clearRect(0, 0, w, h);
+    // Dark background
+    ctx.fillStyle = '#06001a';
+    ctx.fillRect(0, 0, w, h);
 
     // Grid
-    ctx.strokeStyle = 'rgba(100, 80, 200, 0.15)';
+    ctx.strokeStyle = 'rgba(80, 60, 160, 0.12)';
     ctx.lineWidth = 0.5;
     for (let i = 0; i <= GRID; i++) {
-      ctx.beginPath(); ctx.moveTo(i * cellW, 0); ctx.lineTo(i * cellW, h); ctx.stroke();
-      ctx.beginPath(); ctx.moveTo(0, i * cellH); ctx.lineTo(w, i * cellH); ctx.stroke();
+      ctx.beginPath(); ctx.moveTo(i * cw, 0); ctx.lineTo(i * cw, h); ctx.stroke();
+      ctx.beginPath(); ctx.moveTo(0, i * ch); ctx.lineTo(w, i * ch); ctx.stroke();
     }
 
-    // Wall label
-    ctx.fillStyle = 'rgba(255,255,255,0.06)';
-    ctx.font = `${Math.min(cellW, cellH) * 0.7}px monospace`;
-    ctx.textAlign = 'center';
-    ctx.fillText(wn, w / 2, h / 2 + cellH * 0.3);
-    ctx.textAlign = 'left';
+    // Snake body — connected segments with gradient
+    const segs = state.snake.filter(s => s.wall === wn);
+    for (let i = segs.length - 1; i >= 0; i--) {
+      const seg = segs[i];
+      const idx = state.snake.indexOf(seg);
+      const x = seg.c * cw, y = seg.r * ch;
+      const t = idx / Math.max(1, state.snake.length - 1); // 0 = head, 1 = tail
 
-    // Snake segments on this wall
-    for (let i = 0; i < state.snake.length; i++) {
-      const seg = state.snake[i];
-      if (seg.wall !== wn) continue;
-      const x = seg.c * cellW, y = seg.r * cellH;
-      const isHead = i === 0;
-      ctx.fillStyle = isHead ? 'rgba(100, 220, 150, 0.95)' : 'rgba(100, 200, 140, 0.5)';
-      ctx.shadowColor = isHead ? 'rgba(100, 220, 150, 0.4)' : 'transparent';
-      ctx.shadowBlur = isHead ? 8 : 0;
-      ctx.beginPath();
-      ctx.roundRect(x + 1, y + 1, cellW - 2, cellH - 2, 3);
-      ctx.fill();
-      ctx.shadowBlur = 0;
-    }
-
-    // Apple on this wall
-    if (state.apple && state.apple.wall === wn) {
-      const ax = state.apple.c * cellW, ay = state.apple.r * cellH;
-      if (appleImg && appleImg.complete) {
-        ctx.drawImage(appleImg, ax + 2, ay + 2, cellW - 4, cellH - 4);
-      } else {
-        ctx.fillStyle = 'rgba(255, 80, 80, 0.85)';
+      if (idx === 0) {
+        // HEAD — rounded with eyes
+        const pad = 1;
+        ctx.fillStyle = 'rgba(80, 220, 140, 0.95)';
+        ctx.shadowColor = 'rgba(80, 220, 140, 0.5)';
+        ctx.shadowBlur = 10;
         ctx.beginPath();
-        ctx.roundRect(ax + 2, ay + 2, cellW - 4, cellH - 4, 3);
+        ctx.roundRect(x + pad, y + pad, cw - pad * 2, ch - pad * 2, cw * 0.3);
+        ctx.fill();
+        ctx.shadowBlur = 0;
+
+        // Eyes — based on direction
+        const eyeR = cw * 0.12;
+        const ex1 = x + cw * 0.32, ex2 = x + cw * 0.68;
+        const ey1 = y + ch * 0.32, ey2 = y + ch * 0.68;
+        let lx, ly, rx, ry;
+        if (state.dir.dc === 1)       { lx = ex2; ly = ey1; rx = ex2; ry = ey2; } // right
+        else if (state.dir.dc === -1) { lx = ex1; ly = ey1; rx = ex1; ry = ey2; } // left
+        else if (state.dir.dr === -1) { lx = ex1; ly = ey1; rx = ex2; ry = ey1; } // up
+        else                          { lx = ex1; ly = ey2; rx = ex2; ry = ey2; } // down
+
+        ctx.fillStyle = '#fff';
+        ctx.beginPath(); ctx.arc(lx, ly, eyeR, 0, Math.PI * 2); ctx.fill();
+        ctx.beginPath(); ctx.arc(rx, ry, eyeR, 0, Math.PI * 2); ctx.fill();
+        // Pupils
+        ctx.fillStyle = '#111';
+        ctx.beginPath(); ctx.arc(lx, ly, eyeR * 0.5, 0, Math.PI * 2); ctx.fill();
+        ctx.beginPath(); ctx.arc(rx, ry, eyeR * 0.5, 0, Math.PI * 2); ctx.fill();
+      } else {
+        // BODY — fade from green to darker toward tail
+        const g = Math.round(180 - t * 80);
+        const a = 0.85 - t * 0.35;
+        ctx.fillStyle = `rgba(70, ${g}, 120, ${a})`;
+        const pad = 2;
+        ctx.beginPath();
+        ctx.roundRect(x + pad, y + pad, cw - pad * 2, ch - pad * 2, 3);
+        ctx.fill();
+      }
+    }
+
+    // Apple
+    if (state.apple && state.apple.wall === wn) {
+      const ax = state.apple.c * cw, ay = state.apple.r * ch;
+      if (appleImg && appleImg.complete) {
+        ctx.drawImage(appleImg, ax + 2, ay + 2, cw - 4, ch - 4);
+      } else {
+        ctx.fillStyle = 'rgba(255, 70, 70, 0.9)';
+        ctx.beginPath();
+        ctx.roundRect(ax + 3, ay + 3, cw - 6, ch - 6, 4);
         ctx.fill();
       }
     }
 
     // Game over on back wall
     if (!state.alive && wn === 'back') {
-      ctx.fillStyle = 'rgba(0,0,0,0.5)';
+      ctx.fillStyle = 'rgba(0,0,0,0.6)';
       ctx.fillRect(0, 0, w, h);
       ctx.fillStyle = '#fff';
-      ctx.font = '28px system-ui';
+      ctx.font = 'bold 32px system-ui';
       ctx.textAlign = 'center';
-      ctx.fillText('Game Over', w / 2, h / 2 - 15);
-      ctx.font = '14px system-ui';
-      ctx.fillStyle = 'rgba(255,255,255,0.5)';
+      ctx.fillText('Game Over', w / 2, h / 2 - 20);
+      ctx.font = '18px system-ui';
+      ctx.fillStyle = 'rgba(100, 220, 150, 0.9)';
       ctx.fillText(`Score: ${state.score}`, w / 2, h / 2 + 10);
-      ctx.fillText('Enter to restart · Escape to exit', w / 2, h / 2 + 35);
+      ctx.font = '13px system-ui';
+      ctx.fillStyle = 'rgba(255,255,255,0.4)';
+      ctx.fillText('Enter to restart · Escape to exit', w / 2, h / 2 + 40);
       ctx.textAlign = 'left';
     }
   }
 
-  // Update HUD
   if (overlay) {
     overlay.querySelector('.snake-hud-score').textContent = `Score: ${state.score}`;
   }
 }
-
-// ── Apple image ───────────────────────────────────
-let appleImg = null;
 
 // ── Public API ────────────────────────────────────
 
@@ -179,16 +213,22 @@ export function startSnake(onExit) {
   active = true;
   exitCallback = onExit;
 
-  // Load apple image
   appleImg = new Image();
   appleImg.src = 'public/fresh-apple-icon.webp';
 
-  // Create canvases on each wall
+  // Create dark backdrop + canvas on each wall
   for (const wn of WALLS) {
     const wall = document.querySelector('.wall-' + wn);
     if (!wall) continue;
-    wallEls[wn] = wall;
 
+    // Opaque backdrop covers all existing content
+    const backdrop = document.createElement('div');
+    backdrop.className = 'snake-backdrop';
+    backdrop.style.cssText = 'position:absolute; inset:0; background:#06001a; z-index:99;';
+    wall.appendChild(backdrop);
+    backdrops[wn] = backdrop;
+
+    // Game canvas on top
     const canvas = document.createElement('canvas');
     canvas.className = 'snake-wall-canvas';
     canvas.width = wall.offsetWidth;
@@ -198,60 +238,44 @@ export function startSnake(onExit) {
     canvases[wn] = canvas;
   }
 
-  // HUD overlay
+  // HUD
   overlay = document.createElement('div');
   overlay.className = 'snake-hud';
   overlay.innerHTML = `
     <div class="snake-hud-score">Score: 0</div>
-    <div class="snake-hud-hint">WASD / Arrows · Escape to exit</div>
+    <div class="snake-hud-hint">WASD / Arrows to move · Escape to exit</div>
   `;
   document.body.appendChild(overlay);
 
-  // Init game
   state = newGame();
-  state.apple = spawnApple(state.snake);
   render();
   tickId = setInterval(tick, TICK_MS);
-
-  // Controls
   document.addEventListener('keydown', onKey);
 }
 
 function onKey(e) {
   if (!active) return;
-
   const d = state.nextDir;
-
   if ((e.key === 'ArrowUp'    || e.key === 'w') && d.dr !== 1)  { state.nextDir = { dr: -1, dc: 0 }; e.preventDefault(); }
   if ((e.key === 'ArrowDown'  || e.key === 's') && d.dr !== -1) { state.nextDir = { dr: 1, dc: 0 }; e.preventDefault(); }
   if ((e.key === 'ArrowLeft'  || e.key === 'a') && d.dc !== 1)  { state.nextDir = { dr: 0, dc: -1 }; e.preventDefault(); }
   if ((e.key === 'ArrowRight' || e.key === 'd') && d.dc !== -1) { state.nextDir = { dr: 0, dc: 1 }; e.preventDefault(); }
-
   if (e.key === 'Escape') { stopSnake(); e.preventDefault(); }
-
-  if (e.key === 'Enter' && !state.alive) {
-    state = newGame();
-    state.apple = spawnApple(state.snake);
-    render();
-    e.preventDefault();
-  }
+  if (e.key === 'Enter' && !state.alive) { state = newGame(); render(); e.preventDefault(); }
 }
 
 export function stopSnake() {
   if (!active) return;
   active = false;
-
   if (tickId) { clearInterval(tickId); tickId = null; }
   document.removeEventListener('keydown', onKey);
 
-  // Remove canvases
+  // Remove canvases and backdrops
   for (const wn of WALLS) {
     if (canvases[wn]) { canvases[wn].remove(); delete canvases[wn]; }
+    if (backdrops[wn]) { backdrops[wn].remove(); delete backdrops[wn]; }
   }
-
-  // Remove HUD
   if (overlay) { overlay.remove(); overlay = null; }
-
   state = null;
   if (exitCallback) exitCallback();
 }

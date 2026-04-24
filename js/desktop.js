@@ -213,63 +213,152 @@ github.com/jasonli2446/3d-os`;
 }
 
 function showSecret() {
-  // Matrix rain easter egg
+  // 4D Tesseract (hypercube) wireframe easter egg
   const overlay = document.createElement('div');
   overlay.className = 'about-os-overlay';
-  overlay.style.background = 'rgba(0,0,0,0.9)';
+  overlay.style.background = 'rgba(0,0,0,0.92)';
 
   const canvas = document.createElement('canvas');
   canvas.style.cssText = 'position:absolute; inset:0; width:100%; height:100%;';
   overlay.appendChild(canvas);
 
   const msg = document.createElement('div');
-  msg.style.cssText = 'position:absolute; top:50%; left:50%; transform:translate(-50%,-50%); text-align:center; z-index:1; opacity:0; transition:opacity 1s;';
+  msg.style.cssText = 'position:absolute; bottom:60px; left:50%; transform:translateX(-50%); text-align:center; z-index:1;';
   msg.innerHTML = `
-    <div style="font-size:24px; color:#4ade80; font-family:monospace; margin-bottom:12px;">You found the secret.</div>
-    <div style="font-size:14px; color:rgba(255,255,255,0.5); line-height:1.8;">
-      This entire portfolio is a 3D room.<br>
-      Built with vanilla JS. No frameworks.<br>
-      The music is procedurally generated.<br>
-      The face tracking is real.<br><br>
-      <span style="color:rgba(255,255,255,0.3);">Thanks for exploring. — Jason</span>
-    </div>
-    <button class="about-os-close" style="margin-top:20px;">Close</button>
+    <div style="font-size:13px; color:rgba(255,255,255,0.3); font-family:monospace; margin-bottom:8px;">4D Hypercube · drag to rotate</div>
+    <div style="font-size:11px; color:rgba(255,255,255,0.15);">You're inside a 3D box, looking at a 4D one. — Jason</div>
+    <button class="about-os-close" style="margin-top:12px;">Close</button>
   `;
   overlay.appendChild(msg);
-
   document.body.appendChild(overlay);
 
-  // Matrix rain on canvas
   const ctx = canvas.getContext('2d');
   canvas.width = window.innerWidth;
   canvas.height = window.innerHeight;
-  const cols = Math.floor(canvas.width / 14);
-  const drops = new Array(cols).fill(0);
-  const chars = 'アイウエオカキクケコサシスセソタチツテトナニヌネノハヒフヘホマミムメモヤユヨラリルレロワヲン0123456789';
+  const cx = canvas.width / 2, cy = canvas.height / 2;
+
+  // 4D hypercube: 16 vertices
+  const verts4D = [];
+  for (let i = 0; i < 16; i++) {
+    verts4D.push([
+      (i & 1) ? 1 : -1,
+      (i & 2) ? 1 : -1,
+      (i & 4) ? 1 : -1,
+      (i & 8) ? 1 : -1,
+    ]);
+  }
+
+  // Edges: connect vertices that differ in exactly one coordinate
+  const edges = [];
+  for (let i = 0; i < 16; i++) {
+    for (let j = i + 1; j < 16; j++) {
+      let diff = 0;
+      for (let k = 0; k < 4; k++) if (verts4D[i][k] !== verts4D[j][k]) diff++;
+      if (diff === 1) edges.push([i, j]);
+    }
+  }
+
+  // Rotation angles (auto-rotate + mouse drag)
+  let angleXW = 0, angleYW = 0, angleXY = 0, angleZW = 0;
+  let dragX = 0, dragY = 0;
+  let isDragging = false;
+  let lastMX = 0, lastMY = 0;
+
+  canvas.addEventListener('pointerdown', (e) => {
+    isDragging = true;
+    lastMX = e.clientX;
+    lastMY = e.clientY;
+  });
+  canvas.addEventListener('pointermove', (e) => {
+    if (!isDragging) return;
+    dragX += (e.clientX - lastMX) * 0.005;
+    dragY += (e.clientY - lastMY) * 0.005;
+    lastMX = e.clientX;
+    lastMY = e.clientY;
+  });
+  canvas.addEventListener('pointerup', () => isDragging = false);
+
+  function rotate4D(v, axw, ayw, axy, azw) {
+    let [x, y, z, w] = v;
+    // XW rotation
+    let c = Math.cos(axw), s = Math.sin(axw);
+    [x, w] = [x*c - w*s, x*s + w*c];
+    // YW rotation
+    c = Math.cos(ayw); s = Math.sin(ayw);
+    [y, w] = [y*c - w*s, y*s + w*c];
+    // XY rotation
+    c = Math.cos(axy); s = Math.sin(axy);
+    [x, y] = [x*c - y*s, x*s + y*c];
+    // ZW rotation
+    c = Math.cos(azw); s = Math.sin(azw);
+    [z, w] = [z*c - w*s, z*s + w*c];
+    return [x, y, z, w];
+  }
+
+  function project(v4) {
+    // Perspective project 4D → 3D → 2D
+    const w4 = 1 / (3 - v4[3]); // 4D→3D perspective
+    const x3 = v4[0] * w4;
+    const y3 = v4[1] * w4;
+    const z3 = v4[2] * w4;
+    const w3 = 1 / (3 - z3); // 3D→2D perspective
+    const scale = 180;
+    return {
+      x: cx + x3 * w3 * scale,
+      y: cy + y3 * w3 * scale,
+      depth: z3 + v4[3], // for color intensity
+    };
+  }
 
   let rafId;
-  function drawMatrix() {
-    ctx.fillStyle = 'rgba(0, 0, 0, 0.05)';
+  const time0 = performance.now();
+
+  function draw() {
+    const t = (performance.now() - time0) * 0.001;
+    ctx.fillStyle = 'rgba(0, 0, 0, 0.15)';
     ctx.fillRect(0, 0, canvas.width, canvas.height);
-    ctx.fillStyle = '#4ade80';
-    ctx.font = '14px monospace';
 
-    for (let i = 0; i < drops.length; i++) {
-      const char = chars[Math.floor(Math.random() * chars.length)];
-      ctx.fillText(char, i * 14, drops[i] * 14);
-      if (drops[i] * 14 > canvas.height && Math.random() > 0.975) drops[i] = 0;
-      drops[i]++;
+    // Auto-rotate + drag offset
+    angleXW = t * 0.3 + dragX;
+    angleYW = t * 0.2 + dragY;
+    angleXY = t * 0.15;
+    angleZW = t * 0.25;
+
+    // Project all vertices
+    const projected = verts4D.map(v => {
+      const r = rotate4D(v, angleXW, angleYW, angleXY, angleZW);
+      return project(r);
+    });
+
+    // Draw edges
+    for (const [i, j] of edges) {
+      const a = projected[i], b = projected[j];
+      const avgDepth = (a.depth + b.depth) / 2;
+      const alpha = 0.15 + (avgDepth + 2) * 0.15;
+      ctx.strokeStyle = `rgba(100, 160, 255, ${Math.max(0.05, Math.min(0.8, alpha))})`;
+      ctx.lineWidth = 1.5;
+      ctx.beginPath();
+      ctx.moveTo(a.x, a.y);
+      ctx.lineTo(b.x, b.y);
+      ctx.stroke();
     }
-    rafId = requestAnimationFrame(drawMatrix);
+
+    // Draw vertices
+    for (const p of projected) {
+      const alpha = 0.3 + (p.depth + 2) * 0.2;
+      const r = 2 + (p.depth + 2) * 0.8;
+      ctx.fillStyle = `rgba(140, 100, 255, ${Math.max(0.1, Math.min(1, alpha))})`;
+      ctx.beginPath();
+      ctx.arc(p.x, p.y, Math.max(1, r), 0, Math.PI * 2);
+      ctx.fill();
+    }
+
+    rafId = requestAnimationFrame(draw);
   }
-  drawMatrix();
+  draw();
 
-  // Show message after 2 seconds
-  setTimeout(() => { msg.style.opacity = '1'; }, 2000);
-
-  // Close
   const closeBtn = msg.querySelector('.about-os-close');
   const close = () => { cancelAnimationFrame(rafId); overlay.remove(); };
   closeBtn.addEventListener('click', close);
-  overlay.addEventListener('click', (e) => { if (e.target === overlay) close(); });
+  overlay.addEventListener('click', (e) => { if (e.target === overlay || e.target === canvas) return; });
 }

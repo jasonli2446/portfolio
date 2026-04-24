@@ -114,7 +114,7 @@ export function showTesseract() {
         smoothHandY += ((tip.y - 0.5) * 3 - smoothHandY) * 0.15;
         handX = smoothHandX;
         handY = smoothHandY;
-        handZ = Math.max(-1, Math.min(1, tip.z * 10)); // positive = hand further = bigger
+        handZ = Math.max(-1, Math.min(1, tip.z * -10)); // hand back (further) = positive = bigger
         handActive = true;
       } else {
         handActive = false;
@@ -172,7 +172,7 @@ export function showTesseract() {
       const targetY = wallCY + handY * maxY;
       offsetX += (Math.max(-maxX + wallCX, Math.min(maxX + wallCX, targetX)) - offsetX) * 0.08;
       offsetY += (Math.max(-maxY + wallCY, Math.min(maxY + wallCY, targetY)) - offsetY) * 0.08;
-      handScale += (Math.max(0.3, Math.min(2.5, 1 + handZ * 0.8)) - handScale) * 0.08;
+      handScale += (Math.max(0.3, Math.min(4, 1 + handZ * 2)) - handScale) * 0.08;
       dragX += handX * 0.008;
       dragY += handY * 0.008;
     }
@@ -195,7 +195,7 @@ export function showTesseract() {
       const g = Math.round(40 + t2 * 60);    // 40-100
       const b_ = Math.round(200 + t2 * 55);  // 200-255
       ctx.strokeStyle = `rgba(${r}, ${g}, ${b_}, ${Math.max(0.1, Math.min(0.85, alpha))})`;
-      ctx.lineWidth = 2;
+      ctx.lineWidth = 3;
       ctx.beginPath();
       ctx.moveTo(a.x, a.y);
       ctx.lineTo(b.x, b.y);

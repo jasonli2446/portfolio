@@ -7,15 +7,19 @@ const dockEl = document.getElementById('dock');
 const dockItems = new Map(); // appId → { iconEl, app, win }
 
 export function registerApp(app) {
-  const item = document.createElement('button');
-  item.className = 'dock-item';
-  item.innerHTML = `<span class="dock-icon">${app.icon}</span><span class="dock-tooltip">${app.title}</span>`;
+  // All apps get registered for handleDockClick, but only some show in dock
+  const entry = { iconEl: null, app, win: null };
 
-  const entry = { iconEl: item, app, win: null };
+  if (app.showInDock !== false) {
+    const item = document.createElement('button');
+    item.className = 'dock-item';
+    item.innerHTML = `<span class="dock-icon">${app.icon}</span><span class="dock-tooltip">${app.title}</span>`;
+    item.addEventListener('click', () => handleDockClick(app.id));
+    dockEl.appendChild(item);
+    entry.iconEl = item;
+  }
+
   dockItems.set(app.id, entry);
-
-  item.addEventListener('click', () => handleDockClick(app.id));
-  dockEl.appendChild(item);
 }
 
 export function setAppWindow(appId, win) {
@@ -51,6 +55,7 @@ export function handleDockClick(appId) {
 export function updateIndicators() {
   for (const [, entry] of dockItems) {
     const { iconEl, win } = entry;
+    if (!iconEl) continue;
     if (win && win.state !== 'hidden' && windows.includes(win)) {
       iconEl.classList.add('dock-item-active');
     } else {

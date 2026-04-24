@@ -5,6 +5,7 @@ export default {
   width: 500,
   height: 560,
   wall: 'back',
+  showInDock: false,
   openOnStart: false,
   content: () => `
     <div class="transcript">

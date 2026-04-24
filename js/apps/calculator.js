@@ -5,6 +5,7 @@ export default {
   width: 260,
   height: 340,
   wall: 'right',
+  showInDock: false,
   openOnStart: false,
   content: () =>
     `<div class="calc-display">0</div>

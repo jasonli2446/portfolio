@@ -14,6 +14,7 @@ export default {
   width: 280,
   height: 340,
   wall: 'right',
+  showInDock: false,
   openOnStart: true,
   offsetX: 0,
   offsetY: -20,

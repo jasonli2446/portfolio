@@ -145,6 +145,7 @@ export default {
   width: 300,
   height: 180,
   wall: 'left',
+  showInDock: false,
   openOnStart: true,
   offsetX: 0,
   offsetY: 130,

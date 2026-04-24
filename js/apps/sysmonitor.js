@@ -27,6 +27,7 @@ export default {
   width: 340,
   height: 380,
   wall: 'left',
+  showInDock: false,
   openOnStart: false,
   content: () => `<div class="sysmon" id="sysmon"></div>`,
   init: (win) => {

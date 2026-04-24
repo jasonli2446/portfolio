@@ -565,9 +565,14 @@ body {
   justify-content: center;
   padding-top: 20vh;
 }
+@keyframes spotlightIn {
+  from { opacity: 0; transform: scale(0.95) translateY(-10px); }
+  to   { opacity: 1; transform: scale(1) translateY(0); }
+}
 .spotlight-box {
   width: 520px;
   max-height: 400px;
+  animation: spotlightIn 0.15s ease-out;
   background: rgba(20, 20, 50, 0.95);
   backdrop-filter: blur(24px);
   -webkit-backdrop-filter: blur(24px);

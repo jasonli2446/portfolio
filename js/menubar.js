@@ -82,6 +82,8 @@ function showShortcuts() {
   overlay.innerHTML = `
     <div class="about-os-box" style="text-align:left; max-width:340px;">
       <div style="font-size:16px; font-weight:700; color:#fff; margin-bottom:12px;">Keyboard Shortcuts</div>
+      <div class="shortcut-row"><span>Ctrl+K or /</span><span class="shortcut-key">Spotlight Search</span></div>
+      <div class="shortcut-row"><span>Escape</span><span class="shortcut-key">Close overlay</span></div>
       <div class="shortcut-row"><span>Drag titlebar</span><span class="shortcut-key">Move window</span></div>
       <div class="shortcut-row"><span>Double-click titlebar</span><span class="shortcut-key">Fullscreen</span></div>
       <div class="shortcut-row"><span>─ button</span><span class="shortcut-key">Minimize</span></div>
@@ -89,7 +91,7 @@ function showShortcuts() {
       <div class="shortcut-row"><span>Bottom-right corner</span><span class="shortcut-key">Resize</span></div>
       <div class="shortcut-row"><span>Double-click icon</span><span class="shortcut-key">Open app</span></div>
       <div class="shortcut-row"><span>Right-click desktop</span><span class="shortcut-key">Context menu</span></div>
-      <div class="shortcut-row"><span>Hover bottom edge</span><span class="shortcut-key">Show dock</span></div>
+      <div class="shortcut-row"><span>Click menu bar clock</span><span class="shortcut-key">Notifications</span></div>
       <button class="about-os-close" style="margin-top:16px; width:100%;">Got it</button>
     </div>
   `;

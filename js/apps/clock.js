@@ -7,6 +7,7 @@ export default {
   width: 300,
   height: 230,
   wall: 'left',
+  showInDock: false,
   openOnStart: true,
   offsetX: 0,
   offsetY: -120,

@@ -19,6 +19,23 @@
   pointer-events: none !important;
 }
 
+/* Open/close animations */
+@keyframes windowOpen {
+  from { opacity: 0; transform: scale(0.85); }
+  to   { opacity: 1; transform: scale(1); }
+}
+@keyframes windowClose {
+  from { opacity: 1; transform: scale(1); }
+  to   { opacity: 0; transform: scale(0.85); }
+}
+.window-opening {
+  animation: windowOpen 0.2s ease-out forwards;
+}
+.window-closing {
+  animation: windowClose 0.15s ease-in forwards;
+  pointer-events: none;
+}
+
 .window-titlebar {
   height: 38px;
   background: rgba(255, 255, 255, 0.05);

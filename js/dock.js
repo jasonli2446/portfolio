@@ -9,8 +9,7 @@ const dockItems = new Map(); // appId → { iconEl, app, win }
 export function registerApp(app) {
   const item = document.createElement('button');
   item.className = 'dock-item';
-  item.title = app.title;
-  item.innerHTML = `<span class="dock-icon">${app.icon}</span>`;
+  item.innerHTML = `<span class="dock-icon">${app.icon}</span><span class="dock-tooltip">${app.title}</span>`;
 
   const entry = { iconEl: item, app, win: null };
   dockItems.set(app.id, entry);

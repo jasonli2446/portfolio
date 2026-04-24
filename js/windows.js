@@ -297,10 +297,16 @@ export function fullscreenWindow(win) {
   el.classList.add('fullscreen');
   // Force layout so the transition animates from current position
   el.offsetHeight;
+
+  // On the back wall, leave room for menu bar (32px) and dock area
+  const isBackWall = wallName(win.parentWall) === 'back';
+  const topOffset = isBackWall ? 32 : 0;
+  const bottomOffset = isBackWall ? 80 : 0;
+
   el.style.left = '0px';
-  el.style.top = '0px';
+  el.style.top = topOffset + 'px';
   el.style.width = win.parentWall.offsetWidth + 'px';
-  el.style.height = win.parentWall.offsetHeight + 'px';
+  el.style.height = (win.parentWall.offsetHeight - topOffset - bottomOffset) + 'px';
 
   win.state = 'fullscreen';
   focusWindow(win);
@@ -328,15 +334,23 @@ function _exitFullscreen(win) {
 }
 
 export function hideWindow(win) {
-  if (!win) return;
+  if (!win || win.state === 'hidden') return;
 
   if (win.state === 'fullscreen') _exitFullscreen(win);
   clearClones(win);
-  win.element.style.display = 'none';
+
+  // Close animation
+  const el = win.element;
+  el.classList.add('window-closing');
+  el.addEventListener('animationend', () => {
+    el.classList.remove('window-closing');
+    el.style.display = 'none';
+  }, { once: true });
+
   win.state = 'hidden';
 
   if (focusedWin === win) {
-    win.element.classList.remove('window-focused');
+    el.classList.remove('window-focused');
     focusedWin = null;
   }
   notifyStateChange();
@@ -346,6 +360,8 @@ export function showWindow(win) {
   if (!win || win.state !== 'hidden') return;
 
   win.element.style.display = '';
+  win.element.classList.add('window-opening');
+  win.element.addEventListener('animationend', () => win.element.classList.remove('window-opening'), { once: true });
   win.state = 'normal';
   focusWindow(win);
   updateClones(win);
@@ -416,6 +432,10 @@ export function createWindow(descriptor) {
   el.appendChild(content);
   el.appendChild(resizeHandle);
   parentWall.appendChild(el);
+
+  // Open animation
+  el.classList.add('window-opening');
+  el.addEventListener('animationend', () => el.classList.remove('window-opening'), { once: true });
 
   const win = {
     id: appId || null,
@@ -622,6 +642,11 @@ document.addEventListener('pointermove', (e) => {
     newTop = Math.max(margin, Math.min(ph - eh - margin, newTop));
   } else if (wn === 'floor' || wn === 'ceiling') {
     newLeft = Math.max(margin, Math.min(pw - ew - margin, newLeft));
+  }
+  // On back wall, keep titlebar visible (don't let it go above menu bar or below dock)
+  if (wn === 'back') {
+    newTop = Math.max(34, newTop);  // below menu bar
+    newTop = Math.min(ph - 40, newTop);  // keep titlebar visible at bottom
   }
 
   el.style.left = newLeft + 'px';

@@ -31,6 +31,15 @@ body {
   overflow: visible;
   backface-visibility: hidden;
   -webkit-backface-visibility: hidden;
+  cursor: default;
+}
+
+/* Custom cursor: crosshair on side/floor/ceiling walls to indicate 3D space */
+.wall-left,
+.wall-right,
+.wall-floor,
+.wall-ceiling {
+  cursor: crosshair;
 }
 
 /* Back wall — gradient wallpaper with subtle grid */

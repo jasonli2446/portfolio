@@ -62,30 +62,51 @@
   border-radius: 4px;
 }
 
-/* ── Experience ──────────────────────────────── */
-.exp-timeline { display: flex; flex-direction: column; gap: 0; padding-left: 16px; }
-.exp-item {
-  position: relative;
-  padding: 0 0 16px 20px;
-  border-left: 1px solid rgba(255, 255, 255, 0.1);
+/* ── Experience (Terminal) ───────────────────── */
+@keyframes blink {
+  0%, 50% { opacity: 1; }
+  51%, 100% { opacity: 0; }
 }
-.exp-item:last-child { border-left-color: transparent; padding-bottom: 0; }
-.exp-dot {
-  position: absolute; left: -5px; top: 4px;
-  width: 9px; height: 9px;
-  border-radius: 50%;
-  background: rgba(100, 160, 255, 0.7);
-  box-shadow: 0 0 6px rgba(100, 160, 255, 0.4);
+
+.term {
+  background: #000000;
+  padding: 16px;
+  height: 100%;
+  overflow-y: auto;
+  box-sizing: border-box;
 }
-.exp-role { font-size: 14px; font-weight: 600; color: #fff; }
-.exp-company { font-size: 12px; color: rgba(255, 255, 255, 0.5); margin: 2px 0 6px; }
-.exp-dates { color: rgba(255, 255, 255, 0.3); }
-.exp-bullets {
-  margin: 0; padding-left: 16px;
-  font-size: 12px; color: rgba(255, 255, 255, 0.45);
-  line-height: 1.5;
+
+.term-output {
+  font-family: 'SF Mono', 'Fira Code', 'Cascadia Code', 'Consolas', monospace;
+  font-size: 12px;
+  line-height: 1.6;
+  color: #4ade80;
+  white-space: pre-wrap;
+  word-wrap: break-word;
 }
-.exp-bullets li { margin-bottom: 2px; }
+
+.term-cursor {
+  font-family: 'SF Mono', 'Fira Code', 'Cascadia Code', 'Consolas', monospace;
+  font-size: 12px;
+  color: #4ade80;
+  animation: blink 1.2s step-end infinite;
+  margin-left: 2px;
+}
+
+.term-prompt {
+  color: #ffffff;
+  font-weight: 600;
+}
+
+.term-dim {
+  color: #22c55e;
+  opacity: 0.7;
+}
+
+.term-accent {
+  color: #22d3ee;
+  font-weight: 600;
+}
 
 /* ── Skills & Contact ────────────────────────── */
 .skills-contact { display: flex; flex-direction: column; gap: 12px; }

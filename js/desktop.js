@@ -1,5 +1,6 @@
 import { showTesseract } from './tesseract.js';
 import { screenToLocal, getFwd, invalidateCache, wallName, findEdgeToWall } from './windows.js';
+import { updateElementClones, clearElementClones } from './clones.js';
 
 // Desktop icons on the back wall — draggable, selectable
 
@@ -105,7 +106,7 @@ export function initDesktop() {
     });
 
     container.appendChild(el);
-    iconElements.push({ el, icon, startX: 0, startY: 0 });
+    iconElements.push({ el, icon, _clones: new Map() });
   });
 
   // Selection rectangle on back wall (pointerdown on empty space)
@@ -180,6 +181,9 @@ export function initDesktop() {
           el.style.left = (local.x - grab.grabX) + 'px';
           el.style.top  = (local.y - grab.grabY) + 'px';
         }
+
+        // Update clones for wall-edge overflow
+        updateElementClones(el, wall, entry._clones);
       }
       return;
     }
@@ -208,6 +212,7 @@ export function initDesktop() {
   });
 
   document.addEventListener('pointerup', () => {
+    // Keep clones if icon is split across walls (like windows do)
     draggingIcons = false;
     if (selectionBox) {
       selectionBox.remove();

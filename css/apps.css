@@ -1,3 +1,70 @@
+/* ── Transcript/Education ────────────────────── */
+.transcript { font-size: 13px; }
+.transcript-header {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding-bottom: 12px;
+}
+.transcript-logo {
+  font-size: 20px;
+  font-weight: 800;
+  color: rgba(100, 160, 255, 0.9);
+  letter-spacing: 2px;
+  padding: 8px 12px;
+  background: rgba(100, 160, 255, 0.1);
+  border: 1px solid rgba(100, 160, 255, 0.2);
+  border-radius: 8px;
+}
+.transcript-uni { font-size: 15px; font-weight: 700; color: #fff; }
+.transcript-sub { font-size: 11px; color: rgba(255,255,255,0.35); margin-top: 2px; }
+.transcript-divider { height: 1px; background: rgba(255,255,255,0.08); margin: 8px 0 12px; }
+.transcript-section { margin-bottom: 16px; }
+.transcript-section-title {
+  font-size: 11px;
+  font-weight: 600;
+  color: rgba(255,255,255,0.35);
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  margin-bottom: 8px;
+  padding-bottom: 4px;
+  border-bottom: 1px solid rgba(255,255,255,0.04);
+}
+.transcript-row {
+  display: flex;
+  justify-content: space-between;
+  padding: 4px 0;
+  color: rgba(255,255,255,0.7);
+}
+.transcript-label { color: rgba(255,255,255,0.4); font-size: 12px; }
+.transcript-val { font-size: 12px; text-align: right; }
+.transcript-gpa { color: rgba(100, 200, 150, 0.9); font-weight: 700; font-size: 14px; }
+.transcript-honor {
+  padding: 5px 0;
+  color: rgba(255,255,255,0.65);
+  font-size: 12px;
+  border-bottom: 1px solid rgba(255,255,255,0.03);
+}
+.transcript-note { color: rgba(255,255,255,0.3); font-size: 11px; margin-left: 8px; }
+.transcript-course {
+  display: flex;
+  justify-content: space-between;
+  padding: 4px 0;
+  font-size: 12px;
+  color: rgba(255,255,255,0.6);
+  font-family: 'SF Mono', 'Fira Code', monospace;
+}
+.transcript-course span:first-child { color: rgba(255,255,255,0.35); width: 80px; }
+.transcript-course span:nth-child(2) { flex: 1; font-family: system-ui; }
+.transcript-grade { color: rgba(100, 200, 150, 0.8); font-weight: 600; }
+.transcript-footer {
+  margin-top: 12px;
+  font-size: 10px;
+  color: rgba(255,255,255,0.2);
+  text-align: center;
+  font-style: italic;
+}
+
 /* ── About Me ────────────────────────────────── */
 .about { display: flex; flex-direction: column; gap: 0; }
 

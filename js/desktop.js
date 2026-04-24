@@ -132,37 +132,32 @@ export function initDesktop() {
   // Pointermove: drag icons or draw selection
   document.addEventListener('pointermove', (e) => {
     if (draggingIcons && selectedIcons.size > 0 && dragPrimaryEl) {
-      // 1. Compute screen-space delta from cursor movement
-      const screenDX = e.clientX - lastDragScreenX;
-      const screenDY = e.clientY - lastDragScreenY;
       lastDragScreenX = e.clientX;
       lastDragScreenY = e.clientY;
 
-      // 2. Move each selected icon on its OWN wall using its wall's unprojection
+      // 1. Compute wall-local delta from primary icon
+      const primaryWall = dragPrimaryEl.parentElement.closest('.wall') || dragPrimaryEl.parentElement;
+      const fwdP = getFwd(primaryWall);
+      const localP = screenToLocal(fwdP, e.clientX, e.clientY);
+      const grabP = iconGrabOffsets.get(dragPrimaryEl);
+      if (!localP || !grabP) return;
+
+      const newPrimaryLeft = localP.x - grabP.grabX;
+      const newPrimaryTop  = localP.y - grabP.grabY;
+      const deltaLeft = newPrimaryLeft - (parseFloat(dragPrimaryEl.style.left) || 0);
+      const deltaTop  = newPrimaryTop  - (parseFloat(dragPrimaryEl.style.top)  || 0);
+
+      // 2. Apply same wall-local delta to ALL selected icons
       for (const entry of iconElements) {
         if (!selectedIcons.has(entry.el)) continue;
         const el = entry.el;
-        const wall = el.parentElement.closest('.wall') || el.parentElement;
-
-        // Use screen delta as wall-local delta (approximate but consistent for all walls)
-        // For the primary icon, use proper unprojection for accuracy
-        if (el === dragPrimaryEl) {
-          const fwd = getFwd(wall);
-          const local = screenToLocal(fwd, e.clientX, e.clientY);
-          const grab = iconGrabOffsets.get(el);
-          if (local && grab) {
-            el.style.left = (local.x - grab.grabX) + 'px';
-            el.style.top  = (local.y - grab.grabY) + 'px';
-          }
-        } else {
-          // Non-primary: apply same screen delta (works well enough)
-          const curLeft = parseFloat(el.style.left) || 0;
-          const curTop  = parseFloat(el.style.top)  || 0;
-          el.style.left = (curLeft + screenDX) + 'px';
-          el.style.top  = (curTop + screenDY) + 'px';
-        }
+        const curLeft = parseFloat(el.style.left) || 0;
+        const curTop  = parseFloat(el.style.top)  || 0;
+        el.style.left = (curLeft + deltaLeft) + 'px';
+        el.style.top  = (curTop + deltaTop) + 'px';
 
         // 3. Check if this icon's center has crossed its wall boundary
+        const wall = el.parentElement.closest('.wall') || el.parentElement;
         const left = parseFloat(el.style.left) || 0;
         const top  = parseFloat(el.style.top)  || 0;
         const pw = wall.offsetWidth;
@@ -177,11 +172,7 @@ export function initDesktop() {
         if (cy > ph)  transitionEdge = 'bottom';
 
         if (transitionEdge) {
-          const fromName = wallName(wall);
-          const nbr = findEdgeToWall(fromName, null); // we need getNeighbor directly
-          // Use getNeighbor from clones.js approach — but we have findEdgeToWall
-          // Instead: import getNeighbor... or just check all edges
-          // Simpler: use elementsFromPoint with the icon's screen-space center
+          // Find which wall the icon's center is now over
           el.style.pointerEvents = 'none';
           const iconRect = el.getBoundingClientRect();
           const iconCX = iconRect.left + iconRect.width / 2;

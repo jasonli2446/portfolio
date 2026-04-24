@@ -1,7 +1,7 @@
 const categories = [
-  { id: 'languages', icon: '🔤', label: 'Languages', items: ['Python', 'TypeScript', 'Java', 'C++', 'C#', 'SQL'] },
-  { id: 'frameworks', icon: '⚙️', label: 'Frameworks', items: ['React', 'Next.js', 'PyTorch', 'Express', 'Tailwind'] },
-  { id: 'tools', icon: '🛠', label: 'Tools', items: ['AWS', 'Docker', 'Git', 'Firebase', 'Supabase'] },
+  { id: 'languages', icon: '🔤', label: 'Languages', items: ['Python', 'Go', 'Swift', 'C++', 'Java', 'C#', 'TypeScript', 'SQL'] },
+  { id: 'frameworks', icon: '⚙️', label: 'Frameworks', items: ['React', 'Next.js', 'React Native', 'PyTorch', 'Express', 'Tailwind', 'FastAPI'] },
+  { id: 'tools', icon: '🛠', label: 'Tools', items: ['AWS', 'Terraform', 'Docker', 'Git', 'Firebase', 'Supabase', 'Snowflake', 'Postman'] },
   { id: 'contact', icon: '📧', label: 'Contact', links: [
     { text: 'jasonli2446@gmail.com', href: 'mailto:jasonli2446@gmail.com' },
     { text: 'GitHub', href: 'https://github.com/jasonli2446' },
@@ -40,7 +40,7 @@ function renderCategoryContent(cat) {
   if (cat.download) {
     return `<div class="settings-content" data-content="${cat.id}">
       <div class="settings-content-header">${cat.icon} ${cat.label}</div>
-      <a href="#" class="settings-download">⬇ Download Resume (PDF)</a>
+      <a href="public/resume.pdf" class="settings-download">⬇ Download Resume (PDF)</a>
     </div>`;
   }
   return '';

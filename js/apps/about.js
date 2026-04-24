@@ -21,7 +21,7 @@ export default {
        </div>
        <div class="info-row">
          <span class="info-label">Size:</span>
-         <span class="info-value">1,000+ lines of code shipped</span>
+         <span class="info-value">10,000+ lines of production code shipped</span>
        </div>
        <div class="info-row">
          <span class="info-label">Where:</span>
@@ -40,7 +40,7 @@ export default {
          <span class="disclosure-arrow">▶</span> More Info
        </div>
        <div class="info-bio" id="info-bio">
-         I'm passionate about building elegant software that bridges design and engineering. Currently exploring the intersection of 3D graphics, systems programming, and web technologies. I love creating tools that make complex ideas accessible and delightful to use.
+         Building production AI systems and full-stack applications at the intersection of software engineering and machine learning. Currently a Technical Lead at CWRU xLab and undergraduate researcher at EINSTEIN Lab, with internship experience at KKR, 1848 Ventures, and Eaton. Passionate about creating elegant tools that make complex ideas accessible.
        </div>
        <div class="info-separator"></div>
        <div class="info-links">

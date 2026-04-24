@@ -1,24 +1,31 @@
 const terminalText = `$ whoami
-jason-li
+jason-li — cs + ce @ cwru, 4.0 gpa
 
 $ cat experience.txt
 
-[1] Technical Lead @ [Company]
+[1] Software Engineer Intern @ KKR
+    Summer 2026
+    > Incoming intern on the Data and AI team
+
+[2] Technical Lead @ CWRU xLab – Dealer Tire
     Jan 2026 – Present
-    > [Bullet point placeholder]
-    > [Bullet point placeholder]
+    > Leading 4 devs building conversational AI for account summaries
+    > Two-agent architecture with dynamic checklist validation
 
-[2] SWE Intern @ [Company]
+[3] Software Engineer Intern @ 1848 Ventures
     May – Dec 2025
-    > [Bullet point placeholder]
+    > Architected scalable lead-gen platform (AWS/Terraform)
+    > Built RAG pipelines and AI agents for 15+ ventures
 
-[3] AI/ML Researcher @ [Company]
+[4] AI/ML Researcher @ EINSTEIN Lab, CWRU
     Jan 2025 – Present
-    > [Bullet point placeholder]
+    > SVD-based KV cache compression — 87.5% memory savings
+    > PyTorch framework for multi-transformer architectures
 
-[4] SWE Intern @ [Company]
+[5] Software Engineer Intern @ Eaton Corporation
     Jan – May 2025
-    > [Bullet point placeholder]
+    > AI training platform with RAG-powered simulated customers
+    > Reduced onboarding time by 40%
 
 $ `;
 

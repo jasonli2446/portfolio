@@ -103,6 +103,9 @@ export function initDesktop() {
           grabX: local.x - (parseFloat(el.style.left) || 0),
           grabY: local.y - (parseFloat(el.style.top) || 0),
         });
+      } else {
+        // Fallback for side walls where unprojection may fail
+        iconGrabOffsets.set(el, { grabX: 40, grabY: 38 });
       }
     });
 
@@ -132,6 +135,8 @@ export function initDesktop() {
   // Pointermove: drag icons or draw selection
   document.addEventListener('pointermove', (e) => {
     if (draggingIcons && selectedIcons.size > 0 && dragPrimaryEl) {
+      const screenDX = e.clientX - lastDragScreenX;
+      const screenDY = e.clientY - lastDragScreenY;
       lastDragScreenX = e.clientX;
       lastDragScreenY = e.clientY;
 
@@ -140,12 +145,18 @@ export function initDesktop() {
       const fwdP = getFwd(primaryWall);
       const localP = screenToLocal(fwdP, e.clientX, e.clientY);
       const grabP = iconGrabOffsets.get(dragPrimaryEl);
-      if (!localP || !grabP) return;
 
-      const newPrimaryLeft = localP.x - grabP.grabX;
-      const newPrimaryTop  = localP.y - grabP.grabY;
-      const deltaLeft = newPrimaryLeft - (parseFloat(dragPrimaryEl.style.left) || 0);
-      const deltaTop  = newPrimaryTop  - (parseFloat(dragPrimaryEl.style.top)  || 0);
+      let deltaLeft, deltaTop;
+      if (localP && grabP) {
+        const newPrimaryLeft = localP.x - grabP.grabX;
+        const newPrimaryTop  = localP.y - grabP.grabY;
+        deltaLeft = newPrimaryLeft - (parseFloat(dragPrimaryEl.style.left) || 0);
+        deltaTop  = newPrimaryTop  - (parseFloat(dragPrimaryEl.style.top)  || 0);
+      } else {
+        // Fallback: screen-space delta (when unprojection fails on side walls)
+        deltaLeft = screenDX;
+        deltaTop  = screenDY;
+      }
 
       // 2. Apply same wall-local delta to ALL selected icons
       for (const entry of iconElements) {

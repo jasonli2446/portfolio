@@ -114,13 +114,26 @@ function render() {
     ctx.fillStyle = '#06001a';
     ctx.fillRect(0, 0, w, h);
 
-    // Grid
-    ctx.strokeStyle = 'rgba(80, 60, 160, 0.12)';
-    ctx.lineWidth = 0.5;
+    // Grid — visible lines with subtle glow at intersections
+    ctx.strokeStyle = 'rgba(100, 80, 220, 0.25)';
+    ctx.lineWidth = 1;
     for (let i = 0; i <= GRID; i++) {
       ctx.beginPath(); ctx.moveTo(i * cw, 0); ctx.lineTo(i * cw, h); ctx.stroke();
       ctx.beginPath(); ctx.moveTo(0, i * ch); ctx.lineTo(w, i * ch); ctx.stroke();
     }
+    // Dot at each intersection
+    ctx.fillStyle = 'rgba(120, 100, 240, 0.2)';
+    for (let r = 0; r <= GRID; r++) {
+      for (let c = 0; c <= GRID; c++) {
+        ctx.beginPath();
+        ctx.arc(c * cw, r * ch, 1.5, 0, Math.PI * 2);
+        ctx.fill();
+      }
+    }
+    // Border around the wall
+    ctx.strokeStyle = 'rgba(120, 100, 240, 0.35)';
+    ctx.lineWidth = 2;
+    ctx.strokeRect(1, 1, w - 2, h - 2);
 
     // Snake body — connected segments with gradient
     const segs = state.snake.filter(s => s.wall === wn);

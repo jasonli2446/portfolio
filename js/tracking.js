@@ -85,7 +85,8 @@ export function detectFace() {
   const faceW     = Math.hypot(leftFace.x - rightFace.x, leftFace.y - rightFace.y);
 
   const rawX = (0.5 - nose.x) * SENS_X;
-  const rawY = (0.5 - nose.y) * SENS_Y;
+  // Y neutral point offset — most people's face sits in upper third of webcam frame
+  const rawY = (0.4 - nose.y) * SENS_Y;
   const rawZ = Math.max(2, Math.min(12, (BASE_FACE_W / Math.max(faceW, 0.04)) * EYE_DIST));
 
   sEyeX += (rawX - sEyeX) * SMOOTH;

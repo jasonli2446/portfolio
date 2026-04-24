@@ -1,78 +1,49 @@
-/* ── Dock (auto-hide) ────────────────────────── */
-
-/* Invisible hover trigger zone at bottom of back wall */
-.dock-trigger {
-  position: absolute;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  height: 50px;
-  z-index: 4;
-}
-
+/* ── Dock (viewport overlay, auto-hide) ──────── */
 #dock {
-  position: absolute;
-  bottom: 8px;
+  position: fixed;
+  bottom: 0;
   left: 50%;
-  transform: translateX(-50%) translateY(calc(100% + 20px));
-  z-index: 5;
+  transform: translateX(-50%) translateY(calc(100% - 4px));
+  z-index: 20;
   display: flex;
-  gap: 14px;
-  padding: 12px 24px;
-  background: rgba(15, 15, 40, 0.75);
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  border-radius: 20px;
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+  gap: 10px;
+  padding: 10px 20px 14px;
+  background: rgba(15, 15, 40, 0.8);
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-bottom: none;
+  border-radius: 16px 16px 0 0;
+  box-shadow: 0 -4px 24px rgba(0, 0, 0, 0.4);
   transition: transform 0.3s ease;
 }
 
-/* Show dock when hovering trigger zone or dock itself */
-.dock-trigger:hover ~ #dock,
+/* The 4px peek acts as the hover trigger */
 #dock:hover {
   transform: translateX(-50%) translateY(0);
 }
 
-/* Small indicator line when hidden */
-.dock-indicator {
-  position: absolute;
-  bottom: 6px;
-  left: 50%;
-  transform: translateX(-50%);
-  width: 40px;
-  height: 3px;
-  border-radius: 2px;
-  background: rgba(255, 255, 255, 0.2);
-  z-index: 4;
-  pointer-events: none;
-  transition: opacity 0.3s;
-}
-.dock-trigger:hover ~ .dock-indicator {
-  opacity: 0;
-}
-
 .dock-item {
-  width: 64px;
-  height: 64px;
+  width: 48px;
+  height: 48px;
   border: none;
-  border-radius: 14px;
-  background: rgba(255, 255, 255, 0.06);
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.05);
   cursor: pointer;
   display: flex;
   align-items: center;
   justify-content: center;
-  transition: background 0.15s, transform 0.15s;
+  transition: background 0.15s, transform 0.2s;
   position: relative;
 }
 
 .dock-item:hover {
-  background: rgba(255, 255, 255, 0.12);
-  transform: translateY(-4px);
+  background: rgba(255, 255, 255, 0.1);
+  transform: translateY(-6px);
 }
 
 .dock-item:active {
-  transform: translateY(-2px) scale(0.95);
+  transform: translateY(-3px) scale(0.95);
 }
 
 .dock-icon {
@@ -83,23 +54,23 @@
 }
 
 .dock-icon svg {
-  width: 34px;
-  height: 34px;
-  stroke: rgba(255, 255, 255, 0.9);
+  width: 26px;
+  height: 26px;
+  stroke: rgba(255, 255, 255, 0.85);
 }
 
 /* Active indicator dot */
 .dock-item-active::after {
   content: '';
   position: absolute;
-  bottom: -6px;
+  bottom: -4px;
   left: 50%;
   transform: translateX(-50%);
   width: 4px;
   height: 4px;
   border-radius: 50%;
   background: rgba(100, 180, 255, 0.8);
-  box-shadow: 0 0 6px rgba(100, 180, 255, 0.5);
+  box-shadow: 0 0 6px rgba(100, 180, 255, 0.4);
 }
 
 /* Tooltip */
@@ -109,10 +80,10 @@
   left: 50%;
   transform: translateX(-50%);
   padding: 4px 10px;
-  background: rgba(15, 15, 40, 0.9);
+  background: rgba(15, 15, 40, 0.92);
   border: 1px solid rgba(255, 255, 255, 0.1);
   border-radius: 6px;
-  font-size: 13px;
+  font-size: 12px;
   color: rgba(255, 255, 255, 0.7);
   white-space: nowrap;
   pointer-events: none;

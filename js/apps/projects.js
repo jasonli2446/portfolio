@@ -1,10 +1,52 @@
 const projectData = [
-  { title: 'Project One', desc: '[Description placeholder]', tags: ['React', 'Node.js'], link: '#' },
-  { title: 'Project Two', desc: '[Description placeholder]', tags: ['Python', 'PyTorch'], link: '#' },
-  { title: 'Project Three', desc: '[Description placeholder]', tags: ['Unity', 'C#'], link: '#' },
-  { title: 'Project Four', desc: '[Description placeholder]', tags: ['Next.js', 'AWS'], link: '#' },
-  { title: 'Project Five', desc: '[Description placeholder]', tags: ['TypeScript', 'AI'], link: '#' },
-  { title: 'Project Six', desc: '[Description placeholder]', tags: ['Full Stack'], link: '#' },
+  {
+    title: 'FireCommand',
+    desc: 'Real-time wildfire incident command platform built for Palantir\'s hiring challenge. Live NASA satellite fire detection, AI tactical analysis, and deck.gl visualization.',
+    tags: ['Next.js', 'deck.gl', 'Zustand', 'NASA API'],
+    link: 'https://github.com/jasonli2446/firecommand'
+  },
+  {
+    title: 'Thrifty',
+    desc: 'Campus peer-to-peer clothing marketplace with Stripe payments, real-time messaging, and verified .edu authentication.',
+    tags: ['React Native', 'Supabase', 'Stripe', 'Expo'],
+    link: 'https://github.com/jasonli2446/Thrifty'
+  },
+  {
+    title: 'CampusGuessr',
+    desc: 'GeoGuessr-inspired game for CWRU played by 1,000+ students. 360° locations, leaderboards, real-time multiplayer, 300+ spots.',
+    tags: ['Next.js', 'Supabase', 'Tailwind'],
+    link: 'https://github.com/jasonli2446/campusguessr'
+  },
+  {
+    title: 'KV Cache Research',
+    desc: 'SVD-based KV cache compression for LLaMA transformers achieving 87.5% memory savings. 2-GPU distributed system with HPC deployment.',
+    tags: ['Python', 'PyTorch', 'SLURM', 'HPC'],
+    link: 'https://github.com/jasonli2446/kv-cache-research'
+  },
+  {
+    title: 'AI Avatar Kiosk',
+    desc: 'Permanent interactive AI exhibit at CWRU Weatherhead School. Real-time avatar conversations via WebRTC with SSO authentication.',
+    tags: ['Next.js', 'HeyGen', 'WebRTC', 'AWS'],
+    link: 'https://github.com/jasonli2446/ai-avatar-kiosk'
+  },
+  {
+    title: 'Dealer Tire CAS',
+    desc: 'Enterprise conversational AI helping account managers generate customer summaries through AI-guided interviews with voice I/O.',
+    tags: ['Next.js', 'OpenAI', 'Pinecone', 'Supabase'],
+    link: '#'
+  },
+  {
+    title: 'LinkedIn Zip',
+    desc: 'Recreation of LinkedIn\'s Zip puzzle game. Hamiltonian path algorithm for puzzle generation with smooth touch gestures.',
+    tags: ['React Native', 'TypeScript', 'Algorithms'],
+    link: 'https://github.com/jasonli2446/linkedin-zip'
+  },
+  {
+    title: 'BrickdUp',
+    desc: 'Real-time puzzle platformer built in Unity with player-placeable tiles and progressive difficulty. Published on itch.io.',
+    tags: ['Unity', 'C#', 'Game Dev'],
+    link: 'https://github.com/jasonli2446/BrickdUp'
+  },
 ];
 
 function renderFolder(p, index) {

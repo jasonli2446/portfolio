@@ -1,6 +1,6 @@
 import { windows, showWindow } from '../windows.js';
 
-function buildTrashContent() {
+function buildTrashHTML() {
   const hidden = windows.filter(w => w.state === 'hidden' && w.id !== 'trash');
   if (hidden.length === 0) {
     return `<div class="trash-empty">
@@ -9,13 +9,19 @@ function buildTrashContent() {
       <div class="trash-empty-sub">Close some windows and they'll appear here</div>
     </div>`;
   }
-  const items = hidden.map(w =>
-    `<div class="trash-item" data-win-id="${w.id}">
-       <span class="trash-item-name">${w.titlebar.querySelector('.window-title').textContent}</span>
+  // Use array index as identifier since w.id can be null
+  const items = hidden.map((w, i) => {
+    const title = w.titlebar.querySelector('.window-title').textContent;
+    return `<div class="trash-item" data-trash-idx="${i}">
+       <span class="trash-item-name">${title}</span>
        <button class="trash-item-restore">Restore</button>
-     </div>`
-  ).join('');
+     </div>`;
+  }).join('');
   return `<div class="trash-list">${items}</div>`;
+}
+
+function getHiddenWindows() {
+  return windows.filter(w => w.state === 'hidden' && w.id !== 'trash');
 }
 
 export default {
@@ -26,39 +32,30 @@ export default {
   height: 280,
   wall: 'back',
   openOnStart: false,
-  content: () => `<div class="trash-container">${buildTrashContent()}</div>`,
+  content: () => `<div class="trash-container"></div>`,
   init: (win) => {
-    function refresh() {
-      const container = win.element.querySelector('.trash-container');
-      if (container) container.innerHTML = buildTrashContent();
-      wireButtons();
-    }
+    const container = win.element.querySelector('.trash-container');
 
-    function wireButtons() {
-      const btns = win.element.querySelectorAll('.trash-item-restore');
-      btns.forEach(btn => {
+    function refresh() {
+      container.innerHTML = buildTrashHTML();
+      // Wire restore buttons
+      container.querySelectorAll('.trash-item-restore').forEach(btn => {
         btn.addEventListener('click', (e) => {
           e.stopPropagation();
-          const id = btn.parentElement.dataset.winId;
-          const target = windows.find(w => w.id === id && w.state === 'hidden');
-          if (target) {
-            showWindow(target);
+          const idx = parseInt(btn.parentElement.dataset.trashIdx);
+          const hidden = getHiddenWindows();
+          if (hidden[idx]) {
+            showWindow(hidden[idx]);
             refresh();
           }
         });
       });
     }
 
-    wireButtons();
+    // Refresh immediately on open
+    refresh();
 
-    // Refresh the list whenever the window becomes visible (focused)
-    const observer = new MutationObserver(() => {
-      if (win.element.style.display !== 'none') refresh();
-    });
-    observer.observe(win.element, { attributes: true, attributeFilter: ['style'] });
-    win._trashObserver = observer;
-  },
-  destroy: (win) => {
-    if (win._trashObserver) win._trashObserver.disconnect();
+    // Refresh whenever the trash window gets focus
+    win.element.addEventListener('pointerdown', refresh);
   },
 };

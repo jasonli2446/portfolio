@@ -84,7 +84,7 @@ export default {
     </div>`,
 
   init: (win) => {
-    const output = win.querySelector('.term-output');
+    const output = win.element.querySelector('.term-output');
     if (output) {
       typeWriter(output, terminalText);
     }

@@ -25,7 +25,7 @@ function renderDetail(p) {
 }
 
 function init(win) {
-  const folders = win.querySelectorAll('.fm-folder');
+  const folders = win.element.querySelectorAll('.fm-folder');
   let currentlyExpanded = null;
   let currentDetail = null;
 
@@ -62,7 +62,7 @@ function init(win) {
       detail.innerHTML = renderDetail(project);
       currentDetail = detail.firstElementChild;
 
-      const grid = win.querySelector('.fm-grid');
+      const grid = win.element.querySelector('.fm-grid');
       grid.parentNode.insertBefore(currentDetail, grid.nextSibling);
     });
   });

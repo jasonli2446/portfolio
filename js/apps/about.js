@@ -51,7 +51,7 @@ export default {
      </div>`,
   init: (win) => {
     // Set today's date in "Modified" field
-    const modifiedEl = win.querySelector('#modified-date');
+    const modifiedEl = win.element.querySelector('#modified-date');
     if (modifiedEl) {
       const today = new Date();
       const dateStr = today.toLocaleDateString('en-US', {
@@ -64,9 +64,9 @@ export default {
     }
 
     // Wire up collapsible section toggle
-    const disclosure = win.querySelector('#info-disclosure');
-    const bio = win.querySelector('#info-bio');
-    const arrow = win.querySelector('.disclosure-arrow');
+    const disclosure = win.element.querySelector('#info-disclosure');
+    const bio = win.element.querySelector('#info-bio');
+    const arrow = win.element.querySelector('.disclosure-arrow');
 
     if (disclosure && bio && arrow) {
       disclosure.addEventListener('click', () => {

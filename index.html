@@ -13,7 +13,9 @@
   <!-- The room: perspective container = viewport = front face of box -->
   <div id="room">
     <div id="box">
-      <div class="wall wall-back"></div>
+      <div class="wall wall-back">
+        <div id="dock"></div>
+      </div>
       <div class="wall wall-left"></div>
       <div class="wall wall-right"></div>
       <div class="wall wall-floor"></div>
@@ -27,7 +29,6 @@
     <video id="webcam" autoplay playsinline muted></video>
   </div>
   <div id="debug"></div>
-  <div id="dock"></div>
 
   <script type="module" src="js/main.js"></script>
 </body>

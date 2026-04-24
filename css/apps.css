@@ -251,37 +251,90 @@
   font-weight: 600;
 }
 
-/* ── Skills & Contact ────────────────────────── */
-.skills-contact { display: flex; flex-direction: column; gap: 12px; }
-.skill-group { margin-bottom: 4px; }
-.skill-label { font-size: 11px; font-weight: 600; color: rgba(255, 255, 255, 0.4); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 6px; }
-.skill-badges { display: flex; gap: 6px; flex-wrap: wrap; }
-.skill-badge {
+/* ── Settings Panel (Skills/Contact/Resume) ──── */
+.settings-panel { display: flex; flex-direction: column; gap: 0; }
+.settings-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+  padding-bottom: 14px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+  margin-bottom: 14px;
+}
+.settings-icon {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  padding: 12px 6px;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid transparent;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: background 0.15s, border-color 0.15s;
+}
+.settings-icon:hover {
+  background: rgba(255, 255, 255, 0.08);
+}
+.settings-icon.active {
+  background: rgba(100, 160, 255, 0.12);
+  border-color: rgba(100, 160, 255, 0.25);
+}
+.settings-icon-emoji {
+  font-size: 24px;
+  line-height: 1;
+}
+.settings-icon-label {
+  font-size: 10px;
+  color: rgba(255, 255, 255, 0.6);
+  font-weight: 500;
+}
+.settings-detail { min-height: 60px; }
+.settings-content { animation: settingsFadeIn 0.15s ease; }
+@keyframes settingsFadeIn { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: translateY(0); } }
+.settings-content-header {
+  font-size: 14px;
+  font-weight: 600;
+  color: rgba(255, 255, 255, 0.75);
+  margin-bottom: 12px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+}
+.settings-badges {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+.settings-badge {
   font-size: 12px;
-  padding: 4px 10px;
+  padding: 5px 12px;
   background: rgba(255, 255, 255, 0.06);
   border: 1px solid rgba(255, 255, 255, 0.08);
   border-radius: 6px;
-  color: rgba(255, 255, 255, 0.65);
+  color: rgba(255, 255, 255, 0.7);
 }
-.skills-divider {
-  border: none;
-  border-top: 1px solid rgba(255, 255, 255, 0.06);
-  margin: 4px 0;
-}
-.contact-section { display: flex; flex-direction: column; gap: 6px; }
-.contact-link {
-  font-size: 13px;
-  color: rgba(255, 255, 255, 0.55);
+.settings-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 0;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+  color: rgba(255, 255, 255, 0.6);
   text-decoration: none;
+  font-size: 13px;
   transition: color 0.15s;
 }
-.contact-link:hover { color: rgba(100, 180, 255, 0.9); }
-.resume-btn {
-  display: inline-block;
-  padding: 8px 16px;
-  background: rgba(100, 160, 255, 0.15);
-  border: 1px solid rgba(100, 160, 255, 0.25);
+.settings-row:last-child { border-bottom: none; }
+.settings-row:hover { color: rgba(100, 180, 255, 0.9); }
+.settings-row-chevron {
+  color: rgba(255, 255, 255, 0.25);
+  font-size: 14px;
+}
+.settings-download {
+  display: block;
+  padding: 10px 16px;
+  background: rgba(100, 160, 255, 0.12);
+  border: 1px solid rgba(100, 160, 255, 0.2);
   border-radius: 8px;
   color: rgba(100, 180, 255, 0.9);
   text-decoration: none;
@@ -289,7 +342,7 @@
   text-align: center;
   transition: background 0.15s;
 }
-.resume-btn:hover { background: rgba(100, 160, 255, 0.25); }
+.settings-download:hover { background: rgba(100, 160, 255, 0.22); }
 
 /* ── Notes window ────────────────────────────── */
 .notes-textarea {

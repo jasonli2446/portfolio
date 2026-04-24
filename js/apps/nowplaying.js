@@ -9,7 +9,7 @@ export default {
   wall: 'left',
   openOnStart: true,
   offsetX: 0,
-  offsetY: 80,
+  offsetY: 120,
   content: () =>
     `<div class="np">
        <div class="np-art">🎧</div>

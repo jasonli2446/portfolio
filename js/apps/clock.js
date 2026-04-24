@@ -9,7 +9,7 @@ export default {
   wall: 'left',
   openOnStart: true,
   offsetX: 0,
-  offsetY: -60,
+  offsetY: -120,
   content: () =>
     `<div class="clock-face">
        <div class="clock-time" id="clock-time">--:--</div>

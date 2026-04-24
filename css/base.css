@@ -154,7 +154,7 @@ body {
 #desktop-icons {
   position: absolute;
   top: 52px;
-  right: 24px;
+  left: 24px;
   display: grid;
   grid-template-columns: repeat(2, 80px);
   gap: 8px;

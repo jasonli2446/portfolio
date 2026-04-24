@@ -5,7 +5,7 @@ export default {
   width: 480,
   height: 540,
   wall: 'back',
-  openOnStart: true,
+  openOnStart: false,
   offsetX: -280,
   offsetY: -40,
   content: () =>

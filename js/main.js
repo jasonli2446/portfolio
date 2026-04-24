@@ -3,7 +3,7 @@ import { createWindow, centerWindow, onWindowStateChange } from './windows.js';
 import { apps } from './apps/index.js';
 import { registerApp, setAppWindow, updateIndicators, handleDockClick } from './dock.js';
 import { initDesktop, setDockClickHandler } from './desktop.js';
-import { initMenubar, setTrackingModule, setCameraState } from './menubar.js';
+import { initMenubar, setTrackingModule, setCameraState, onTrackingLoaded } from './menubar.js';
 import { initContextMenu } from './contextmenu.js';
 import { initParticles } from './particles.js';
 import { initBoot } from './boot.js';
@@ -16,9 +16,8 @@ room.style.perspective = BASE_PERSPECTIVE + 'px';
 // Hide room during intro
 room.style.opacity = '0';
 
-// Tracking state
-let detectFace = () => {};
-let updatePerspective = () => {};
+// Shared tracking module reference — used by both boot flow and menu bar toggle
+let trackingMod = null;
 
 // Boot → intro screen → camera choice → reveal desktop
 initBoot(async (enableCamera) => {
@@ -29,12 +28,10 @@ initBoot(async (enableCamera) => {
   // Load tracking if user chose to enable camera
   if (enableCamera) {
     try {
-      const tracking = await import('./tracking.js');
-      await tracking.initTracking();
-      if (tracking.isTracking()) {
-        detectFace = tracking.detectFace;
-        updatePerspective = tracking.updatePerspective;
-        setTrackingModule(tracking);
+      trackingMod = await import('./tracking.js');
+      await trackingMod.initTracking();
+      if (trackingMod.isTracking()) {
+        setTrackingModule(trackingMod);
         setCameraState(true);
       }
     } catch (e) {
@@ -62,13 +59,16 @@ updateIndicators();
 setDockClickHandler(handleDockClick);
 initDesktop();
 initMenubar();
+onTrackingLoaded((mod) => { trackingMod = mod; });
 initContextMenu();
 initParticles();
 
-// Render loop
+// Render loop — calls tracking module directly if loaded
 function animate() {
   requestAnimationFrame(animate);
-  detectFace();
-  updatePerspective();
+  if (trackingMod) {
+    trackingMod.detectFace();
+    trackingMod.updatePerspective();
+  }
 }
 animate();

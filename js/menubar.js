@@ -2,6 +2,9 @@
 
 let trackingModule = null;
 let cameraOn = false;
+let _onTrackingLoaded = null;
+
+export function onTrackingLoaded(fn) { _onTrackingLoaded = fn; }
 
 export function initMenubar() {
   const bar = document.getElementById('menubar');
@@ -25,6 +28,7 @@ export function initMenubar() {
   `;
 
   document.getElementById('menubar-camera').addEventListener('click', toggleCamera);
+  updateCameraIcon(); // Set initial state (OFF by default)
   updateTime();
 }
 
@@ -68,13 +72,17 @@ async function toggleCamera() {
     await trackingModule.initTracking();
     if (trackingModule.isTracking()) {
       cameraOn = true;
+      if (_onTrackingLoaded) _onTrackingLoaded(trackingModule);
     }
   } else if (cameraOn) {
-    trackingModule.setEnabled(false);
+    trackingModule.stopTracking();
     cameraOn = false;
   } else {
-    trackingModule.setEnabled(true);
-    cameraOn = true;
+    // Re-init tracking (need fresh camera stream)
+    await trackingModule.initTracking();
+    if (trackingModule.isTracking()) {
+      cameraOn = true;
+    }
   }
   updateCameraIcon();
 }

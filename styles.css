@@ -28,8 +28,13 @@ body {
 /* ── Walls ───────────────────────────────────────── */
 .wall {
   position: absolute;
+  overflow: visible;
   backface-visibility: hidden;
   -webkit-backface-visibility: hidden;
+}
+
+.window-clone {
+  pointer-events: none !important;
 }
 
 /* Back wall: full viewport size, pushed back */

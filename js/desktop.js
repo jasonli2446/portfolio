@@ -263,7 +263,7 @@ function showSecret() {
   let lastMX = 0, lastMY = 0;
 
   // Hand tracking state
-  let handX = 0, handY = 0; // -1 to 1, controls position offset
+  let handX = 0, handY = 0, handZ = 0; // -1 to 1, controls position/scale
   let handActive = false;
   let handLandmarker = null;
 
@@ -304,12 +304,14 @@ function showSecret() {
       if (results.landmarks && results.landmarks.length > 0) {
         const tip = results.landmarks[0][8]; // index fingertip
         const rawX = (tip.x - 0.5) * -2;
-        const rawY = (tip.y - 0.5) * -2;
+        const rawY = (tip.y - 0.5) * 2; // not inverted — up = negative screen Y
+        const rawZ = tip.z * -10; // z is negative when closer, scale up
         // Heavy smoothing for stable movement
         smoothHandX += (rawX - smoothHandX) * 0.15;
         smoothHandY += (rawY - smoothHandY) * 0.15;
         handX = smoothHandX;
         handY = smoothHandY;
+        handZ = Math.max(-1, Math.min(1, rawZ)); // clamp
         handActive = true;
       } else {
         handActive = false;
@@ -355,8 +357,8 @@ function showSecret() {
     return [x, y, z, w];
   }
 
-  // Position offset from hand tracking
-  let offsetX = 0, offsetY = 0;
+  // Position offset + scale from hand tracking
+  let offsetX = 0, offsetY = 0, handScale = 1;
 
   function project(v4) {
     const w4 = 1 / (3 - v4[3]);
@@ -364,7 +366,7 @@ function showSecret() {
     const y3 = v4[1] * w4;
     const z3 = v4[2] * w4;
     const w3 = 1 / (3 - z3);
-    const scale = 280;
+    const scale = 280 * handScale;
     return {
       x: cx + x3 * w3 * scale + offsetX,
       y: cy + y3 * w3 * scale + offsetY,
@@ -382,17 +384,21 @@ function showSecret() {
     // Hand tracking
     detectHand();
     if (handActive) {
-      // Hand controls position + adds to rotation
-      const targetX = handX * canvas.width * 0.3;
-      const targetY = handY * canvas.height * 0.3;
-      offsetX += (targetX - offsetX) * 0.1; // smooth lerp
-      offsetY += (targetY - offsetY) * 0.1;
-      dragX += handX * 0.01; // gentle rotation from hand movement
-      dragY += handY * 0.01;
-    } else {
-      offsetX += (0 - offsetX) * 0.05; // drift back to center
-      offsetY += (0 - offsetY) * 0.05;
+      // Hand controls position (clamped to boundaries)
+      const targetX = handX * canvas.width * 0.35;
+      const targetY = handY * canvas.height * 0.35;
+      const maxX = canvas.width * 0.4;
+      const maxY = canvas.height * 0.4;
+      offsetX += (Math.max(-maxX, Math.min(maxX, targetX)) - offsetX) * 0.08;
+      offsetY += (Math.max(-maxY, Math.min(maxY, targetY)) - offsetY) * 0.08;
+      // Z controls scale (hand closer = bigger)
+      const targetScale = 1 + handZ * 0.5; // 0.5 to 1.5
+      handScale += (Math.max(0.4, Math.min(2, targetScale)) - handScale) * 0.08;
+      // Gentle rotation from hand movement
+      dragX += handX * 0.008;
+      dragY += handY * 0.008;
     }
+    // Don't snap back to center — keep last position
 
     // Auto-rotate + drag offset
     angleXW = t * 0.3 + dragX;

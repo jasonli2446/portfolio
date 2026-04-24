@@ -10,6 +10,7 @@ import { initBoot } from './boot.js';
 import { initCursor } from './cursor.js';
 import { initTicker } from './ticker.js';
 import { initSpotlight } from './spotlight.js';
+import { initNotifications } from './notifications.js';
 
 // Set CSS custom property for wall depth
 const room = document.getElementById('room');
@@ -76,6 +77,7 @@ initParticles();
 initCursor();
 initTicker();
 initSpotlight(handleDockClick);
+initNotifications();
 
 // Render loop — calls tracking module directly if loaded
 function animate() {

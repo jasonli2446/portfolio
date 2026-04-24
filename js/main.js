@@ -7,6 +7,7 @@ import { initMenubar, setTrackingModule, setCameraState, onTrackingLoaded, setMe
 import { initContextMenu } from './contextmenu.js';
 import { initParticles } from './particles.js';
 import { initBoot } from './boot.js';
+import { initCursor } from './cursor.js';
 
 // Set CSS custom property for wall depth
 const room = document.getElementById('room');
@@ -70,6 +71,7 @@ setMenuActions({
 });
 initContextMenu();
 initParticles();
+initCursor();
 
 // Render loop — calls tracking module directly if loaded
 function animate() {

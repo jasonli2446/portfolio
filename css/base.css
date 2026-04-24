@@ -4,7 +4,7 @@ body {
   background: #050010;
   font-family: system-ui, -apple-system, sans-serif;
   color: #e0e0e0;
-  cursor: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24'%3E%3Ccircle cx='12' cy='12' r='3' fill='none' stroke='rgba(180,160,255,0.6)' stroke-width='1.5'/%3E%3Cline x1='12' y1='4' x2='12' y2='8' stroke='rgba(180,160,255,0.4)' stroke-width='1'/%3E%3Cline x1='12' y1='16' x2='12' y2='20' stroke='rgba(180,160,255,0.4)' stroke-width='1'/%3E%3Cline x1='4' y1='12' x2='8' y2='12' stroke='rgba(180,160,255,0.4)' stroke-width='1'/%3E%3Cline x1='16' y1='12' x2='20' y2='12' stroke='rgba(180,160,255,0.4)' stroke-width='1'/%3E%3C/svg%3E") 12 12, default;
+  cursor: default;
 }
 
 /* ── Room container = viewport = front face of box ── */
@@ -510,6 +510,19 @@ body {
   inset: 0;
   z-index: 0;
   pointer-events: none;
+}
+
+/* ── Cursor dot indicator ────────────────────────── */
+.cursor-dot {
+  position: fixed;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  pointer-events: none;
+  z-index: 9999;
+  transform: translate(-50%, -50%);
+  opacity: 0;
+  transition: opacity 0.2s, background 0.2s;
 }
 
 /* ── Overlay UI (hidden by default) ──────────────── */

@@ -24,6 +24,8 @@ export default {
   height: 400,
   wall: 'back',
   openOnStart: true,
+  offsetX: 200,
+  offsetY: -20,
   content: () =>
     `<div class="projects-grid">${projectData.map(renderCard).join('')}</div>`,
 };

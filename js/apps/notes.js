@@ -6,6 +6,8 @@ export default {
   height: 300,
   wall: 'back',
   openOnStart: true,
+  offsetX: -300,
+  offsetY: 220,
   content: () =>
     `<textarea class="notes-textarea" placeholder="Type anything here..."
        style="width:100%; height:100%;"

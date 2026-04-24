@@ -8,6 +8,8 @@ export default {
   height: 200,
   wall: 'left',
   openOnStart: true,
+  offsetX: 0,
+  offsetY: 200,
   content: () =>
     `<div class="clock-face">
        <div class="clock-time" id="clock-time">--:--</div>

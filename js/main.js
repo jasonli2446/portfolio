@@ -14,7 +14,7 @@ for (const app of apps) {
 
   if (app.openOnStart) {
     const win = createWindow(app);
-    centerWindow(win);
+    centerWindow(win, app.offsetX || 0, app.offsetY || 0);
     setAppWindow(app.id, win);
   }
 }

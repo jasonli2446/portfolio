@@ -21,10 +21,12 @@ export default {
   id: 'experience',
   title: 'Experience',
   icon: '💼',
-  width: 460,
+  width: 500,
   height: 400,
   wall: 'left',
   openOnStart: true,
+  offsetX: 0,
+  offsetY: -50,
   content: () =>
     `<div class="exp-timeline">${jobs.map(renderJob).join('')}</div>`,
 };

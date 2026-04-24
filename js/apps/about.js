@@ -6,6 +6,8 @@ export default {
   height: 340,
   wall: 'back',
   openOnStart: true,
+  offsetX: -280,
+  offsetY: -40,
   content: () =>
     `<div class="about">
        <div class="about-header">

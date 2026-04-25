@@ -385,6 +385,51 @@ function rectsOverlap(a, b) {
   return !(a.x + a.w < b.x || b.x + b.w < a.x || a.y + a.h < b.y || b.y + b.h < a.y);
 }
 
+// Create a new desktop icon dynamically (e.g. when dragged out of Trash)
+export function createDesktopIcon(iconDef, wall, x, y) {
+  const el = document.createElement('div');
+  el.className = 'desktop-icon';
+  el.style.left = x + 'px';
+  el.style.top = y + 'px';
+  el.innerHTML = `
+    <div class="desktop-icon-img">${iconDef.svg || ''}</div>
+    <div class="desktop-icon-label">${iconDef.label}</div>
+  `;
+
+  el.addEventListener('dblclick', (e) => {
+    e.stopPropagation();
+    if (iconDef.type === 'special-action' && iconDef.action) {
+      iconDef.action();
+    } else if (iconDef.type === 'app' && dockClickHandler) {
+      dockClickHandler(iconDef.id);
+    } else if (iconDef.type === 'link' && iconDef.href) {
+      window.open(iconDef.href, '_blank');
+    }
+  });
+
+  el.addEventListener('pointerdown', (e) => {
+    e.stopPropagation();
+    if (!e.shiftKey && !selectedIcons.has(el)) clearSelection();
+    selectIcon(el);
+    draggingIcons = true;
+    dragPrimaryEl = el;
+    lastDragScreenX = e.clientX;
+    lastDragScreenY = e.clientY;
+    invalidateCache();
+    const fwd = getFwd(wall);
+    const local = screenToLocal(fwd, e.clientX, e.clientY);
+    if (local) {
+      iconGrabOffsets.set(el, { grabX: local.x - x, grabY: local.y - y });
+    } else {
+      iconGrabOffsets.set(el, { grabX: 40, grabY: 38 });
+    }
+  });
+
+  wall.appendChild(el);
+  iconElements.push({ el, icon: iconDef, _clones: new Map() });
+  return el;
+}
+
 function handleIconClick(icon) {
   if (icon.type === 'app' && dockClickHandler) {
     dockClickHandler(icon.id);

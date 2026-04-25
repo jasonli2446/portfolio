@@ -359,8 +359,6 @@ function handleIconClick(icon) {
     dockClickHandler(icon.id);
   } else if (icon.type === 'link' && icon.href) {
     window.open(icon.href, '_blank');
-  } else if (icon.type === 'readme') {
-    showReadme();
   } else if (icon.type === 'secret') {
     showTesseract();
   } else if (icon.type === 'snake') {
@@ -368,33 +366,6 @@ function handleIconClick(icon) {
   }
 }
 
-function showReadme() {
-  if (dockClickHandler) {
-    dockClickHandler('notes');
-    setTimeout(() => {
-      const textarea = document.querySelector('.notes-textarea');
-      if (textarea) {
-        textarea.value =
-`# README.md
-
-Welcome to Jason Li's 3D Portfolio OS!
-
-## Controls
-- Drag windows by their title bar
-- Double-click title bar to fullscreen
-- Resize from the bottom-right corner
-- Move your head for parallax (needs webcam)
-
-## Built With
-- Pure CSS 3D (perspective + perspective-origin)
-- MediaPipe Face Tracking
-- Vanilla JS, no frameworks
-
-## Source
-github.com/jasonli2446/3d-os`;
-      }
-    }, 100);
-  }
-}
+// showReadme removed — README icon is now type:'app' which opens Notes directly
 
 // showSecret is now showTesseract from tesseract.js

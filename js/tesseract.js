@@ -15,7 +15,7 @@ export function showTesseract() {
   const msgPos = IS_MOBILE ? 'top:20px' : 'bottom:40px';
   msg.style.cssText = `position:fixed; ${msgPos}; left:50%; transform:translateX(-50%); text-align:center; z-index:16; pointer-events:none;`;
   msg.innerHTML = `
-    <div style="font-size:13px; color:rgba(255,255,255,0.3); font-family:monospace; margin-bottom:4px;">4D Hypercube · drag to rotate · move hand to control · click to dismiss</div>
+    <div style="font-size:13px; color:rgba(255,255,255,0.3); font-family:monospace; margin-bottom:4px;">4D Hypercube · click to dismiss</div>
   `;
   document.body.appendChild(msg);
 
@@ -78,7 +78,7 @@ export function showTesseract() {
   // Update hint based on camera availability
   if (!hasCamera) {
     msg.innerHTML = `
-      <div style="font-size:13px; color:rgba(255,255,255,0.3); font-family:monospace; margin-bottom:4px;">4D Hypercube · drag to rotate · click to dismiss</div>
+      <div style="font-size:13px; color:rgba(255,255,255,0.3); font-family:monospace; margin-bottom:4px;">4D Hypercube · click to dismiss</div>
       <div style="font-size:11px; color:rgba(255,180,80,0.5); margin-top:4px;">Enable camera from the menu bar to control with your hand</div>
     `;
   }

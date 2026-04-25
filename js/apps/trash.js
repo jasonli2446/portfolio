@@ -1,4 +1,4 @@
-import { windows, showWindow } from '../windows.js';
+import { windows, showWindow, screenToLocal, getFwd, invalidateCache } from '../windows.js';
 import { showTesseract } from '../tesseract.js';
 
 const trashedItems = [
@@ -123,7 +123,7 @@ export default {
     container.addEventListener('pointerdown', (e) => {
       const item = e.target.closest('.trash-icon-item');
       if (!item) return;
-      if (item.dataset.type !== 'desktop' && item.dataset.type !== 'window') return;
+      // All item types are draggable out
 
       dragItem = item;
       // Create ghost element that follows cursor
@@ -147,15 +147,44 @@ export default {
 
       // Check if dropped outside the trash window
       const winRect = win.element.getBoundingClientRect();
-      if (e.clientX < winRect.left || e.clientX > winRect.right ||
-          e.clientY < winRect.top || e.clientY > winRect.bottom) {
+      const droppedOutside = e.clientX < winRect.left || e.clientX > winRect.right ||
+                             e.clientY < winRect.top || e.clientY > winRect.bottom;
+
+      if (droppedOutside) {
         const type = dragItem.dataset.type;
+
         if (type === 'desktop') {
-          removeFromTrash(dragItem.dataset.label);
+          const label = dragItem.dataset.label;
+          const trashed = trashedDesktopIcons.find(i => i.label === label);
+          if (trashed && trashed.el) {
+            // Place the icon where it was dropped
+            removeFromTrash(label);
+            // Find which wall is under the drop point
+            const hits = document.elementsFromPoint(e.clientX, e.clientY);
+            let targetWall = null;
+            for (const h of hits) {
+              if (h.classList.contains('wall')) { targetWall = h; break; }
+            }
+            if (targetWall && trashed.el) {
+              targetWall.appendChild(trashed.el);
+              invalidateCache();
+              const fwd = getFwd(targetWall);
+              const local = screenToLocal(fwd, e.clientX, e.clientY);
+              if (local) {
+                trashed.el.style.left = (local.x - 40) + 'px';
+                trashed.el.style.top = (local.y - 38) + 'px';
+              }
+            }
+          }
         } else if (type === 'window') {
           const hidden = getHiddenWindows();
           const idx = parseInt(dragItem.dataset.idx);
           if (hidden[idx]) showWindow(hidden[idx]);
+        } else if (type === 'special') {
+          // Open the special item (e.g. tesseract)
+          const id = dragItem.dataset.id;
+          const special = trashedItems.find(s => s.id === id);
+          if (special && special.action) special.action();
         }
         refresh();
       }

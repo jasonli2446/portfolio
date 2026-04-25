@@ -183,6 +183,12 @@ body {
   pointer-events: none !important;
 }
 
+.desktop-icon-trash-hover {
+  background: rgba(255, 80, 80, 0.2) !important;
+  border: 1px solid rgba(255, 80, 80, 0.4);
+  margin: -1px;
+}
+
 .desktop-icon-selected {
   background: rgba(100, 160, 255, 0.15) !important;
   border: 1px solid rgba(100, 160, 255, 0.3);

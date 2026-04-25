@@ -271,6 +271,16 @@ export function initDesktop() {
         const curWall = el.parentElement.closest('.wall') || el.parentElement;
         updateElementClones(el, curWall, entry._clones);
       }
+
+      // Highlight trash icon when dragging over it
+      const trashEntry = iconElements.find(en => en.icon.id === 'trash');
+      if (trashEntry) {
+        const tr = trashEntry.el.getBoundingClientRect();
+        const over = e.clientX >= tr.left && e.clientX <= tr.right &&
+                     e.clientY >= tr.top && e.clientY <= tr.bottom;
+        trashEntry.el.classList.toggle('desktop-icon-trash-hover', over);
+      }
+
       return;
     }
 
@@ -339,6 +349,9 @@ export function initDesktop() {
     }
     draggingIcons = false;
     dragPrimaryEl = null;
+    // Remove trash hover highlight
+    const trashEntry = iconElements.find(en => en.icon.id === 'trash');
+    if (trashEntry) trashEntry.el.classList.remove('desktop-icon-trash-hover');
     if (selectionBox) {
       selectionBox.remove();
       selectionBox = null;

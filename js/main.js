@@ -61,6 +61,10 @@ for (const app of apps) {
 }
 updateIndicators();
 
+// Wire trash dock click handler
+import { setTrashDockClick } from './apps/trash.js';
+setTrashDockClick(handleDockClick);
+
 // Desktop icons + menu bar + context menu + particles
 setDockClickHandler(handleDockClick);
 initDesktop();

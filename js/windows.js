@@ -410,9 +410,6 @@ export function hideWindow(win) {
   if (win.state === 'fullscreen') _exitFullscreen(win);
   clearClones(win);
 
-  // Call app destroy callback (stops timers, audio, etc.)
-  if (win._destroy) win._destroy(win);
-
   // Close animation
   const el = win.element;
   el.classList.add('window-closing');

@@ -199,8 +199,14 @@ export default {
       updateDisplay();
       if (isPlaying) { stopPlayback(); startPlayback(); }
     });
-  },
-  destroy: () => {
-    stopPlayback();
+
+    // Stop music when window is hidden (closed)
+    const observer = new MutationObserver(() => {
+      if (win.element.style.display === 'none' && isPlaying) {
+        stopPlayback();
+        playBtn.textContent = '▶';
+      }
+    });
+    observer.observe(win.element, { attributes: true, attributeFilter: ['style'] });
   },
 };

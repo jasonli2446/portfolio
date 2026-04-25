@@ -1,6 +1,7 @@
 import { screenToLocal, getFwd, invalidateCache, wallName, findEdgeToWall } from './windows.js';
 import { updateElementClones, clearElementClones } from './clones.js';
 import { IS_MOBILE } from './config.js';
+import { addToTrash } from './apps/trash.js';
 
 // Desktop icons on the back wall — draggable, selectable
 
@@ -304,17 +305,36 @@ export function initDesktop() {
     }
 
     if (draggingIcons) {
-      // On drop: clamp icons to wall bounds and clear clones
+      // Check if dropped on the Trash desktop icon
+      const trashEl = iconElements.find(en => en.icon.id === 'trash');
+      let droppedOnTrash = false;
+      if (trashEl) {
+        const trashRect = trashEl.el.getBoundingClientRect();
+        if (e.clientX >= trashRect.left && e.clientX <= trashRect.right &&
+            e.clientY >= trashRect.top && e.clientY <= trashRect.bottom) {
+          droppedOnTrash = true;
+        }
+      }
+
       for (const entry of iconElements) {
         if (!selectedIcons.has(entry.el)) continue;
+        clearElementClones(entry.el, entry._clones);
+        entry.el.style.clipPath = '';
+
+        // Don't trash the Trash icon itself
+        if (droppedOnTrash && entry.icon.id !== 'trash') {
+          const svg = entry.el.querySelector('.desktop-icon-img')?.innerHTML || '';
+          addToTrash({ label: entry.icon.label, svg, el: entry.el, iconEntry: entry });
+          continue;
+        }
+
+        // Clamp to wall bounds
         const wall = entry.el.parentElement.closest('.wall') || entry.el.parentElement;
         const pw = wall.offsetWidth, ph = wall.offsetHeight;
         const left = parseFloat(entry.el.style.left) || 0;
         const top = parseFloat(entry.el.style.top) || 0;
         entry.el.style.left = Math.max(4, Math.min(pw - 84, left)) + 'px';
         entry.el.style.top  = Math.max(4, Math.min(ph - 80, top)) + 'px';
-        clearElementClones(entry.el, entry._clones);
-        entry.el.style.clipPath = '';
       }
     }
     draggingIcons = false;

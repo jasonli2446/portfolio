@@ -730,19 +730,6 @@ body {
 .notif-desc { font-size: 11px; color: rgba(255, 255, 255, 0.35); margin-top: 2px; }
 .notif-time { font-size: 10px; color: rgba(255, 255, 255, 0.2); flex-shrink: 0; white-space: nowrap; }
 
-/* ── Cursor dot indicator ────────────────────────── */
-.cursor-dot {
-  position: fixed;
-  width: 6px;
-  height: 6px;
-  border-radius: 50%;
-  pointer-events: none;
-  z-index: 9999;
-  transform: translate(-50%, -50%);
-  opacity: 0;
-  transition: opacity 0.2s, background 0.2s;
-}
-
 /* ── Overlay UI (hidden by default) ──────────────── */
 #webcam-container { display: none; }
 #webcam { display: none; }

@@ -7,7 +7,6 @@ import { initMenubar, setTrackingModule, setCameraState, onTrackingLoaded, setMe
 import { initContextMenu } from './contextmenu.js';
 import { initParticles } from './particles.js';
 import { initBoot } from './boot.js';
-import { initCursor } from './cursor.js';
 // ticker removed
 import { initSpotlight } from './spotlight.js';
 import { initNotifications } from './notifications.js';
@@ -77,7 +76,6 @@ setMenuActions({
 });
 initContextMenu();
 initParticles();
-initCursor();
 initSpotlight(handleDockClick);
 initNotifications();
 

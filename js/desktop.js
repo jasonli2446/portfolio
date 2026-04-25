@@ -30,6 +30,9 @@ const icons = [
 
   { svg: '<svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12h4l2-4 4 8 2-4h4"></path><circle cx="20" cy="12" r="2"></circle></svg>', label: 'Snake', type: 'snake' },
 
+  // Source code (desktop only)
+  ...(!IS_MOBILE ? [{ svg: '<svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="16 18 22 12 16 6"></polyline><polyline points="8 6 2 12 8 18"></polyline></svg>', label: 'Source', type: 'link', href: 'https://github.com/jasonli2446/3d-os' }] : []),
+
   // Fun
   { svg: '<svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"></path><line x1="12" y1="17" x2="12.01" y2="17"></line></svg>', label: '???', type: 'secret' },
 ];

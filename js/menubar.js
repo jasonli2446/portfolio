@@ -1,9 +1,12 @@
 // macOS-style menu bar on the back wall with functional dropdowns
 
+import { IS_MOBILE } from './config.js';
+
 let trackingModule = null;
 let cameraOn = false;
 let _onTrackingLoaded = null;
 let activeDropdown = null;
+let mobileCameraBtn = null;
 
 export function onTrackingLoaded(fn) { _onTrackingLoaded = fn; }
 
@@ -140,6 +143,15 @@ export function initMenubar() {
   document.getElementById('menubar-camera').addEventListener('click', toggleCamera);
   updateCameraIcon();
   updateTime();
+
+  // Mobile: floating camera toggle button
+  if (IS_MOBILE) {
+    mobileCameraBtn = document.createElement('button');
+    mobileCameraBtn.className = 'mobile-camera-toggle mobile-camera-off';
+    mobileCameraBtn.addEventListener('click', toggleCamera);
+    document.body.appendChild(mobileCameraBtn);
+    updateMobileCameraIcon();
+  }
 }
 
 function showDropdown(anchor, menuName) {
@@ -208,6 +220,14 @@ function updateCameraIcon() {
   if (!icon || !btn) return;
   icon.innerHTML = cameraOn ? '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"></path><circle cx="12" cy="13" r="4"></circle></svg> ' + (cameraOn ? 'ON' : 'OFF') : '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="1" y1="1" x2="23" y2="23"></line><path d="M21 21H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h3m3-3h6l2 3h4a2 2 0 0 1 2 2v9.34m-7.72-2.06a4 4 0 1 1-5.56-5.56"></path></svg> OFF';
   btn.classList.toggle('menubar-toggle-off', !cameraOn);
+  updateMobileCameraIcon();
+}
+
+function updateMobileCameraIcon() {
+  if (!mobileCameraBtn) return;
+  const camSvg = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"></path><circle cx="12" cy="13" r="4"></circle></svg>';
+  mobileCameraBtn.innerHTML = camSvg + ' ' + (cameraOn ? 'ON' : 'OFF');
+  mobileCameraBtn.className = 'mobile-camera-toggle ' + (cameraOn ? 'mobile-camera-on' : 'mobile-camera-off');
 }
 
 async function toggleCamera() {

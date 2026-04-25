@@ -1,5 +1,9 @@
+// Mobile detection (static — evaluated once at load)
+export const IS_MOBILE = window.matchMedia('(max-width: 768px)').matches;
+
 // Room depth in CSS pixels
 export const DEPTH = 300;
+export const MOBILE_DEPTH = 400;
 
 // Face tracking
 export const EYE_DIST    = 5;

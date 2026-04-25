@@ -1,3 +1,5 @@
+import { IS_MOBILE } from '../config.js';
+
 const projectData = [
   {
     title: 'FireCommand',
@@ -145,7 +147,7 @@ export default {
     function showGrid() {
       container.innerHTML = renderGrid();
       container.querySelectorAll('.fm-folder').forEach(folder => {
-        folder.addEventListener('dblclick', (e) => {
+        folder.addEventListener(IS_MOBILE ? 'click' : 'dblclick', (e) => {
           e.stopPropagation();
           const idx = parseInt(folder.dataset.index);
           showDetail(projectData[idx]);
@@ -218,7 +220,7 @@ export default {
 
     // Wire initial grid
     container.querySelectorAll('.fm-folder').forEach(folder => {
-      folder.addEventListener('dblclick', (e) => {
+      folder.addEventListener(IS_MOBILE ? 'click' : 'dblclick', (e) => {
         e.stopPropagation();
         const idx = parseInt(folder.dataset.index);
         showDetail(projectData[idx]);

@@ -860,3 +860,32 @@
   color: rgba(100, 160, 255, 0.6);
   margin-top: 4px;
 }
+
+/* ── Mobile ─────────────────────────────────── */
+@media (max-width: 768px) {
+  /* Projects: 2-column grid */
+  .fm-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 8px;
+    padding: 0 10px;
+  }
+
+  /* Settings: 2-column grid */
+  .settings-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 6px;
+  }
+  .settings-icon {
+    padding: 12px 6px;
+  }
+
+  /* Terminal text sizing */
+  .term-output {
+    font-size: 12px;
+  }
+
+  /* Clock sizing */
+  .clock-time {
+    font-size: 36px;
+  }
+}

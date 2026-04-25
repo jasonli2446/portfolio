@@ -748,3 +748,71 @@ body {
 #webcam { display: none; }
 #status { display: none; }
 #debug { display: none; }
+
+/* ── Mobile ─────────────────────────────────────── */
+@media (max-width: 768px) {
+  body {
+    touch-action: manipulation;
+  }
+
+  /* Hide menubar entirely on mobile */
+  #menubar {
+    display: none !important;
+  }
+
+  /* Floating camera toggle for mobile */
+  .mobile-camera-toggle {
+    position: fixed;
+    top: 12px;
+    right: 12px;
+    z-index: 50;
+    background: rgba(10, 10, 30, 0.7);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 20px;
+    padding: 6px 12px;
+    cursor: pointer;
+    font-size: 11px;
+    font-family: system-ui, -apple-system, sans-serif;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    transition: background 0.2s;
+  }
+  .mobile-camera-toggle svg {
+    stroke: currentColor;
+  }
+  .mobile-camera-on {
+    color: rgba(60, 200, 100, 0.9);
+    border-color: rgba(60, 180, 100, 0.3);
+  }
+  .mobile-camera-off {
+    color: rgba(255, 255, 255, 0.4);
+  }
+
+  /* Desktop icons on mobile floor */
+  .desktop-icon {
+    width: 72px;
+    padding: 8px 4px 4px;
+  }
+  .desktop-icon-img svg {
+    width: 32px;
+    height: 32px;
+  }
+  .desktop-icon-label {
+    font-size: 10px;
+    max-width: 64px;
+  }
+
+  /* Hide window resize handle — too small for touch */
+  .window-resize-handle {
+    display: none;
+  }
+
+  /* Spotlight box fits mobile */
+  .spotlight-box {
+    width: calc(100vw - 32px);
+    max-width: 520px;
+  }
+}

@@ -1,4 +1,4 @@
-import { DEPTH, BASE_PERSPECTIVE } from './config.js';
+import { DEPTH, MOBILE_DEPTH, BASE_PERSPECTIVE, IS_MOBILE } from './config.js';
 import { createWindow, centerWindow, onWindowStateChange, windows as winList, getFocusedWindow, hideWindow, fullscreenWindow, showWindow } from './windows.js';
 import { apps } from './apps/index.js';
 import { registerApp, setAppWindow, updateIndicators, handleDockClick } from './dock.js';
@@ -14,8 +14,11 @@ import { initNotifications } from './notifications.js';
 
 // Set CSS custom property for wall depth
 const room = document.getElementById('room');
-room.style.setProperty('--depth', DEPTH + 'px');
+const activeDepth = IS_MOBILE ? MOBILE_DEPTH : DEPTH;
+room.style.setProperty('--depth', activeDepth + 'px');
 room.style.perspective = BASE_PERSPECTIVE + 'px';
+// On mobile, shift view down so the floor (icons) is more visible
+if (IS_MOBILE) room.style.perspectiveOrigin = '50% 35%';
 
 // Hide room during intro
 room.style.opacity = '0';

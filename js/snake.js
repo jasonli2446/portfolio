@@ -1,6 +1,8 @@
 // 3D Snake — takes over the entire room
 // Dark backdrop covers all walls, clean grid, snake with head/eyes
 
+import { IS_MOBILE } from './config.js';
+
 const GRID = 16;
 const TICK_MS = 130;
 const WALLS = ['back', 'left', 'right', 'floor', 'ceiling'];
@@ -222,7 +224,7 @@ function render() {
     go.innerHTML = `
       <div style="font-size:36px; font-weight:800; color:rgba(255,80,80,0.9);">Game Over</div>
       <div style="font-size:20px; color:rgba(100,220,150,0.9); margin:8px 0;">Score: ${state.score}</div>
-      <div style="font-size:13px; color:rgba(255,255,255,0.4);">Enter to restart · Escape to exit</div>
+      <div style="font-size:13px; color:rgba(255,255,255,0.4);">${IS_MOBILE ? 'Tap to restart' : 'Enter to restart · Escape to exit'}</div>
     `;
     document.body.appendChild(go);
   }
@@ -269,7 +271,7 @@ export function startSnake(onExit) {
   overlay.className = 'snake-hud';
   overlay.innerHTML = `
     <div class="snake-hud-score">Score: 0</div>
-    <div class="snake-hud-hint">WASD / Arrows to move · Escape to exit</div>
+    <div class="snake-hud-hint">${IS_MOBILE ? 'Swipe to move' : 'WASD / Arrows to move · Escape to exit'}</div>
   `;
   document.body.appendChild(overlay);
 
@@ -277,6 +279,12 @@ export function startSnake(onExit) {
   render();
   tickId = setInterval(tick, TICK_MS);
   document.addEventListener('keydown', onKey);
+
+  // Mobile: swipe controls + tap to restart
+  if (IS_MOBILE) {
+    document.addEventListener('touchstart', onTouchStart, { passive: true });
+    document.addEventListener('touchend', onTouchEnd, { passive: true });
+  }
 }
 
 function onKey(e) {
@@ -305,11 +313,64 @@ function onKey(e) {
   }
 }
 
+// ── Swipe controls for mobile ────────────────────
+
+let touchStartX = 0, touchStartY = 0;
+
+function onTouchStart(e) {
+  if (!active) return;
+  const t = e.touches[0];
+  touchStartX = t.clientX;
+  touchStartY = t.clientY;
+}
+
+function onTouchEnd(e) {
+  if (!active || !state) return;
+  const t = e.changedTouches[0];
+  const dx = t.clientX - touchStartX;
+  const dy = t.clientY - touchStartY;
+  const absDx = Math.abs(dx);
+  const absDy = Math.abs(dy);
+
+  // Require minimum swipe distance
+  if (absDx < 20 && absDy < 20) {
+    // Tap — restart if dead, exit button area ignored
+    if (!state.alive) {
+      const go = document.querySelector('.snake-gameover');
+      if (go) go.remove();
+      state = newGame();
+      render();
+    }
+    return;
+  }
+
+  const q = state.inputQueue;
+  const d = q.length > 0 ? q[q.length - 1] : state.dir;
+  let newDir = null;
+
+  if (absDx > absDy) {
+    // Horizontal swipe
+    if (dx > 0 && d.dc !== -1) newDir = { dr: 0, dc: 1 };   // right
+    if (dx < 0 && d.dc !== 1)  newDir = { dr: 0, dc: -1 };  // left
+  } else {
+    // Vertical swipe
+    if (dy > 0 && d.dr !== -1) newDir = { dr: 1, dc: 0 };   // down
+    if (dy < 0 && d.dr !== 1)  newDir = { dr: -1, dc: 0 };  // up
+  }
+
+  if (newDir) {
+    q.push(newDir);
+    if (q.length > 3) q.shift();
+  }
+}
+
 export function stopSnake() {
   if (!active) return;
   active = false;
   if (tickId) { clearInterval(tickId); tickId = null; }
   document.removeEventListener('keydown', onKey);
+  document.removeEventListener('touchstart', onTouchStart);
+  document.removeEventListener('touchend', onTouchEnd);
 
   // Remove canvases and backdrops
   for (const wn of WALLS) {

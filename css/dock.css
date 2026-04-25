@@ -96,3 +96,10 @@
 .dock-item:hover .dock-tooltip {
   opacity: 1;
 }
+
+/* ── Mobile ─────────────────────────────────── */
+@media (max-width: 768px) {
+  #dock {
+    display: none;
+  }
+}

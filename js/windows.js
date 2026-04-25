@@ -12,6 +12,8 @@
 // win = { id, element, titlebar, content, parentWall, state, ... }
 // state: 'normal' | 'minimized' | 'fullscreen' | 'hidden'
 
+import { IS_MOBILE } from './config.js';
+
 export const windows = [];
 
 // Callback fired whenever a window's state changes (for dock sync)
@@ -465,6 +467,12 @@ export function createWindow(descriptor) {
     parentWall = arguments[4];
   }
 
+  // On mobile, clamp window size to fit within wall bounds
+  if (IS_MOBILE && parentWall) {
+    widthPx = Math.min(widthPx, parentWall.offsetWidth - 20);
+    heightPx = Math.min(heightPx, parentWall.offsetHeight - 120);
+  }
+
   const el = document.createElement('div');
   el.className = 'window';
   el.style.width  = widthPx + 'px';
@@ -548,6 +556,7 @@ export function createWindow(descriptor) {
   });
 
   // ── Drag ──
+  if (IS_MOBILE) titlebar.style.touchAction = 'none';
   titlebar.addEventListener('pointerdown', (e) => {
     if (win.state === 'minimized' || win.state === 'hidden') return;
     if (e.target.closest('.window-btn')) return;
@@ -581,13 +590,15 @@ export function createWindow(descriptor) {
     lastScreenY = e.clientY;
 
     content.style.pointerEvents = 'none';
-    titlebar.setPointerCapture(e.pointerId);
+    // Skip pointer capture on mobile — causes stuck drags inside 3D transforms
+    if (!IS_MOBILE) titlebar.setPointerCapture(e.pointerId);
 
     focusWindow(win);
   });
 
-  // ── Resize ──
+  // ── Resize (disabled on mobile) ──
   resizeHandle.addEventListener('pointerdown', (e) => {
+    if (IS_MOBILE) return;
     if (win.state !== 'normal') return;
     e.stopPropagation();
     e.preventDefault();

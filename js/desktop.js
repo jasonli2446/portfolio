@@ -1,11 +1,13 @@
 import { showTesseract } from './tesseract.js';
 import { screenToLocal, getFwd, invalidateCache, wallName, findEdgeToWall } from './windows.js';
 import { updateElementClones, clearElementClones } from './clones.js';
+import { IS_MOBILE } from './config.js';
 
 // Desktop icons on the back wall — draggable, selectable
 
 const icons = [
-  // Trash first (top-left)
+  // README first (top-left)
+  { id: 'notes',       svg: '<svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line></svg>', label: 'README', type: 'app' },
   { id: 'trash', svg: '<svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path><line x1="10" y1="11" x2="10" y2="17"></line><line x1="14" y1="11" x2="14" y2="17"></line></svg>', label: 'Trash', type: 'app' },
 
   { id: 'about',      svg: '<svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>', label: 'About Me',    type: 'app' },
@@ -20,7 +22,6 @@ const icons = [
   { svg: '<svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="12" y1="18" x2="12" y2="12"></line><line x1="9" y1="15" x2="15" y2="15"></line></svg>', label: 'Resume', type: 'link', href: 'public/resume.pdf' },
 
   // Utility apps
-  { id: 'notes',       svg: '<svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line></svg>', label: 'README', type: 'app' },
   { id: 'clock',       svg: '<svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>', label: 'Clock', type: 'app' },
   { id: 'nowplaying',  svg: '<svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18V5l12-2v13"></path><circle cx="6" cy="18" r="3"></circle><circle cx="18" cy="16" r="3"></circle></svg>', label: 'Music', type: 'app' },
   { id: 'calculator',  svg: '<svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="2" width="16" height="20" rx="2"></rect><line x1="8" y1="6" x2="16" y2="6"></line></svg>', label: 'Calculator', type: 'app' },
@@ -49,21 +50,50 @@ let lastDragScreenX = 0, lastDragScreenY = 0;
 let iconGrabOffsets = new Map(); // el → { grabX, grabY }
 let selectionBox = null;
 let selStartX = 0, selStartY = 0;
+// Mobile tap detection
+let tapStartX = 0, tapStartY = 0;
+let tapIcon = null;
 
 export function setDockClickHandler(fn) {
   dockClickHandler = fn;
 }
 
+// Icons to hide on mobile (already open on side walls or not useful)
+const MOBILE_HIDDEN = new Set(['trash', 'clock', 'nowplaying', 'calculator', 'sysmonitor', 'stickies']);
+
 export function initDesktop() {
   const container = document.getElementById('desktop-icons');
   if (!container) return;
 
+  // On mobile, move icons to the floor wall
+  if (IS_MOBILE) {
+    const floor = document.querySelector('.wall-floor');
+    if (floor) floor.appendChild(container);
+  }
+
+  // Filter icons on mobile — 12 essentials for a 4×3 grid
+  const visibleIcons = IS_MOBILE ? icons.filter(ic => !MOBILE_HIDDEN.has(ic.id)) : icons;
+
+  // Grid layout — 3 cols on mobile floor (4 rows × 3 cols), 3 cols on desktop
+  const cols = IS_MOBILE ? 3 : COLS;
+  const iconW = IS_MOBILE ? 72 : ICON_W;
+  const iconH = IS_MOBILE ? 70 : ICON_H;
+  const gap = IS_MOBILE ? 10 : GAP;
+  // Center the grid on mobile floor
+  const gridW = cols * iconW + (cols - 1) * gap;
+  const floorW = IS_MOBILE ? (document.querySelector('.wall-floor')?.offsetWidth || 390) : 0;
+  const rows = IS_MOBILE ? Math.ceil(visibleIcons.length / cols) : 0;
+  const gridH = rows * iconH + (rows - 1) * gap;
+  const floorH = IS_MOBILE ? (document.querySelector('.wall-floor')?.offsetHeight || 400) : 0;
+  const startX = IS_MOBILE ? Math.floor((floorW - gridW) / 2) : START_X;
+  const startY = IS_MOBILE ? Math.floor((floorH - gridH) / 2) : START_Y;
+
   // Position icons in a grid
-  icons.forEach((icon, i) => {
-    const col = i % COLS;
-    const row = Math.floor(i / COLS);
-    const x = START_X + col * (ICON_W + GAP);
-    const y = START_Y + row * (ICON_H + GAP);
+  visibleIcons.forEach((icon, i) => {
+    const col = i % cols;
+    const row = Math.floor(i / cols);
+    const x = startX + col * (iconW + gap);
+    const y = startY + row * (iconH + gap);
 
     const el = document.createElement('div');
     el.className = 'desktop-icon';
@@ -74,10 +104,13 @@ export function initDesktop() {
       <div class="desktop-icon-label">${icon.label}</div>
     `;
 
-    el.addEventListener('dblclick', (e) => {
-      e.stopPropagation();
-      handleIconClick(icon);
-    });
+    // Desktop: double-click to open
+    if (!IS_MOBILE) {
+      el.addEventListener('dblclick', (e) => {
+        e.stopPropagation();
+        handleIconClick(icon);
+      });
+    }
 
     // Single click to select + start drag
     el.addEventListener('pointerdown', (e) => {
@@ -87,6 +120,14 @@ export function initDesktop() {
         clearSelection();
       }
       selectIcon(el);
+
+      // Mobile: just track tap position, no drag
+      if (IS_MOBILE) {
+        tapStartX = e.clientX;
+        tapStartY = e.clientY;
+        tapIcon = icon;
+        return;
+      }
 
       // Start drag — track primary icon and compute grab offset for it only
       draggingIcons = true;
@@ -113,9 +154,10 @@ export function initDesktop() {
     iconElements.push({ el, icon, _clones: new Map() });
   });
 
-  // Selection rectangle on ANY wall (pointerdown on empty space)
+  // Selection rectangle on ANY wall (pointerdown on empty space) — desktop only
   document.querySelectorAll('.wall').forEach(wall => {
     wall.addEventListener('pointerdown', (e) => {
+      if (IS_MOBILE) return;
       if (e.target.closest('.desktop-icon') || e.target.closest('.window') ||
           e.target.closest('#dock') || e.target.closest('#menubar')) return;
 
@@ -253,7 +295,13 @@ export function initDesktop() {
     }
   });
 
-  document.addEventListener('pointerup', () => {
+  document.addEventListener('pointerup', (e) => {
+    // Mobile: detect tap → open icon
+    if (IS_MOBILE && tapIcon) {
+      handleIconClick(tapIcon);
+      tapIcon = null;
+    }
+
     if (draggingIcons) {
       // On drop: clamp icons to wall bounds and clear clones
       for (const entry of iconElements) {

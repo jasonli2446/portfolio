@@ -720,14 +720,32 @@
 }
 .trash-empty-text { font-size: 14px; color: rgba(255,255,255,0.5); font-weight: 600; }
 .trash-empty-sub { font-size: 12px; color: rgba(255,255,255,0.3); }
+.trash-hint {
+  font-size: 10px;
+  color: rgba(255,255,255,0.2);
+  padding: 4px 12px 8px;
+}
+.trash-item-icon {
+  display: flex;
+  align-items: center;
+  flex-shrink: 0;
+}
+.trash-item-icon svg {
+  stroke: rgba(255,255,255,0.4);
+}
 
 .trash-list { display: flex; flex-direction: column; gap: 2px; }
 .trash-item {
   display: flex;
   align-items: center;
-  justify-content: space-between;
+  gap: 10px;
   padding: 10px 12px;
   border-bottom: 1px solid rgba(255,255,255,0.04);
+  cursor: default;
+  transition: background 0.1s;
+}
+.trash-item:hover {
+  background: rgba(255,255,255,0.04);
 }
 .trash-item:last-child { border-bottom: none; }
 .trash-item-name {

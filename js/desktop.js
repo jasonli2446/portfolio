@@ -1,4 +1,3 @@
-import { showTesseract } from './tesseract.js';
 import { screenToLocal, getFwd, invalidateCache, wallName, findEdgeToWall } from './windows.js';
 import { updateElementClones, clearElementClones } from './clones.js';
 import { IS_MOBILE } from './config.js';
@@ -33,8 +32,7 @@ const icons = [
   // Source code (desktop only)
   ...(!IS_MOBILE ? [{ svg: '<svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="16 18 22 12 16 6"></polyline><polyline points="8 6 2 12 8 18"></polyline></svg>', label: 'Source', type: 'link', href: 'https://github.com/jasonli2446/3d-os' }] : []),
 
-  // Fun
-  { svg: '<svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"></path><line x1="12" y1="17" x2="12.01" y2="17"></line></svg>', label: '???', type: 'secret' },
+  // ??? removed from desktop — lives inside Trash as an easter egg
 ];
 
 const ICON_W = 80;
@@ -359,13 +357,9 @@ function handleIconClick(icon) {
     dockClickHandler(icon.id);
   } else if (icon.type === 'link' && icon.href) {
     window.open(icon.href, '_blank');
-  } else if (icon.type === 'secret') {
-    showTesseract();
   } else if (icon.type === 'snake') {
     import('./snake.js').then(({ startSnake }) => startSnake());
   }
 }
 
-// showReadme removed — README icon is now type:'app' which opens Notes directly
 
-// showSecret is now showTesseract from tesseract.js

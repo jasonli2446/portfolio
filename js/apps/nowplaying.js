@@ -156,9 +156,9 @@ export default {
          <div class="np-track" id="np-track">${tracks[currentTrack].title}</div>
          <div class="np-artist" id="np-artist">${tracks[currentTrack].artist}</div>
          <div class="np-controls">
-           <button class="np-btn" id="np-prev">⏮</button>
-           <button class="np-btn np-btn-play" id="np-play">▶</button>
-           <button class="np-btn" id="np-next">⏭</button>
+           <button class="np-btn" id="np-prev"><svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M6 6h2v12H6zm3.5 6l8.5 6V6z" transform="scale(-1,1) translate(-24,0)"/></svg></button>
+           <button class="np-btn np-btn-play" id="np-play"><svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><polygon points="5,3 19,12 5,21"/></svg></button>
+           <button class="np-btn" id="np-next"><svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M6 6h2v12H6zm3.5 6l8.5 6V6z"/></svg></button>
          </div>
          <div class="np-hint">Procedural lo-fi · Web Audio API</div>
        </div>
@@ -179,10 +179,10 @@ export default {
       e.stopPropagation();
       if (isPlaying) {
         stopPlayback();
-        playBtn.textContent = '▶';
+        playBtn.innerHTML = '<svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><polygon points="5,3 19,12 5,21"/></svg>';
       } else {
         startPlayback();
-        playBtn.textContent = '⏸';
+        playBtn.innerHTML = '<svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><rect x="5" y="3" width="4" height="18"/><rect x="15" y="3" width="4" height="18"/></svg>';
       }
     });
 

@@ -1,5 +1,7 @@
 // 4D Tesseract (hypercube) wireframe with hand tracking control
 
+import { IS_MOBILE } from './config.js';
+
 export function showTesseract() {
   if (document.querySelector('.tesseract-canvas')) return;
 
@@ -10,7 +12,8 @@ export function showTesseract() {
 
   const msg = document.createElement('div');
   msg.className = 'tesseract-msg';
-  msg.style.cssText = 'position:fixed; bottom:40px; left:50%; transform:translateX(-50%); text-align:center; z-index:16; pointer-events:none;';
+  const msgPos = IS_MOBILE ? 'top:20px' : 'bottom:40px';
+  msg.style.cssText = `position:fixed; ${msgPos}; left:50%; transform:translateX(-50%); text-align:center; z-index:16; pointer-events:none;`;
   msg.innerHTML = `
     <div style="font-size:13px; color:rgba(255,255,255,0.3); font-family:monospace; margin-bottom:4px;">4D Hypercube · drag to rotate · move hand to control · click to dismiss</div>
   `;

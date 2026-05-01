@@ -2,7 +2,7 @@
 
 A spatial portfolio website that looks and feels like a 3D desktop operating system. Built with pure CSS 3D transforms, face tracking via MediaPipe, and vanilla JavaScript — no frameworks.
 
-**[Live Demo →](https://jasonli2446.github.io/3d-os)**
+**[Live Demo →](https://jasonli2446.github.io/portfolio)**
 
 ## Features
 
